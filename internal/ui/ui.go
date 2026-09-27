@@ -96,14 +96,22 @@ func RenderCompressionSummary(summary *types.ArchiveSummary, isDryRun bool) {
 
 	if isDryRun {
 		fmt.Fprintf(Out, " %s\n", Bold(Magenta("DRY RUN COMPLETE! (Simulation Mode)")))
-		fmt.Fprintf(Out, " Potential space savings: %s | Files analyzed: %d | Categories: %d folders\n",
+		fmt.Fprintf(Out, " 📍 Target Archive: %s\n", Bold(Cyan(summary.ArchivePath)))
+		avgStr := "-"
+		if summary.AverageFileSize > 0 {
+			avgStr = stats.FormatBytes(summary.AverageFileSize)
+		}
+		fmt.Fprintf(Out, " Potential space: %s | Files analyzed: %d (avg size: %s) | Categories: %d folders\n",
 			Green(stats.FormatBytes(summary.UncompressedBytes)),
 			summary.TotalFiles,
+			avgStr,
 			summary.TotalDirs,
 		)
 	} else {
 		fmt.Fprintf(Out, " %s\n", Bold(Green("COMPRESSION COMPLETE!")))
-		ratioStr := fmt.Sprintf("%.1fx", 1.0/max(summary.CompressionRatio, 0.01))
+		fmt.Fprintf(Out, " 📍 Saved To: %s\n", Bold(Cyan(summary.ArchivePath)))
+
+		ratioStr := fmt.Sprintf("%.2fx (%.1f%% saved)", 1.0/max(summary.CompressionRatio, 0.01), summary.SpaceSavedPercent)
 		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
 		
 		fmt.Fprintf(Out, " Space saved: %s | Compression ratio: %s | Speed: %s\n",
@@ -116,9 +124,14 @@ func RenderCompressionSummary(summary *types.ArchiveSummary, isDryRun bool) {
 			fmt.Fprintf(Out, " %s\n", Italic(Green(equiv)))
 		}
 
-		fmt.Fprintf(Out, " Files packed: %d | Archive: %s | Time: %s\n",
+		avgStr := "-"
+		if summary.AverageFileSize > 0 {
+			avgStr = stats.FormatBytes(summary.AverageFileSize)
+		}
+		fmt.Fprintf(Out, " Files packed: %d (avg file size: %s) | Categories: %d folders | Time: %s\n",
 			summary.TotalFiles,
-			Bold(summary.ArchivePath),
+			Cyan(avgStr),
+			summary.TotalDirs,
 			stats.FormatDuration(summary.Duration),
 		)
 	}
@@ -138,19 +151,25 @@ func RenderExtractionSummary(summary *types.ArchiveSummary, destDir string, isDr
 
 	if isDryRun {
 		fmt.Fprintf(Out, " %s\n", Bold(Magenta("EXTRACTION PREVIEW (Dry Run)")))
+		fmt.Fprintf(Out, " 📍 Target Directory: %s\n", Bold(Cyan(destDir)))
 		fmt.Fprintf(Out, " Target items: %d files, %d folders | Total uncompressed: %s\n",
 			summary.TotalFiles, summary.TotalDirs, Green(stats.FormatBytes(summary.UncompressedBytes)))
 	} else {
 		fmt.Fprintf(Out, " %s\n", Bold(Green("EXTRACTION COMPLETE!")))
+		fmt.Fprintf(Out, " 📍 Extracted To: %s\n", Bold(Cyan(destDir)))
 		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
 		fmt.Fprintf(Out, " Total unpacked: %s | Speed: %s | Time: %s\n",
 			Bold(Green(stats.FormatBytes(summary.UncompressedBytes))),
 			Cyan(speedStr),
 			stats.FormatDuration(summary.Duration),
 		)
-		fmt.Fprintf(Out, " Extracted %d files into: %s\n",
+		avgStr := "-"
+		if summary.AverageFileSize > 0 {
+			avgStr = stats.FormatBytes(summary.AverageFileSize)
+		}
+		fmt.Fprintf(Out, " Extracted %d files (avg file size: %s) into destination.\n",
 			summary.TotalFiles,
-			Bold(destDir),
+			Cyan(avgStr),
 		)
 	}
 
@@ -213,11 +232,17 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 
 	div := Dim("========================================================================")
 	fmt.Fprintln(Out, div)
-	fmt.Fprintf(Out, " Total entries: %d files, %d folders | Raw: %s | Archive: %s | Savings: %s\n",
-		summary.TotalFiles, summary.TotalDirs,
+	fmt.Fprintf(Out, " 📍 Archive: %s\n", Bold(Cyan(summary.ArchivePath)))
+	avgStr := "-"
+	if summary.AverageFileSize > 0 {
+		avgStr = stats.FormatBytes(summary.AverageFileSize)
+	}
+	ratioStr := fmt.Sprintf("%.2fx (%.1f%% saved)", 1.0/max(summary.CompressionRatio, 0.01), summary.SpaceSavedPercent)
+	fmt.Fprintf(Out, " Total: %d files (avg size: %s), %d folders | Raw: %s | Packed: %s | Ratio: %s\n",
+		summary.TotalFiles, Cyan(avgStr), summary.TotalDirs,
 		stats.FormatBytes(summary.UncompressedBytes),
 		stats.FormatBytes(summary.CompressedBytes),
-		Green(fmt.Sprintf("%.1f%%", summary.SpaceSavedPercent)),
+		Green(ratioStr),
 	)
 	fmt.Fprintln(Out, div)
 }

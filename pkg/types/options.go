@@ -90,6 +90,7 @@ type ArchiveSummary struct {
 	TotalDirs         int           `json:"total_dirs"`
 	UncompressedBytes int64         `json:"uncompressed_bytes"`
 	CompressedBytes   int64         `json:"compressed_bytes"`
+	AverageFileSize   int64         `json:"average_file_size"`
 	CompressionRatio  float64       `json:"compression_ratio"`
 	SpaceSavedBytes   int64         `json:"space_saved_bytes"`
 	SpaceSavedPercent float64       `json:"space_saved_percent"`

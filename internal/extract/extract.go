@@ -197,6 +197,9 @@ func (e *Engine) InspectArchive(archivePath string) (*types.ArchiveSummary, erro
 		summary.Entries = append(summary.Entries, entry)
 	}
 
+	if summary.TotalFiles > 0 {
+		summary.AverageFileSize = summary.UncompressedBytes / int64(summary.TotalFiles)
+	}
 	summary.CompressionRatio = stats.CalculateRatio(summary.UncompressedBytes, summary.CompressedBytes)
 	summary.SpaceSavedBytes, summary.SpaceSavedPercent = stats.CalculateSpaceSaved(summary.UncompressedBytes, summary.CompressedBytes)
 

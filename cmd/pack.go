@@ -30,14 +30,21 @@ exclusion filters (e.g. node_modules, .git), and streaming I/O for maximum perfo
 		sources := args
 		primarySource := sources[0]
 
-		// Derive default output zip name if not specified
+		// Derive default output zip name in the same parent directory as the primary source
 		destZip := packOutput
 		if destZip == "" {
-			cleanBase := filepath.Base(filepath.Clean(primarySource))
-			if cleanBase == "." || cleanBase == "/" || cleanBase == "\\" {
-				destZip = "archive.zip"
+			cleanSrc := filepath.Clean(primarySource)
+			absSrc, err := filepath.Abs(cleanSrc)
+			if err != nil {
+				absSrc = cleanSrc
+			}
+			parentDir := filepath.Dir(absSrc)
+			baseName := filepath.Base(absSrc)
+			if baseName == "." || baseName == "/" || baseName == "\\" {
+				destZip = filepath.Join(parentDir, "archive.zip")
 			} else {
-				destZip = strings.TrimSuffix(cleanBase, filepath.Ext(cleanBase)) + ".zip"
+				nameWithoutExt := strings.TrimSuffix(baseName, filepath.Ext(baseName))
+				destZip = filepath.Join(parentDir, nameWithoutExt+".zip")
 			}
 		}
 

@@ -213,7 +213,7 @@ func readDirItems(dir string, mode FilePickerMode) ([]FileItem, error) {
 	return items, nil
 }
 
-func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx int, mode FilePickerMode) {
+func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx int, _ FilePickerMode) {
 	fmt.Print("\033[H\033[2J") // Clear screen
 
 	ui.PrintBanner()

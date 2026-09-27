@@ -123,6 +123,9 @@ func (e *Engine) Pack(opts types.PackOptions) (*types.ArchiveSummary, error) {
 	}
 
 	summary.Duration = time.Since(startTime)
+	if summary.TotalFiles > 0 {
+		summary.AverageFileSize = summary.UncompressedBytes / int64(summary.TotalFiles)
+	}
 	summary.CompressionRatio = stats.CalculateRatio(summary.UncompressedBytes, summary.CompressedBytes)
 	summary.SpaceSavedBytes, summary.SpaceSavedPercent = stats.CalculateSpaceSaved(summary.UncompressedBytes, summary.CompressedBytes)
 
