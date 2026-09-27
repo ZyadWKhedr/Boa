@@ -43,7 +43,6 @@ func RunInteractiveDashboard() {
 		// Switch stdin to raw mode to read single keypresses immediately
 		oldState, err := term.MakeRaw(fd)
 		if err != nil {
-			// Fallback to line mode if raw mode fails
 			fallbackInteractive()
 			return
 		}
@@ -95,7 +94,6 @@ func RunInteractiveDashboard() {
 }
 
 func renderMenu(selected int) {
-	// ANSI Clear screen and move cursor to top-left
 	fmt.Print("\033[H\033[2J")
 
 	ui.PrintBanner()
@@ -104,14 +102,12 @@ func renderMenu(selected int) {
 
 	for i, item := range menuItems {
 		if i == selected {
-			// Highlighted active row with pointer ➤
 			pointer := ui.Bold(ui.Cyan("➤"))
 			num := ui.Bold(ui.Cyan(item.Number))
 			name := ui.Bold(ui.Cyan(fmt.Sprintf("%-12s", item.Name)))
 			desc := ui.Cyan(item.Desc)
 			fmt.Printf(" %s %s  %s %s\n", pointer, num, name, desc)
 		} else {
-			// Inactive row
 			num := ui.Bold(item.Number)
 			name := fmt.Sprintf("%-12s", item.Name)
 			desc := ui.Dim(item.Desc)
@@ -124,9 +120,6 @@ func renderMenu(selected int) {
 }
 
 func handleAction(index int) {
-	fmt.Print("\033[H\033[2J")
-	ui.PrintBanner()
-
 	reader := bufio.NewReader(os.Stdin)
 
 	switch index {
@@ -139,12 +132,13 @@ func handleAction(index int) {
 	case 3:
 		interactiveBench(reader)
 	case 4:
+		fmt.Print("\033[H\033[2J")
+		ui.PrintBanner()
 		fmt.Println()
 		RootCmd.SetArgs([]string{"version"})
 		_ = RootCmd.Execute()
+		waitForEnter()
 	}
-
-	waitForEnter()
 }
 
 func waitForEnter() {
@@ -172,6 +166,8 @@ func readKey() (string, error) {
 			return "ESC", nil
 		case 32: // Space
 			return "SPACE", nil
+		case 127: // Backspace
+			return "BACKSPACE", nil
 		default:
 			return string(buf[:1]), nil
 		}
@@ -214,18 +210,18 @@ func fallbackInteractive() {
 }
 
 func interactivePack(reader *bufio.Reader) {
-	fmt.Println()
-	ui.PrintSection("Interactive Pack (Folder / File Compression)")
-
-	fmt.Print(ui.Bold(" Enter source folder or file path: "))
-	src, _ := reader.ReadString('\n')
-	src = strings.TrimSpace(src)
-	if src == "" {
-		ui.PrintError("Source path cannot be empty.")
+	// Launch File Picker
+	src, err := PickPath("Select Folder or File to Compress", PickAny)
+	if err != nil {
 		return
 	}
 
-	fmt.Print(ui.Bold(" Enter destination archive name (leave blank for auto-name): "))
+	fmt.Print("\033[H\033[2J")
+	ui.PrintBanner()
+	ui.PrintSection("Configure Compression")
+	fmt.Printf(" Selected source: %s\n\n", ui.Bold(ui.Cyan(src)))
+
+	fmt.Print(ui.Bold(" Destination archive name (leave empty for auto-name): "))
 	dest, _ := reader.ReadString('\n')
 	dest = strings.TrimSpace(dest)
 
@@ -248,21 +244,23 @@ func interactivePack(reader *bufio.Reader) {
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}
+
+	waitForEnter()
 }
 
 func interactiveUnpack(reader *bufio.Reader) {
-	fmt.Println()
-	ui.PrintSection("Interactive Unpack (Decompression)")
-
-	fmt.Print(ui.Bold(" Enter zip archive path to extract: "))
-	archive, _ := reader.ReadString('\n')
-	archive = strings.TrimSpace(archive)
-	if archive == "" {
-		ui.PrintError("Archive path cannot be empty.")
+	// Launch File Picker for Zip archives
+	archive, err := PickPath("Select Zip Archive to Extract", PickZipOnly)
+	if err != nil {
 		return
 	}
 
-	fmt.Print(ui.Bold(" Enter destination directory (leave blank for default): "))
+	fmt.Print("\033[H\033[2J")
+	ui.PrintBanner()
+	ui.PrintSection("Configure Extraction")
+	fmt.Printf(" Selected archive: %s\n\n", ui.Bold(ui.Cyan(archive)))
+
+	fmt.Print(ui.Bold(" Destination folder (leave blank for default): "))
 	dest, _ := reader.ReadString('\n')
 	dest = strings.TrimSpace(dest)
 
@@ -275,46 +273,48 @@ func interactiveUnpack(reader *bufio.Reader) {
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}
+
+	waitForEnter()
 }
 
 func interactiveList(reader *bufio.Reader) {
-	fmt.Println()
-	ui.PrintSection("Archive Inspector")
-
-	fmt.Print(ui.Bold(" Enter zip archive path: "))
-	archive, _ := reader.ReadString('\n')
-	archive = strings.TrimSpace(archive)
-	if archive == "" {
-		ui.PrintError("Archive path cannot be empty.")
+	// Launch File Picker for Zip archives
+	archive, err := PickPath("Select Zip Archive to Inspect", PickZipOnly)
+	if err != nil {
 		return
 	}
+
+	fmt.Print("\033[H\033[2J")
+	ui.PrintBanner()
+	ui.PrintSection("Archive Inspection")
+	fmt.Printf(" Inspecting: %s\n\n", ui.Bold(ui.Cyan(archive)))
 
 	engine := extract.New()
 	summary, err := engine.InspectArchive(archive)
 	if err != nil {
 		ui.PrintError(err.Error())
+		waitForEnter()
 		return
 	}
 
-	fmt.Println()
 	ui.RenderArchiveList(summary)
+	waitForEnter()
 }
 
 func interactiveBench(reader *bufio.Reader) {
-	fmt.Println()
-	ui.PrintSection("Interactive Speed Benchmark")
-
-	fmt.Print(ui.Bold(" Enter directory or file to benchmark: "))
-	src, _ := reader.ReadString('\n')
-	src = strings.TrimSpace(src)
-	if src == "" {
-		ui.PrintError("Source path cannot be empty.")
+	src, err := PickPath("Select Folder or File to Benchmark", PickAny)
+	if err != nil {
 		return
 	}
+
+	fmt.Print("\033[H\033[2J")
+	ui.PrintBanner()
 
 	RootCmd.SetArgs([]string{"bench", src})
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}
 	_ = compress.New()
+
+	waitForEnter()
 }
