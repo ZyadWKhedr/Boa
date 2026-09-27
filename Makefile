@@ -14,6 +14,12 @@ build:
 	go build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) main.go
 	@echo "Built $(BUILD_DIR)/$(BINARY_NAME)"
 
+install: build
+	@mkdir -p $(HOME)/.local/bin
+	@cp $(BUILD_DIR)/$(BINARY_NAME) $(HOME)/.local/bin/$(BINARY_NAME)
+	@ln -sf $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/cx
+	@echo "Installed $(BINARY_NAME) and alias cx to $(HOME)/.local/bin"
+
 test:
 	go test -v -race ./...
 

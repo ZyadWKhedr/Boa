@@ -27,10 +27,6 @@ streaming I/O, customizable compression levels, and beautiful terminal metrics.`
 			ui.NoColor = true
 		}
 	},
-	Run: func(cmd *cobra.Command, args []string) {
-		// If invoked without arguments, render dense visual help
-		_ = cmd.Help()
-	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -42,6 +38,15 @@ func Execute() {
 }
 
 func init() {
+	RootCmd.Run = func(cmd *cobra.Command, args []string) {
+		stat, err := os.Stdin.Stat()
+		if err == nil && (stat.Mode()&os.ModeCharDevice) != 0 {
+			RunInteractiveDashboard()
+			return
+		}
+		_ = cmd.Help()
+	}
+
 	RootCmd.PersistentFlags().BoolVarP(&flagVerbose, "verbose", "v", false, "Enable verbose per-file terminal logging")
 	RootCmd.PersistentFlags().BoolVarP(&flagQuiet, "quiet", "q", false, "Suppress non-essential progress output")
 	RootCmd.PersistentFlags().BoolVar(&flagNoColor, "no-color", false, "Disable ANSI color output (also respects NO_COLOR env)")
