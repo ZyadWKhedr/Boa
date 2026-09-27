@@ -98,7 +98,7 @@ func renderMenu(selected int) {
 
 	ui.PrintBanner()
 	fmt.Println()
-	fmt.Printf(" %s\n\n", ui.Dim("Update 1.0.0 available, run bo update"))
+	fmt.Printf(" %s\n\n", ui.Dim("Version "+Version+"  ·  Interactive compression toolkit"))
 
 	for i, item := range menuItems {
 		if i == selected {

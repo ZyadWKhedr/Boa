@@ -108,6 +108,23 @@ func RenderCompressionSummary(summary *types.ArchiveSummary, isDryRun bool) {
 		ratioStr := fmt.Sprintf("%.2fx", 1.0/max(summary.CompressionRatio, 0.01))
 		printAlignedRow("Ratio", Cyan(ratioStr))
 
+		methodStr := summary.CompressionMethod
+		if methodStr == "" {
+			methodStr = "Deflate"
+		}
+		if summary.CompressionLevel == 0 {
+			methodStr = "Store (Level 0 · No Compression)"
+		} else if summary.CompressionLevel == 1 {
+			methodStr = "Deflate (Level 1 · Fastest)"
+		} else if summary.CompressionLevel == 6 {
+			methodStr = "Deflate (Level 6 · Default)"
+		} else if summary.CompressionLevel == 9 {
+			methodStr = "Deflate (Level 9 · Maximum)"
+		} else if summary.CompressionLevel > 0 {
+			methodStr = fmt.Sprintf("%s (Level %d)", methodStr, summary.CompressionLevel)
+		}
+		printAlignedRow("Method / Level", methodStr)
+
 		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
 		printAlignedRow("Speed", speedStr)
 	}

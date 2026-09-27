@@ -3,7 +3,7 @@
 BINARY_NAME=boa
 ALIAS_NAME=bo
 BUILD_DIR=bin
-VERSION?=v1.0.0
+VERSION?=$(shell git describe --tags --always 2>/dev/null || echo "v0.1.0")
 COMMIT?=$(shell git rev-parse --short HEAD 2>/dev/null || echo "dev")
 DATE?=$(shell date -u +%Y-%m-%d)
 LDFLAGS=-ldflags "-X compressor/cmd.Version=$(VERSION) -X compressor/cmd.Commit=$(COMMIT) -X compressor/cmd.Date=$(DATE) -s -w"

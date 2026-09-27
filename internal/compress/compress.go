@@ -40,8 +40,15 @@ func (e *Engine) Pack(opts types.PackOptions) (*types.ArchiveSummary, error) {
 
 	startTime := time.Now()
 
+	methodName := "Deflate"
+	if opts.CompressionLevel == 0 {
+		methodName = "Store"
+	}
+
 	summary := &types.ArchiveSummary{
-		ArchivePath: opts.OutputZipPath,
+		ArchivePath:       opts.OutputZipPath,
+		CompressionMethod: methodName,
+		CompressionLevel:  opts.CompressionLevel,
 	}
 
 	if opts.DryRun {

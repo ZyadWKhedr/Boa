@@ -48,7 +48,7 @@ Boa delivers a **modern terminal-native archive experience**:
 <br/>
 
 <div align="center">
-  <img src="./docs/img/big-boa.png" width="760" alt="Boa - Compress Your Files" />
+  <img src="./docs/img/demo.gif" width="100%" alt="Boa Terminal Demo" />
 </div>
 
 <br/>
@@ -166,7 +166,7 @@ Typing `bo` in your terminal launches the real-time interactive dashboard with a
 | |_) | (_) | (_| |   https://github.com/ZyadWKhedr/Boa
 |____/ \___/ \__,_|   Tight, fast, lossless compression for your files.
 
-Update 1.0.0 available, run bo update
+Version v0.1.0  ·  Interactive compression toolkit
 
    1. Pack        Compress folders into dense archives
    2. Unpack      Safely extract zip archives
@@ -181,9 +181,9 @@ Selecting **Pack** opens the in-terminal **File Explorer**:
 
 ```text
 ▶ Select Folder or File to Compress
-Location: /Users/zyadwael/Go/compressor
+Location: ~/projects/myapp
 
-➤ ✔  [SELECT THIS CURRENT FOLDER: compressor]
+➤ ✔  [SELECT THIS CURRENT FOLDER: myapp]
   📁  .. (Parent Directory)
   📁  cmd/
   📁  docs/
@@ -208,12 +208,13 @@ $ bo pack ./cmd -l 6
  ✔ Compression Complete
 
    Archive          ~/Desktop/cmd.zip
-   Original Size    13.7 KB
-   Compressed       7.4 KB
-   Space Saved      6.3 KB (46.1% reduction)
-   Ratio            1.85x
-   Speed            14.2 MB/s
-   Packed Items     7 files (avg 1.9 KB), 1 folders
+   Original Size    28.5 KB
+   Compressed       12.5 KB
+   Space Saved      16.1 KB (56.3% reduction)
+   Ratio            2.29x
+   Method / Level   Deflate (Level 6 · Default)
+   Speed            15.5 MB/s
+   Packed Items     9 files (avg 3.2 KB), 1 folders
    Duration         2ms
 ```
 
@@ -229,9 +230,9 @@ $ bo unpack ./cmd.zip -o ./extracted --force
 
    Source Archive   ~/Desktop/cmd.zip
    Extracted To     ~/Desktop/extracted
-   Total Size       13.7 KB
-   Items            7 files (avg 1.9 KB), 1 folders
-   Speed            12.3 MB/s
+   Total Size       28.5 KB
+   Items            9 files (avg 3.2 KB), 1 folders
+   Speed            14.2 MB/s
    Duration         1ms
 ```
 
@@ -244,21 +245,23 @@ $ bo unpack ./cmd.zip -o ./extracted --force
 $ bo list ./cmd.zip
 
 Type  Permissions  Original  Packed  Ratio  Modified Date     Path           
-────  ───────────  ────────  ──────  ─────  ────────────────  ───────────────
-DIR   drwxr-xr-x          -       -      -  2026-09-27 13:11  cmd/           
-FILE  -rw-r--r--     2.4 KB  1.1 KB    55%  2026-09-27 13:08  cmd/bench.go   
+────  ───────────  ────────  ──────  ─────  ────────────────  ──────────────────
+DIR   drwxr-xr-x          -       -      -  2026-09-27 13:43  cmd/           
+FILE  -rw-r--r--     3.6 KB  1.5 KB    58%  2026-09-27 15:13  cmd/bench.go   
 FILE  -rw-r--r--     1.6 KB   618 B    63%  2026-09-27 13:11  cmd/cmd_test.go
+FILE  -rw-r--r--     5.3 KB  2.0 KB    63%  2026-09-27 15:03  cmd/filepicker.go
+FILE  -rw-r--r--     8.5 KB  2.5 KB    71%  2026-09-27 15:02  cmd/interactive.go
 FILE  -rw-r--r--     1.1 KB   647 B    43%  2026-09-27 13:08  cmd/list.go    
-FILE  -rw-r--r--     2.8 KB  1.3 KB    55%  2026-09-27 13:08  cmd/pack.go    
-FILE  -rw-r--r--     2.2 KB  1.1 KB    50%  2026-09-27 13:07  cmd/root.go    
-FILE  -rw-r--r--     2.6 KB  1.2 KB    54%  2026-09-27 13:08  cmd/unpack.go  
+FILE  -rw-r--r--     2.8 KB  1.3 KB    54%  2026-09-27 14:38  cmd/pack.go    
+FILE  -rw-r--r--     2.3 KB  1.1 KB    53%  2026-09-27 13:26  cmd/root.go    
+FILE  -rw-r--r--     2.4 KB  1.1 KB    53%  2026-09-27 14:39  cmd/unpack.go  
 FILE  -rw-r--r--      946 B   479 B    49%  2026-09-27 13:08  cmd/version.go 
 
    Archive          ~/Desktop/cmd.zip
-   Total Entries    7 files (avg 1.9 KB), 1 folders
-   Original Size    13.7 KB
-   Archive Size     7.4 KB
-   Total Savings    1.85x (46.1% saved)
+   Total Entries    9 files (avg 3.2 KB), 1 folders
+   Original Size    28.5 KB
+   Archive Size     12.5 KB
+   Total Savings    2.29x (56.3% saved)
 ```
 
 ---
@@ -271,12 +274,15 @@ $ bo bench ./cmd
 
 ▶ Benchmarking Compression Levels on: ./cmd
 
-Level        Original Size  Packed Size  Saved   Time      Speed
-───────────  ─────────────  ───────────  ─────  ─────  ─────────
-0 (Store)          13.7 KB      14.7 KB  -7.6%  661µs  20.2 MB/s
-1 (Fastest)        13.7 KB       7.9 KB  42.2%    1ms  10.3 MB/s
-6 (Default)        13.7 KB       7.4 KB  46.1%    1ms  10.6 MB/s
-9 (Best)           13.7 KB       7.3 KB  46.5%    1ms  10.2 MB/s
+Compression Level  Method   Output Size  Reduction  Ratio   Time  Throughput
+─────────────────  ───────  ───────────  ─────────  ─────  ─────  ──────────
+0 Store             STORE       29.9 KB      -4.6%  0.96x  844µs   33.0 MB/s
+1 Fastest          DEFLATE      13.5 KB      52.8%  2.12x    1ms   19.4 MB/s
+6 Balanced ★       DEFLATE      12.5 KB      56.3%  2.29x    1ms   15.5 MB/s
+9 Maximum          DEFLATE      12.3 KB      56.8%  2.31x    1ms   14.7 MB/s
+
+ ✦ Recommendation: Level 6 gives 56.3% reduction at 15.5 MB/s with optimal CPU efficiency.
+   Level 9 saves 139 B more space (0.5% extra) but took 1ms vs 1ms.
 ```
 
 ---

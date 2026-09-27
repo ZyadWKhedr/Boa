@@ -94,6 +94,8 @@ type ArchiveSummary struct {
 	CompressionRatio  float64       `json:"compression_ratio"`
 	SpaceSavedBytes   int64         `json:"space_saved_bytes"`
 	SpaceSavedPercent float64       `json:"space_saved_percent"`
+	CompressionMethod string        `json:"compression_method,omitempty"`
+	CompressionLevel  int           `json:"compression_level,omitempty"`
 	Duration          time.Duration `json:"duration"`
 	ArchivePath       string        `json:"archive_path,omitempty"`
 	Entries           []FileEntry   `json:"entries,omitempty"`
