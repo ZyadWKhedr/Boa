@@ -6,7 +6,7 @@
 
 # Boa
 
-**Tight, fast, lossless compression and archiving for your files. Free open-source CLI.**
+**Fast, secure, interactive compression for your terminal.**
 
 [![Go Version](https://img.shields.io/badge/go-1.21%2B-00ADD8?logo=go)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E599.svg)](./LICENSE)
@@ -14,6 +14,70 @@
 [![Security Audited](https://img.shields.io/badge/Security-ZipSlip%20Protected-brightgreen)](./SECURITY_AUDIT.md)
 
 </div>
+
+<br/>
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                            BOA                               │
+│                                                              │
+│   1. Pack        Compress folders into dense archives        │
+│   2. Unpack      Safely extract zip archives                 │
+│   3. Inspect     Explore archive structure & metadata        │
+│   4. Benchmark   Compare compression speed & ratios          │
+│   5. Status      Runtime health & system info                │
+│                                                              │
+│   ↑↓ Navigate    Enter Confirm    1-5 Jump    Q Quit         │
+└──────────────────────────────────────────────────────────────┘
+```
+
+<br/>
+
+## Install
+
+### macOS / Linux (One-Line Script)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash
+```
+
+### Go Install
+
+```bash
+go install github.com/ZyadWKhedr/Boa@latest
+```
+
+### Build from Source
+
+```bash
+git clone https://github.com/ZyadWKhedr/Boa.git
+cd Boa
+make install
+```
+
+---
+
+## Quick Examples
+
+```bash
+bo                      # Launch interactive menu & file explorer
+bo pack ./my-folder     # Compress folder into my-folder.zip
+bo unpack project.zip   # Extract archive safely
+bo list project.zip     # View file sizes, CRC32, and compression ratios
+bo bench ./my-folder    # Benchmark throughput speeds (MB/s) across levels (0-9)
+```
+
+---
+
+## Why Boa?
+
+Most command-line compression workflows force you to memorize obtuse flags across different utilities (`zip`, `unzip`, `tar`, `7z`) or switch between GUI file managers and terminal windows.
+
+Boa delivers a **modern terminal-native archive experience**:
+- **Interactive File Explorer**: Navigate your filesystem, select folders, and compress without typing long paths manually.
+- **Streaming Low-RAM Engine**: Compresses large multi-gigabyte directories in direct chunked streams.
+- **Secure by Default**: Automatically blocks Zip-Slip directory traversal attacks (`../../`) and malicious symlink escapes before writing to disk.
+- **Instant Benchmarking**: Compare compression speeds and ratios across Deflate levels (0 to 9) side-by-side.
 
 <br/>
 
@@ -28,46 +92,37 @@
 ## Features
 
 - **All-in-One CLI Toolkit**: Combines fast zip compression, safe extraction, in-place header inspection, live speed benchmarking, and an interactive terminal file explorer in a single zero-dependency binary.
-- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams. Compresses multi-gigabyte folders without consuming excess RAM.
+- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams.
 - **Zip-Slip & Path Security**: Built-in canonical path boundary validation that blocks directory traversals (`../../`), null-byte injections, and escaping symlinks.
 - **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest speed), `6` (Default), up to `9` (Maximum Deflate).
-- **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓` / `jk`) without typing long paths manually.
-- **Dense Terminal UI**: Stable column alignment, single-screen summaries, ANSI color palette with automatic `NO_COLOR` support.
-- **Cross-Platform Parity**: Native builds and path normalization for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
+- **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓` / `jk`).
+- **Dense Terminal UI**: Stable column alignment, single-screen summaries, and ANSI color palette with automatic `NO_COLOR` support.
+- **Cross-Platform Parity**: Native builds for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
 
 ---
 
-## Quick Start
+## Command Reference
 
-Boa requires no external runtime dependencies.
-
-### Install via Makefile (macOS / Linux)
-
-```bash
-git clone https://github.com/zyadwael/boa.git
-cd boa
-make install
-# Installs 'boa', 'bo', and 'compressor' aliases to ~/.local/bin
 ```
+COMMANDS
+  bo                           Main menu & file explorer
+  bo pack                      Compress folders into zip archives
+  bo unpack                    Safely extract zip archives
+  bo list                      Inspect contents & compression ratios
+  bo bench                     Benchmark compression levels (0-9)
+  bo version                   Show version & platform info
+  bo --help                    Show help
 
-### Install via Go
+  bo pack ./folder -o dist.zip -l 9
+  bo pack ./folder --dry-run
+  bo unpack dist.zip -o ./out --force
+  bo list dist.zip --json
+  bo bench ./large-data
 
-```bash
-go install github.com/zyadwael/boa@latest
-```
-
----
-
-## Commands
-
-```bash
-bo                      # Interactive arrow-key main menu & file explorer
-bo pack <path>          # Compress folder or files into a zip archive
-bo unpack <archive.zip> # Safely extract zip archive into directory
-bo list <archive.zip>   # Inspect contents, sizes, CRC32, and compression ratios
-bo bench <path>         # Benchmark throughput speeds (MB/s) across levels (0-9)
-bo version              # Show version, commit SHA, and platform info
-bo --help               # Show help reference
+OPTIONS
+  -v, --verbose                Show detailed operation logs
+  -q, --quiet                  Suppress non-essential output
+      --no-color               Disable ANSI color formatting
 ```
 
 ### Options and Flags
@@ -104,7 +159,7 @@ Typing `bo` in your terminal launches the real-time interactive dashboard with a
  ____                 
 | __ )  ___   __ _    
 |  _ \ / _ \ / _` |   
-| |_) | (_) | (_| |   https://github.com/zyadwael/boa
+| |_) | (_) | (_| |   https://github.com/ZyadWKhedr/Boa
 |____/ \___/ \__,_|   Tight, fast, lossless compression for your files.
 
 Update 1.0.0 available, run bo update
@@ -146,13 +201,16 @@ Location: /Users/zyadwael/Go/compressor
 ```text
 $ bo pack ./cmd -l 6
 
-========================================================================
- COMPRESSION COMPLETE!
- 📍 Saved To: /Users/zyadwael/Go/compressor/cmd.zip
- Space saved: 6.3 KB | Compression ratio: 1.85x (46.1% saved) | Speed: 14.2 MB/s
- That's like ~128 text documents worth of space!
- Files packed: 7 (avg file size: 1.9 KB) | Categories: 1 folders | Time: 2ms
-========================================================================
+ ✔ Compression Complete
+
+   Archive          ~/Desktop/cmd.zip
+   Original Size    13.7 KB
+   Compressed       7.4 KB
+   Space Saved      6.3 KB (46.1% reduction)
+   Ratio            1.85x
+   Speed            14.2 MB/s
+   Packed Items     7 files (avg 1.9 KB), 1 folders
+   Duration         2ms
 ```
 
 ---
@@ -163,12 +221,14 @@ $ bo pack ./cmd -l 6
 ```text
 $ bo unpack ./cmd.zip -o ./extracted --force
 
-========================================================================
- EXTRACTION COMPLETE!
- 📍 Extracted To: ./extracted
- Total unpacked: 13.7 KB | Speed: 12.3 MB/s | Time: 1ms
- Extracted 7 files (avg file size: 1.9 KB) into destination.
-========================================================================
+ ✔ Extraction Complete
+
+   Source Archive   ~/Desktop/cmd.zip
+   Extracted To     ~/Desktop/extracted
+   Total Size       13.7 KB
+   Items            7 files (avg 1.9 KB), 1 folders
+   Speed            12.3 MB/s
+   Duration         1ms
 ```
 
 ---
@@ -189,10 +249,12 @@ FILE  -rw-r--r--     2.8 KB  1.3 KB    55%  2026-09-27 13:08  cmd/pack.go
 FILE  -rw-r--r--     2.2 KB  1.1 KB    50%  2026-09-27 13:07  cmd/root.go    
 FILE  -rw-r--r--     2.6 KB  1.2 KB    54%  2026-09-27 13:08  cmd/unpack.go  
 FILE  -rw-r--r--      946 B   479 B    49%  2026-09-27 13:08  cmd/version.go 
-========================================================================
- 📍 Archive: /Users/zyadwael/Go/compressor/cmd.zip
- Total: 7 files (avg size: 1.9 KB), 1 folders | Raw: 13.7 KB | Packed: 7.4 KB | Ratio: 1.85x (46.1% saved)
-========================================================================
+
+   Archive          ~/Desktop/cmd.zip
+   Total Entries    7 files (avg 1.9 KB), 1 folders
+   Original Size    13.7 KB
+   Archive Size     7.4 KB
+   Total Savings    1.85x (46.1% saved)
 ```
 
 ---

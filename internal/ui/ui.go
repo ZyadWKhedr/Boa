@@ -37,7 +37,7 @@ func PrintBanner() {
 		fmt.Fprintln(Out, ` ____                 
 | __ )  ___   __ _    
 |  _ \ / _ \ / _`+"`"+` |   
-| |_) | (_) | (_| |   https://github.com/zyadwael/boa
+| |_) | (_) | (_| |   https://github.com/ZyadWKhedr/Boa
 |____/ \___/ \__,_|   Tight, fast, lossless compression for your files.`)
 		return
 	}
@@ -48,7 +48,7 @@ func PrintBanner() {
 | |_) | (_) | (_| |   `
 	lastLine := `|____/ \___/ \__,_|   `
 
-	url := Cyan("https://github.com/zyadwael/boa")
+	url := Cyan("https://github.com/ZyadWKhedr/Boa")
 	tagline := Green("Tight, fast, lossless compression for your files.")
 
 	fmt.Fprintln(Out, Green(ascii)+url)

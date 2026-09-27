@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build Matrix
+        run: |
+          mkdir -p dist
+          VERSION=${GITHUB_REF_NAME}
+          COMMIT=$(git rev-parse --short HEAD)
+          DATE=$(date -u +%Y-%m-%d)
+          LDFLAGS="-X compressor/cmd.Version=${VERSION} -X compressor/cmd.Commit=${COMMIT} -X compressor/cmd.Date=${DATE} -s -w"
+
+          # macOS
+          GOOS=darwin GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/boa-darwin-arm64 main.go
+          GOOS=darwin GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/boa-darwin-amd64 main.go
+
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/boa-linux-amd64 main.go
+          GOOS=linux GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/boa-linux-arm64 main.go
+
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/boa-windows-amd64.exe main.go
+          GOOS=windows GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/boa-windows-arm64.exe main.go
+
+          cd dist
+          sha256sum * > checksums.txt
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
