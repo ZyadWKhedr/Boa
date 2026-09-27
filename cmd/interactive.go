@@ -145,7 +145,16 @@ func handleAction(index int) {
 
 func waitForEnter() {
 	fmt.Println()
-	fmt.Print(ui.Dim(" Press Enter to return to main menu..."))
+	fmt.Print(ui.Dim(" Press Enter or 'q' to return to main menu... "))
+	fd := int(os.Stdin.Fd())
+	if term.IsTerminal(fd) {
+		oldState, err := term.MakeRaw(fd)
+		if err == nil {
+			defer term.Restore(fd, oldState)
+			_, _ = readKey()
+			return
+		}
+	}
 	buf := bufio.NewReader(os.Stdin)
 	_, _ = buf.ReadString('\n')
 }

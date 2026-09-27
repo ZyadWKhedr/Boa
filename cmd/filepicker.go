@@ -107,12 +107,27 @@ func PickPath(title string, mode FilePickerMode) (string, error) {
 				continue
 			}
 
+			// In PickZipOnly mode: opening a directory steps INSIDE it to find zip files
+			if mode == PickZipOnly {
+				if chosen.IsDir {
+					currentDir = chosen.Path
+					selectedIdx = 0
+					continue
+				}
+				if strings.HasSuffix(strings.ToLower(chosen.Path), ".zip") {
+					return chosen.Path, nil
+				}
+				continue
+			}
+
 			// Return the selected folder or file
 			return chosen.Path, nil
 
 		case "s", "S":
-			// Shortcut to select current folder immediately
-			return currentDir, nil
+			if mode != PickZipOnly {
+				// Shortcut to select current folder immediately
+				return currentDir, nil
+			}
 
 		case "q", "Q", "ESC", "CTRL_C":
 			return "", fmt.Errorf("cancelled")
@@ -154,7 +169,7 @@ func readDirItems(dir string, mode FilePickerMode) ([]FileItem, error) {
 
 	for _, entry := range entries {
 		name := entry.Name()
-		// Hide standard hidden files by default unless wanted
+		// Hide standard hidden files by default
 		if strings.HasPrefix(name, ".") {
 			continue
 		}
@@ -205,13 +220,13 @@ func readDirItems(dir string, mode FilePickerMode) ([]FileItem, error) {
 	return items, nil
 }
 
-func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx int, _ FilePickerMode) {
+func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx int, mode FilePickerMode) {
 	fmt.Print("\033[H\033[2J") // Clear screen
 
 	ui.PrintBanner()
 	fmt.Println()
 	fmt.Printf(" %s\n", ui.Bold(ui.Cyan("▶ "+title)))
-	fmt.Printf(" %s %s\n\n", ui.Dim("Location:"), ui.Bold(currentDir))
+	fmt.Printf(" %s %s\n\n", ui.Dim("Location:"), ui.Bold(ui.PrettyPath(currentDir)))
 
 	// Render scroll window (up to 12 visible items)
 	maxVisible := 12
@@ -224,8 +239,18 @@ func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx in
 		endIdx = len(items)
 	}
 
-	if len(items) == 0 {
-		fmt.Printf("   %s\n", ui.Dim("(empty directory)"))
+	hasZip := false
+	for _, item := range items {
+		if !item.IsDir && strings.HasSuffix(strings.ToLower(item.Path), ".zip") {
+			hasZip = true
+			break
+		}
+	}
+
+	if mode == PickZipOnly && !hasZip {
+		fmt.Printf("   %s\n\n", ui.Dim("✦ No .zip archives here. Enter a folder below or press ← to go up."))
+	} else if len(items) == 0 {
+		fmt.Printf("   %s\n\n", ui.Dim("(empty directory)"))
 	}
 
 	for i := startIdx; i < endIdx; i++ {
@@ -241,5 +266,9 @@ func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx in
 
 	fmt.Println()
 	fmt.Println(ui.Dim("========================================================================"))
-	fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Select Item  |  → / Tab Open Folder  |  ← Back  |  Q Cancel"))
+	if mode == PickZipOnly {
+		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Select Zip / Open Folder  |  → Open  |  ← Back  |  Q Cancel"))
+	} else {
+		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Select Item  |  → / Tab Open Folder  |  ← Back  |  Q Cancel"))
+	}
 }

@@ -17,8 +17,10 @@ var (
 
 // RootCmd is the base command for Boa CLI.
 var RootCmd = &cobra.Command{
-	Use:   "bo",
-	Short: "🐍 Tight, fast, lossless zip compression engine for terminal power users",
+	Use:            "bo",
+	Short:          "🐍 Tight, fast, lossless zip compression engine for terminal power users",
+	SilenceUsage:   true,
+	SilenceErrors:  true,
 	Long: `Boa CLI is a dense, high-performance, cross-platform archive tool.
 Designed for macOS, Linux, and Windows with strict Zip-Slip security defenses,
 streaming I/O, customizable compression levels, and beautiful terminal metrics.`,

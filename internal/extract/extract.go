@@ -32,9 +32,20 @@ func (e *Engine) Unpack(opts types.UnpackOptions) (*types.ArchiveSummary, error)
 		return nil, errors.New("destination directory must not be empty")
 	}
 
+	fi, statErr := os.Stat(opts.ArchivePath)
+	if statErr != nil {
+		if os.IsNotExist(statErr) {
+			return nil, fmt.Errorf("archive %q does not exist", opts.ArchivePath)
+		}
+		return nil, fmt.Errorf("cannot access %q: %w", opts.ArchivePath, statErr)
+	}
+	if fi.IsDir() {
+		return nil, fmt.Errorf("'%s' is an unpacked folder, not a compressed zip archive to extract", filepath.Base(opts.ArchivePath))
+	}
+
 	reader, err := zip.OpenReader(opts.ArchivePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot open zip archive %q: %w", opts.ArchivePath, err)
+		return nil, fmt.Errorf("'%s' is not a valid zip archive or is already unpacked", filepath.Base(opts.ArchivePath))
 	}
 	defer reader.Close()
 
@@ -157,9 +168,20 @@ func (e *Engine) extractFile(zf *zip.File, destPath string) error {
 
 // InspectArchive reads an archive's header entries and calculates statistics without extracting.
 func (e *Engine) InspectArchive(archivePath string) (*types.ArchiveSummary, error) {
+	fi, statErr := os.Stat(archivePath)
+	if statErr != nil {
+		if os.IsNotExist(statErr) {
+			return nil, fmt.Errorf("archive %q does not exist", archivePath)
+		}
+		return nil, fmt.Errorf("cannot access %q: %w", archivePath, statErr)
+	}
+	if fi.IsDir() {
+		return nil, fmt.Errorf("'%s' is an unpacked folder and does not contain packed files to inspect (use 'bo pack' to compress it into a .zip archive)", filepath.Base(archivePath))
+	}
+
 	reader, err := zip.OpenReader(archivePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot open archive %q: %w", archivePath, err)
+		return nil, fmt.Errorf("'%s' is not a valid zip archive or is already unpacked", filepath.Base(archivePath))
 	}
 	defer reader.Close()
 
