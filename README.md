@@ -4,7 +4,7 @@
 
 <br/><br/>
 
-# 🐍 Boa
+# Boa
 
 **Tight, fast, lossless compression and archiving for your files. Free open-source CLI.**
 
@@ -25,23 +25,23 @@
 
 ---
 
-## ✨ Features
+## Features
 
-- 🗜️ **All-in-One CLI Toolkit**: Combines fast zip compression, safe extraction, in-place header inspection, live speed benchmarking, and an interactive terminal file explorer in a single zero-dependency binary.
-- 🏎️ **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams. Compresses multi-gigabyte folders without eating your RAM.
-- 🛡️ **Zip-Slip & Path Security**: Built-in canonical path boundary validation that prevents malicious directory traversals (`../../`), null-byte injections, and escaping symlinks.
-- 🎚️ **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest speed), `6` (Default), up to `9` (Maximum Deflate).
-- 📁 **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓`) without typing long paths manually.
-- 📊 **Dense Terminal UI**: Stable column alignment, single-screen summaries, ANSI color palette with automatic `NO_COLOR` support, and human-friendly space translations (*"That's like ~19 4K movies worth of space!"*).
-- 🪟 **True Cross-Platform**: Native builds and path normalization for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
+- **All-in-One CLI Toolkit**: Combines fast zip compression, safe extraction, in-place header inspection, live speed benchmarking, and an interactive terminal file explorer in a single zero-dependency binary.
+- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams. Compresses multi-gigabyte folders without consuming excess RAM.
+- **Zip-Slip & Path Security**: Built-in canonical path boundary validation that blocks directory traversals (`../../`), null-byte injections, and escaping symlinks.
+- **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest speed), `6` (Default), up to `9` (Maximum Deflate).
+- **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓` / `jk`) without typing long paths manually.
+- **Dense Terminal UI**: Stable column alignment, single-screen summaries, ANSI color palette with automatic `NO_COLOR` support.
+- **Cross-Platform Parity**: Native builds and path normalization for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 Boa requires no external runtime dependencies.
 
-### Install via Makefile (Recommended for macOS / Linux)
+### Install via Makefile (macOS / Linux)
 
 ```bash
 git clone https://github.com/zyadwael/boa.git
@@ -58,7 +58,7 @@ go install github.com/zyadwael/boa@latest
 
 ---
 
-## ⚡ Run
+## Commands
 
 ```bash
 bo                      # Interactive arrow-key main menu & file explorer
@@ -70,7 +70,7 @@ bo version              # Show version, commit SHA, and platform info
 bo --help               # Show help reference
 ```
 
-### Preview Safely
+### Options and Flags
 
 ```bash
 bo pack ./my-folder --dry-run          # Preview files to pack and estimated size
@@ -83,9 +83,9 @@ bo list archive.zip --json             # Export structured JSON metadata
 
 ---
 
-## 🛡️ Safety
+## Safety Architecture
 
-Boa can modify and create archive files, so it validates paths, enforces extraction boundaries, and asks for confirmation when overwriting existing files.
+Boa validates paths, enforces extraction boundaries, and asks for confirmation when overwriting existing files.
 
 - **Zip-Slip Defense**: All entry paths in incoming archives are sanitized with canonical prefix checks. Any entry with `../`, leading slashes (`/`), or drive roots (`C:\`) is blocked with an explicit security error before disk access.
 - **Symlink Boundary Checks**: Symlinks pointing outside the extraction boundary are prevented from executing.
@@ -95,10 +95,10 @@ Boa can modify and create archive files, so it validates paths, enforces extract
 
 ---
 
-## 🔍 Features in Detail
+## Features in Detail
 
 ### 1. Interactive Main Menu & File Picker
-Typing `bo` in your terminal launches the real-time interactive dashboard with live arrow-key (`↑↓` / `jk`) navigation:
+Typing `bo` in your terminal launches the real-time interactive dashboard with arrow-key (`↑↓` / `jk`) navigation:
 
 ```text
  ____                 
@@ -158,7 +158,7 @@ $ bo pack ./cmd -l 6
 ---
 
 ### 3. Unpack (Decompression)
-`bo unpack` safely extracts files with path verification:
+`bo unpack` extracts files safely with path verification:
 
 ```text
 $ bo unpack ./cmd.zip -o ./extracted --force
@@ -234,6 +234,6 @@ Level        Original Size  Packed Size  Saved   Time      Speed
 
 ---
 
-## 📄 License
+## License
 
 Boa is free open source software released under the **MIT License**. See [LICENSE](./LICENSE) for details.
