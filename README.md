@@ -234,6 +234,17 @@ Level        Original Size  Packed Size  Saved   Time      Speed
 
 ---
 
+## Support & Community
+
+If Boa helped you, give it a star on GitHub, [share it on X](https://twitter.com/intent/tweet?url=https://github.com/ZyadWKhedr/Boa&text=Boa%20-%20Tight%2C%20fast%2C%20lossless%20compression%20for%20your%20files.), or open an issue or pull request.
+
+- **Author**: Zyad Wael
+- **X (Twitter)**: [@Zyadwaelll05](https://x.com/Zyadwaelll05)
+- **LinkedIn**: [Zyad Wael](https://www.linkedin.com/in/zyad-wael-a9035a275/)
+- **Email**: [ziad.w.khedr@gmail.com](mailto:ziad.w.khedr@gmail.com)
+
+---
+
 ## License
 
 Boa is free open source software released under the **MIT License**. See [LICENSE](./LICENSE) for details.
