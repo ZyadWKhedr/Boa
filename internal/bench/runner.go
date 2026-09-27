@@ -2,6 +2,7 @@ package bench
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"time"
@@ -297,28 +298,59 @@ func (r *Runner) generateSummary(results []LevelResult, input InputMetadata) Sum
 	smallestIdx := 0
 	highestThroughput := -1.0
 	smallestSize := int64(1<<63 - 1)
+	maxSpaceSavedPct := -1.0
+	maxCompressedThroughput := -1.0
 
 	for i, res := range results {
-		// Level 0 (store) has virtually no compression CPU overhead, so for fastest compressed level we prefer level 1 or highest throughput
 		if res.ThroughputMBps > highestThroughput {
 			highestThroughput = res.ThroughputMBps
 			fastestIdx = i
+		}
+		if res.Level > 0 && res.ThroughputMBps > maxCompressedThroughput {
+			maxCompressedThroughput = res.ThroughputMBps
 		}
 		if res.CompressedBytes < smallestSize {
 			smallestSize = res.CompressedBytes
 			smallestIdx = i
 		}
+		if res.SpaceSavedPercent > maxSpaceSavedPct {
+			maxSpaceSavedPct = res.SpaceSavedPercent
+		}
+	}
+	if maxCompressedThroughput <= 0 {
+		maxCompressedThroughput = highestThroughput
 	}
 
 	fastest := results[fastestIdx]
 	smallest := results[smallestIdx]
 
-	// Best balance is typically level 6, or the highest ratio with < 2x level 1 time
+	// Dynamically calculate the real Best Balance level based on measured compression ratio vs speed efficiency
 	bestBalanceIdx := 0
+	var bestScore float64 = -1.0
+
 	for i, res := range results {
-		if res.Level == 6 {
+		// If compression is achieved (> 0.01%), level 0 (Store) is skipped for best compression balance
+		if res.Level == 0 && len(results) > 1 && maxSpaceSavedPct > 0.01 {
+			continue
+		}
+
+		normComp := 0.0
+		if maxSpaceSavedPct > 0 {
+			normComp = math.Max(0, res.SpaceSavedPercent/maxSpaceSavedPct)
+		} else if res.CompressedBytes > 0 && smallestSize > 0 {
+			normComp = float64(smallestSize) / float64(res.CompressedBytes)
+		}
+
+		normSpeed := 0.0
+		if maxCompressedThroughput > 0 {
+			normSpeed = math.Max(0, res.ThroughputMBps/maxCompressedThroughput)
+		}
+
+		// Weighted geometric mean giving 65% weight to compression efficiency and 35% to throughput
+		score := math.Pow(math.Max(normComp, 0.001), 0.65) * math.Pow(math.Max(normSpeed, 0.001), 0.35)
+		if score > bestScore {
+			bestScore = score
 			bestBalanceIdx = i
-			break
 		}
 	}
 	bestBalance := results[bestBalanceIdx]
@@ -333,41 +365,31 @@ func (r *Runner) generateSummary(results []LevelResult, input InputMetadata) Sum
 		TradeOffInsights:  make([]string, 0),
 	}
 
-	// Generate trade-off comparisons if all levels were run
-	if len(results) >= 7 {
-		var l1, l6, l9 *LevelResult
-		for i := range results {
-			switch results[i].Level {
-			case 1:
-				l1 = &results[i]
-			case 6:
-				l6 = &results[i]
-			case 9:
-				l9 = &results[i]
-			}
-		}
-
-		if l1 != nil && l6 != nil {
-			compGain := l6.SpaceSavedPercent - l1.SpaceSavedPercent
-			var speedDiff float64
-			if l1.ThroughputMBps > 0 {
-				speedDiff = ((l6.ThroughputMBps - l1.ThroughputMBps) / l1.ThroughputMBps) * 100.0
-			}
-
-			summary.TradeOffInsights = append(summary.TradeOffInsights,
-				fmt.Sprintf("Level 6 compared with Level 1: %+.1f%% compression, %+.1f%% throughput", compGain, speedDiff),
-			)
-		}
-
-		if l6 != nil && l9 != nil {
-			diffPercent := l9.SpaceSavedPercent - l6.SpaceSavedPercent
-			if diffPercent < 1.0 {
+	// Generate real dynamic insights comparing best balance, fastest, and smallest
+	if len(results) >= 2 {
+		if bestBalance.Level != fastest.Level && fastest.ThroughputMBps > 0 {
+			speedDiff := ((fastest.ThroughputMBps - bestBalance.ThroughputMBps) / bestBalance.ThroughputMBps) * 100.0
+			compGain := bestBalance.SpaceSavedPercent - fastest.SpaceSavedPercent
+			if compGain > 0 {
 				summary.TradeOffInsights = append(summary.TradeOffInsights,
-					fmt.Sprintf("Levels 6–9 produced less than 1.0%% difference in archive size (%.1f%% extra space saved at Level 9).", diffPercent),
+					fmt.Sprintf("Level %d yields +%.1f%% extra compression over Level %d with %s speed.",
+						bestBalance.Level, compGain, fastest.Level, bestBalance.ThroughputStr),
 				)
 			} else {
 				summary.TradeOffInsights = append(summary.TradeOffInsights,
-					fmt.Sprintf("Level 9 saved an additional %.1f%% space over Level 6 with longer duration.", diffPercent),
+					fmt.Sprintf("Level %d runs %.1f%% faster while maintaining %s archive size.",
+						fastest.Level, speedDiff, fastest.CompressedHuman),
+				)
+			}
+		}
+
+		if bestBalance.Level != smallest.Level {
+			sizeDiff := bestBalance.CompressedBytes - smallest.CompressedBytes
+			if sizeDiff > 0 {
+				pctExtra := (float64(sizeDiff) / float64(smallest.CompressedBytes)) * 100.0
+				summary.TradeOffInsights = append(summary.TradeOffInsights,
+					fmt.Sprintf("Level %d saves an additional %s (%.1f%% smaller) over Level %d with longer processing time.",
+						smallest.Level, stats.FormatBytes(sizeDiff), pctExtra, bestBalance.Level),
 				)
 			}
 		}

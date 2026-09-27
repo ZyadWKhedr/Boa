@@ -94,7 +94,7 @@ func PickPath(title string, mode FilePickerMode) (string, error) {
 					selectedIdx = 0
 				}
 			}
-		case "ENTER", "SPACE":
+		case "ENTER":
 			if len(items) == 0 {
 				continue
 			}
@@ -105,6 +105,11 @@ func PickPath(title string, mode FilePickerMode) (string, error) {
 				currentDir = filepath.Dir(currentDir)
 				selectedIdx = 0
 				continue
+			}
+
+			// If selecting the top "[SELECT THIS ENTIRE FOLDER]" item
+			if chosen.Path == currentDir {
+				return currentDir, nil
 			}
 
 			// In PickZipOnly mode: opening a directory steps INSIDE it to find zip files
@@ -120,14 +125,32 @@ func PickPath(title string, mode FilePickerMode) (string, error) {
 				continue
 			}
 
-			// Return the selected folder or file
+			// If a directory is highlighted, Enter steps INSIDE it to explore its contents/files
+			if chosen.IsDir {
+				currentDir = chosen.Path
+				selectedIdx = 0
+				continue
+			}
+
+			// Return the selected file
 			return chosen.Path, nil
 
-		case "s", "S":
-			if mode != PickZipOnly {
-				// Shortcut to select current folder immediately
-				return currentDir, nil
+		case "SPACE", "s", "S", "c", "C":
+			if len(items) == 0 {
+				continue
 			}
+			chosen := items[selectedIdx]
+			if chosen.IsParent {
+				continue
+			}
+			if mode == PickZipOnly {
+				if strings.HasSuffix(strings.ToLower(chosen.Path), ".zip") {
+					return chosen.Path, nil
+				}
+				continue
+			}
+			// Space/S/C selects the highlighted folder or file immediately
+			return chosen.Path, nil
 
 		case "q", "Q", "ESC", "CTRL_C":
 			return "", fmt.Errorf("cancelled")
@@ -143,10 +166,10 @@ func readDirItems(dir string, mode FilePickerMode) ([]FileItem, error) {
 
 	var items []FileItem
 
-	// Add "Select current directory" option if picking folders
+	// Add "Select current directory" option if picking folders or any items
 	if mode == PickFolderOnly || mode == PickAny {
 		items = append(items, FileItem{
-			Name:  "✔  [SELECT THIS CURRENT FOLDER: " + filepath.Base(dir) + "]",
+			Name:  "✔  [PACK THIS ENTIRE FOLDER: " + filepath.Base(dir) + "]",
 			Path:  dir,
 			IsDir: true,
 		})
@@ -267,8 +290,8 @@ func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx in
 	fmt.Println()
 	fmt.Println(ui.Dim("========================================================================"))
 	if mode == PickZipOnly {
-		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Select Zip / Open Folder  |  → Open  |  ← Back  |  Q Cancel"))
+		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Open Folder / Select Zip  |  ← Back  |  Q Cancel"))
 	} else {
-		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Select Item  |  → / Tab Open Folder  |  ← Back  |  Q Cancel"))
+		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Open Folder / Select File  |  Space Select Folder  |  ← Back  |  Q Cancel"))
 	}
 }
