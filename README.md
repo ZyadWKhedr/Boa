@@ -1,28 +1,27 @@
 <div align="center">
 
-# 🐍 Boa
+<img src="./docs/img/boa-banner.png" width="100%" alt="Boa Banner" />
 
-**Tight, fast, lossless compression for your files.**  
-*Inspired by the refined terminal ergonomics of [tw93/Mole](https://github.com/tw93/Mole).*
-
-<br/>
-
-<img src="./docs/img/big-boa.png" width="760" alt="Boa - Compress Your Files" />
-
-<br/>
+<br/><br/>
 
 [![Go Version](https://img.shields.io/badge/go-1.21%2B-00ADD8?logo=go)](https://go.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-blue)](./README.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-00E599.svg)](./LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-00C7BE)](./README.md)
 [![Security Audited](https://img.shields.io/badge/Security-ZipSlip%20Protected-brightgreen)](./SECURITY_AUDIT.md)
 
 </div>
 
 ---
 
+<div align="center">
+  <img src="./docs/img/big-boa.png" width="760" alt="Boa - Compress Your Files" />
+</div>
+
+---
+
 ## ⚡ Interactive Main Menu
 
-Type `bo` or `boa` directly in your terminal to launch the interactive dashboard:
+Launch the real-time interactive dashboard by typing `bo` or `boa`:
 
 ```text
  ____                 
@@ -33,26 +32,26 @@ Type `bo` or `boa` directly in your terminal to launch the interactive dashboard
 
 Update 1.0.0 available, run bo update
 
-  1. Pack        Compress folders into dense archives
-  2. Unpack      Safely extract zip archives
-  3. Inspect     Explore archive structure & metadata
-  4. Benchmark   Compare compression speed & ratios
-➤ 5. Status      Runtime health & system info
+   1. Pack        Compress folders into dense archives
+   2. Unpack      Safely extract zip archives
+   3. Inspect     Explore archive structure & metadata
+   4. Benchmark   Compare compression speed & ratios
+ ➤ 5. Status      Runtime health & system info
 
-⇅  |  Enter  |  H Help  |  V Version  |  Q Quit
+ ↑↓ / jk Navigate  |  Enter Confirm  |  1-5 Jump  |  V Version  |  Q Quit
 ```
 
 ---
 
 ## ✨ Features
 
-- 🏎️ **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams.
-- 🛡️ **Zip-Slip Defense**: Built-in canonical path boundary validation that prevents path traversal and malicious symlink attacks.
-- 🎚️ **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest), `6` (Default), up to `9` (Maximum Deflate).
-- 📊 **Dense Terminal UI**: Stable column alignment, single-screen metric summaries, ANSI color palette with `NO_COLOR` support.
-- 🔍 **In-Place Inspection**: View archive tables with CRC32, compressed ratios, modification dates, and permissions without extracting.
-- ⚡ **Built-In Benchmarking**: Compare compression levels and throughput speeds (`MB/s`) instantly with `bo bench`.
-- 🪟 **True Cross-Platform**: First-class support for macOS (Darwin), Linux, and Windows.
+- 🏎️ **Streaming I/O Engine**: Minimal RAM footprint with low-latency chunked streaming for large files.
+- 🛡️ **Zip-Slip Defense**: Strict path boundary validation blocking directory traversals and escaping symlinks.
+- 🎚️ **Granular Compression Tuning**: Levels `0` (Store), `1` (Fastest), `6` (Default), up to `9` (Maximum Deflate).
+- 📊 **Dense Terminal UI**: Stable column alignment, single-screen summaries with human-friendly space savings.
+- 🔍 **In-Place Inspection**: View archive tables with CRC32, compressed ratios, modification dates, and permissions.
+- ⚡ **Built-In Benchmarking**: Compare compression throughput (`MB/s`) and ratios instantly with `bo bench`.
+- 🪟 **True Cross-Platform**: Native builds and paths for macOS, Linux, and Windows.
 
 ---
 
