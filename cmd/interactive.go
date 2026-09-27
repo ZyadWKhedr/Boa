@@ -17,53 +17,64 @@ func RunInteractiveDashboard() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
+		// Clear screen or print clean separator
+		fmt.Println()
 		ui.PrintBanner()
 		fmt.Println()
-		fmt.Printf("  %s\n", ui.Bold("What would you like to do?"))
-		fmt.Println()
-		fmt.Printf("  %s  %s\n", ui.Bold(ui.Cyan("1")), "📦 Compress a folder or file ("+ui.Dim("pack / zip")+")")
-		fmt.Printf("  %s  %s\n", ui.Bold(ui.Cyan("2")), "📂 Extract a zip archive ("+ui.Dim("unpack / unzip")+")")
-		fmt.Printf("  %s  %s\n", ui.Bold(ui.Cyan("3")), "🔍 Inspect archive contents ("+ui.Dim("list / ls")+")")
-		fmt.Printf("  %s  %s\n", ui.Bold(ui.Cyan("4")), "⚡ Benchmark compression performance ("+ui.Dim("bench")+")")
-		fmt.Printf("  %s  %s\n", ui.Bold(ui.Cyan("5")), "📖 View CLI Command Reference ("+ui.Dim("help")+")")
-		fmt.Printf("  %s  %s\n", ui.Bold(ui.Dim("0")), "✕ Exit")
+		fmt.Printf(" %s\n\n", ui.Dim("Update 1.0.0 available, run bo update"))
+
+		fmt.Printf("   %s  %-12s %s\n", ui.Bold(ui.Cyan("1.")), "Pack", ui.Dim("Compress folders into dense archives"))
+		fmt.Printf("   %s  %-12s %s\n", ui.Bold(ui.Cyan("2.")), "Unpack", ui.Dim("Safely extract zip archives"))
+		fmt.Printf("   %s  %-12s %s\n", ui.Bold(ui.Cyan("3.")), "Inspect", ui.Dim("Explore archive structure & metadata"))
+		fmt.Printf("   %s  %-12s %s\n", ui.Bold(ui.Cyan("4.")), "Benchmark", ui.Dim("Compare compression speed & ratios"))
+		fmt.Printf(" %s %s  %-12s %s\n\n", ui.Bold(ui.Cyan("➤")), ui.Bold(ui.Cyan("5.")), ui.Bold(ui.Cyan("Status")), ui.Cyan("Runtime health & system info"))
+
+		fmt.Println(ui.Dim(" ⇅  |  Enter  |  H Help  |  V Version  |  Q Quit"))
 		fmt.Println()
 
-		fmt.Print(ui.Bold(ui.Cyan("  Select [1-5, 0]: ")))
+		fmt.Print(ui.Bold(ui.Cyan(" Select option: ")))
 		choice, _ := reader.ReadString('\n')
-		choice = strings.TrimSpace(choice)
+		choice = strings.ToLower(strings.TrimSpace(choice))
 
 		switch choice {
-		case "1", "p", "pack", "zip":
+		case "1", "pack", "p", "zip":
 			interactivePack(reader)
-		case "2", "u", "unpack", "unzip":
+		case "2", "unpack", "u", "unzip", "x":
 			interactiveUnpack(reader)
-		case "3", "l", "list", "ls":
+		case "3", "inspect", "i", "list", "ls", "l":
 			interactiveList(reader)
-		case "4", "b", "bench":
+		case "4", "benchmark", "bench", "b":
 			interactiveBench(reader)
-		case "5", "h", "help":
+		case "5", "status", "s", "v", "version":
+			fmt.Println()
+			RootCmd.SetArgs([]string{"version"})
+			_ = RootCmd.Execute()
+		case "h", "help", "?":
 			fmt.Println()
 			_ = RootCmd.Help()
-		case "0", "q", "exit", "quit":
-			fmt.Println(ui.Dim("  Goodbye! 👋"))
+		case "q", "quit", "exit", "0":
+			fmt.Println(ui.Dim("\n Goodbye! 🐍"))
 			return
+		case "":
+			// Default option is 5 (Status) when pressing enter directly
+			fmt.Println()
+			RootCmd.SetArgs([]string{"version"})
+			_ = RootCmd.Execute()
 		default:
-			ui.PrintWarning("Invalid selection. Please choose an option from 0 to 5.")
+			ui.PrintWarning("Invalid option. Enter 1-5 or Q to quit.")
 		}
 
 		fmt.Println()
-		fmt.Print(ui.Dim("  Press Enter to continue..."))
+		fmt.Print(ui.Dim(" Press Enter to return to main menu..."))
 		_, _ = reader.ReadString('\n')
-		fmt.Println()
 	}
 }
 
 func interactivePack(reader *bufio.Reader) {
 	fmt.Println()
-	ui.PrintSection("Interactive Pack (Zip Compression)")
+	ui.PrintSection("Interactive Pack (Folder / File Compression)")
 
-	fmt.Print(ui.Bold("  Enter source folder or file path: "))
+	fmt.Print(ui.Bold(" Enter source folder or file path: "))
 	src, _ := reader.ReadString('\n')
 	src = strings.TrimSpace(src)
 	if src == "" {
@@ -71,11 +82,11 @@ func interactivePack(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print(ui.Bold("  Enter destination zip path (leave empty for auto-name): "))
+	fmt.Print(ui.Bold(" Enter destination archive name (leave blank for auto-name): "))
 	dest, _ := reader.ReadString('\n')
 	dest = strings.TrimSpace(dest)
 
-	fmt.Print(ui.Bold("  Compression Level [0=Store, 1=Fastest, 6=Default, 9=Best] (default 6): "))
+	fmt.Print(ui.Bold(" Compression level [0=Store, 1=Fastest, 6=Default, 9=Best] (default 6): "))
 	lvlStr, _ := reader.ReadString('\n')
 	lvlStr = strings.TrimSpace(lvlStr)
 	level := 6
@@ -100,7 +111,7 @@ func interactiveUnpack(reader *bufio.Reader) {
 	fmt.Println()
 	ui.PrintSection("Interactive Unpack (Decompression)")
 
-	fmt.Print(ui.Bold("  Enter zip archive path: "))
+	fmt.Print(ui.Bold(" Enter zip archive path to extract: "))
 	archive, _ := reader.ReadString('\n')
 	archive = strings.TrimSpace(archive)
 	if archive == "" {
@@ -108,7 +119,7 @@ func interactiveUnpack(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print(ui.Bold("  Enter target extraction folder (leave empty for auto-name): "))
+	fmt.Print(ui.Bold(" Enter destination directory (leave blank for default): "))
 	dest, _ := reader.ReadString('\n')
 	dest = strings.TrimSpace(dest)
 
@@ -125,9 +136,9 @@ func interactiveUnpack(reader *bufio.Reader) {
 
 func interactiveList(reader *bufio.Reader) {
 	fmt.Println()
-	ui.PrintSection("Interactive Archive Inspector")
+	ui.PrintSection("Archive Inspector")
 
-	fmt.Print(ui.Bold("  Enter zip archive path to inspect: "))
+	fmt.Print(ui.Bold(" Enter zip archive path: "))
 	archive, _ := reader.ReadString('\n')
 	archive = strings.TrimSpace(archive)
 	if archive == "" {
@@ -148,9 +159,9 @@ func interactiveList(reader *bufio.Reader) {
 
 func interactiveBench(reader *bufio.Reader) {
 	fmt.Println()
-	ui.PrintSection("Interactive Compression Benchmark")
+	ui.PrintSection("Interactive Speed Benchmark")
 
-	fmt.Print(ui.Bold("  Enter folder or file path to benchmark: "))
+	fmt.Print(ui.Bold(" Enter directory or file to benchmark: "))
 	src, _ := reader.ReadString('\n')
 	src = strings.TrimSpace(src)
 	if src == "" {

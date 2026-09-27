@@ -1,6 +1,7 @@
-.PHONY: all build test clean run lint cross-compile
+.PHONY: all build test clean run lint cross-compile install
 
-BINARY_NAME=compressor
+BINARY_NAME=boa
+ALIAS_NAME=bo
 BUILD_DIR=bin
 VERSION?=v1.0.0
 COMMIT?=$(shell git rev-parse --short HEAD 2>/dev/null || echo "dev")
@@ -12,13 +13,15 @@ all: test build
 build:
 	@mkdir -p $(BUILD_DIR)
 	go build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) main.go
-	@echo "Built $(BUILD_DIR)/$(BINARY_NAME)"
+	@ln -sf $(BINARY_NAME) $(BUILD_DIR)/$(ALIAS_NAME)
+	@echo "Built $(BUILD_DIR)/$(BINARY_NAME) and $(BUILD_DIR)/$(ALIAS_NAME)"
 
 install: build
 	@mkdir -p $(HOME)/.local/bin
 	@cp $(BUILD_DIR)/$(BINARY_NAME) $(HOME)/.local/bin/$(BINARY_NAME)
-	@ln -sf $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/cx
-	@echo "Installed $(BINARY_NAME) and alias cx to $(HOME)/.local/bin"
+	@ln -sf $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/$(ALIAS_NAME)
+	@ln -sf $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/compressor
+	@echo "Installed $(BINARY_NAME), $(ALIAS_NAME), and compressor to $(HOME)/.local/bin"
 
 test:
 	go test -v -race ./...

@@ -4,20 +4,35 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
+
 	"compressor/internal/stats"
 	"compressor/pkg/types"
 )
 
 var Out io.Writer = os.Stdout
 
-// PrintBanner prints the application header banner.
+// PrintBanner prints the exact Mole-styled ASCII header banner for Boa.
 func PrintBanner() {
 	if NoColor {
-		fmt.Fprintln(Out, "--- Compressor CLI ---")
+		fmt.Fprintln(Out, ` ____                 
+| __ )  ___   __ _    
+|  _ \ / _ \ / _`+"`"+` |   
+| |_) | (_) | (_| |   https://github.com/zyadwael/boa
+|____/ \___/ \__,_|   Tight, fast, lossless compression for your files.`)
 		return
 	}
-	fmt.Fprintln(Out, Bold(Cyan("⚡ Compressor"))+" "+Dim("• Fast, Secure, Cross-Platform Archive Engine"))
+
+	ascii := ` ____                 
+| __ )  ___   __ _    
+|  _ \ / _ \ / _` + "`" + ` |   
+| |_) | (_) | (_| |   `
+	lastLine := `|____/ \___/ \__,_|   `
+
+	url := Cyan("https://github.com/zyadwael/boa")
+	tagline := Green("Tight, fast, lossless compression for your files.")
+
+	fmt.Fprintln(Out, Green(ascii)+url)
+	fmt.Fprintln(Out, Green(lastLine)+tagline)
 }
 
 // PrintSuccess prints a formatted success message.
@@ -45,66 +60,98 @@ func PrintSection(title string) {
 	fmt.Fprintf(Out, "\n%s\n", Bold(Cyan("▶ "+title)))
 }
 
-// RenderCompressionSummary prints a dense single-screen summary card following tw93/Mole style.
+// HumanSpaceEquivalent gives a cute human-friendly translation like Mole ("That's like ~19 4K movies worth of space!").
+func HumanSpaceEquivalent(savedBytes int64) string {
+	if savedBytes <= 0 {
+		return ""
+	}
+	const (
+		gb = 1024 * 1024 * 1024
+		mb = 1024 * 1024
+	)
+
+	if savedBytes >= 4*gb {
+		movies := float64(savedBytes) / (4.5 * gb)
+		return fmt.Sprintf("That's like ~%.0f 4K movies worth of space!", max(movies, 1))
+	} else if savedBytes >= 500*mb {
+		albums := float64(savedBytes) / (120 * mb)
+		return fmt.Sprintf("That's like ~%.0f lossless music albums worth of space!", max(albums, 1))
+	} else if savedBytes >= 10*mb {
+		photos := float64(savedBytes) / (3.5 * mb)
+		return fmt.Sprintf("That's like ~%.0f high-res RAW photos worth of space!", max(photos, 1))
+	}
+	docs := float64(savedBytes) / (50 * 1024)
+	return fmt.Sprintf("That's like ~%.0f text documents worth of space!", max(docs, 1))
+}
+
+// RenderCompressionSummary prints a summary card styled after Mole's aesthetic double-bordered cards.
 func RenderCompressionSummary(summary *types.ArchiveSummary, isDryRun bool) {
 	if summary == nil {
 		return
 	}
 
+	div := Dim("========================================================================")
 	fmt.Fprintln(Out)
-	if isDryRun {
-		fmt.Fprintf(Out, "%s\n", BadgeDryRun("Compression Simulation Summary"))
-	} else {
-		fmt.Fprintf(Out, "%s\n", Bold(Green("✔ Compression Complete")))
-	}
-
-	div := Dim(strings.Repeat("─", 52))
 	fmt.Fprintln(Out, div)
 
-	printKV("Destination Archive", summary.ArchivePath)
-	printKV("Files Included", fmt.Sprintf("%d files, %d folders", summary.TotalFiles, summary.TotalDirs))
-	printKV("Original Total Size", stats.FormatBytes(summary.UncompressedBytes))
+	if isDryRun {
+		fmt.Fprintf(Out, " %s\n", Bold(Magenta("DRY RUN COMPLETE! (Simulation Mode)")))
+		fmt.Fprintf(Out, " Potential space savings: %s | Files analyzed: %d | Categories: %d folders\n",
+			Green(stats.FormatBytes(summary.UncompressedBytes)),
+			summary.TotalFiles,
+			summary.TotalDirs,
+		)
+	} else {
+		fmt.Fprintf(Out, " %s\n", Bold(Green("COMPRESSION COMPLETE!")))
+		ratioStr := fmt.Sprintf("%.1fx", 1.0/max(summary.CompressionRatio, 0.01))
+		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
+		
+		fmt.Fprintf(Out, " Space saved: %s | Compression ratio: %s | Speed: %s\n",
+			Bold(Green(stats.FormatBytes(summary.SpaceSavedBytes))),
+			Cyan(ratioStr),
+			Cyan(speedStr),
+		)
 
-	if !isDryRun {
-		printKV("Compressed Size", stats.FormatBytes(summary.CompressedBytes))
-		savingsStr := fmt.Sprintf("%s (%.1f%% saved, ratio: %.2fx)",
-			stats.FormatBytes(summary.SpaceSavedBytes),
-			summary.SpaceSavedPercent,
-			1.0/max(summary.CompressionRatio, 0.01))
-		printKV("Space Reduction", Green(savingsStr))
-	}
+		if equiv := HumanSpaceEquivalent(summary.SpaceSavedBytes); equiv != "" {
+			fmt.Fprintf(Out, " %s\n", Italic(Green(equiv)))
+		}
 
-	printKV("Execution Duration", stats.FormatDuration(summary.Duration))
-	if summary.Duration > 0 && summary.UncompressedBytes > 0 {
-		printKV("Throughput Speed", stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration))
+		fmt.Fprintf(Out, " Files packed: %d | Archive: %s | Time: %s\n",
+			summary.TotalFiles,
+			Bold(summary.ArchivePath),
+			stats.FormatDuration(summary.Duration),
+		)
 	}
 
 	fmt.Fprintln(Out, div)
 }
 
-// RenderExtractionSummary prints a dense extraction summary card.
+// RenderExtractionSummary prints an extraction summary card.
 func RenderExtractionSummary(summary *types.ArchiveSummary, destDir string, isDryRun bool) {
 	if summary == nil {
 		return
 	}
 
+	div := Dim("========================================================================")
 	fmt.Fprintln(Out)
-	if isDryRun {
-		fmt.Fprintf(Out, "%s\n", BadgeDryRun("Extraction Simulation Summary"))
-	} else {
-		fmt.Fprintf(Out, "%s\n", Bold(Green("✔ Extraction Complete")))
-	}
-
-	div := Dim(strings.Repeat("─", 52))
 	fmt.Fprintln(Out, div)
 
-	printKV("Source Archive", summary.ArchivePath)
-	printKV("Target Directory", destDir)
-	printKV("Extracted Items", fmt.Sprintf("%d files, %d folders", summary.TotalFiles, summary.TotalDirs))
-	printKV("Total Unpacked Size", stats.FormatBytes(summary.UncompressedBytes))
-	printKV("Execution Duration", stats.FormatDuration(summary.Duration))
-	if summary.Duration > 0 && summary.UncompressedBytes > 0 {
-		printKV("Throughput Speed", stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration))
+	if isDryRun {
+		fmt.Fprintf(Out, " %s\n", Bold(Magenta("EXTRACTION PREVIEW (Dry Run)")))
+		fmt.Fprintf(Out, " Target items: %d files, %d folders | Total uncompressed: %s\n",
+			summary.TotalFiles, summary.TotalDirs, Green(stats.FormatBytes(summary.UncompressedBytes)))
+	} else {
+		fmt.Fprintf(Out, " %s\n", Bold(Green("EXTRACTION COMPLETE!")))
+		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
+		fmt.Fprintf(Out, " Total unpacked: %s | Speed: %s | Time: %s\n",
+			Bold(Green(stats.FormatBytes(summary.UncompressedBytes))),
+			Cyan(speedStr),
+			stats.FormatDuration(summary.Duration),
+		)
+		fmt.Fprintf(Out, " Extracted %d files into: %s\n",
+			summary.TotalFiles,
+			Bold(destDir),
+		)
 	}
 
 	fmt.Fprintln(Out, div)
@@ -128,10 +175,8 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 	)
 
 	for _, entry := range summary.Entries {
-		entryType := "FILE"
 		typeColor := Cyan("FILE")
 		if entry.IsDir {
-			entryType = "DIR"
 			typeColor = Blue("DIR ")
 		}
 
@@ -162,23 +207,19 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 			Dim(modDate),
 			entry.Path,
 		)
-		_ = entryType
 	}
 
 	table.Render()
 
-	// Dense summary footer
-	div := Dim(strings.Repeat("─", 52))
+	div := Dim("========================================================================")
 	fmt.Fprintln(Out, div)
-	printKV("Total Entries", fmt.Sprintf("%d files, %d directories", summary.TotalFiles, summary.TotalDirs))
-	printKV("Raw Size", stats.FormatBytes(summary.UncompressedBytes))
-	printKV("Archive Size", stats.FormatBytes(summary.CompressedBytes))
-	printKV("Average Space Saved", Green(fmt.Sprintf("%.1f%% (ratio: %.2fx)", summary.SpaceSavedPercent, 1.0/max(summary.CompressionRatio, 0.01))))
+	fmt.Fprintf(Out, " Total entries: %d files, %d folders | Raw: %s | Archive: %s | Savings: %s\n",
+		summary.TotalFiles, summary.TotalDirs,
+		stats.FormatBytes(summary.UncompressedBytes),
+		stats.FormatBytes(summary.CompressedBytes),
+		Green(fmt.Sprintf("%.1f%%", summary.SpaceSavedPercent)),
+	)
 	fmt.Fprintln(Out, div)
-}
-
-func printKV(key, value string) {
-	fmt.Fprintf(Out, "  %-22s : %s\n", Dim(key), value)
 }
 
 func max(a, b float64) float64 {
