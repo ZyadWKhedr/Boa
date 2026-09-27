@@ -176,12 +176,33 @@ func RenderExtractionSummary(summary *types.ArchiveSummary, destDir string, isDr
 	fmt.Fprintln(Out)
 }
 
-// RenderArchiveList renders a dense file listing table.
-func RenderArchiveList(summary *types.ArchiveSummary) {
+// RenderArchiveList renders a clean, compact file listing table with summary metrics.
+func RenderArchiveList(summary *types.ArchiveSummary, showAll bool) {
 	if summary == nil || len(summary.Entries) == 0 {
 		PrintInfo("Archive is empty.")
 		return
 	}
+
+	prettyArchive := PrettyPath(summary.ArchivePath)
+	printAlignedRow("Archive", Bold(Cyan(prettyArchive)))
+
+	methodStr := summary.CompressionMethod
+	if methodStr == "" {
+		methodStr = "DEFLATE"
+	}
+	printAlignedRow("Method", methodStr)
+
+	avgStr := "-"
+	if summary.AverageFileSize > 0 {
+		avgStr = stats.FormatBytes(summary.AverageFileSize)
+	}
+	printAlignedRow("Total Entries", fmt.Sprintf("%d files (avg %s), %d folders", summary.TotalFiles, avgStr, summary.TotalDirs))
+	printAlignedRow("Original Size", stats.FormatBytes(summary.UncompressedBytes))
+	printAlignedRow("Archive Size", stats.FormatBytes(summary.CompressedBytes))
+
+	ratioStr := fmt.Sprintf("%.2fx (%.1f%% saved)", 1.0/max(summary.CompressionRatio, 0.01), summary.SpaceSavedPercent)
+	printAlignedRow("Total Savings", Green(ratioStr))
+	fmt.Fprintln(Out)
 
 	table := NewTable(
 		Column{Title: "Type", Align: AlignCenter},
@@ -193,7 +214,15 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 		Column{Title: "Path", Align: AlignLeft},
 	)
 
-	for _, entry := range summary.Entries {
+	maxEntries := 12
+	displayEntries := summary.Entries
+	isTruncated := false
+	if !showAll && len(summary.Entries) > maxEntries {
+		displayEntries = summary.Entries[:maxEntries]
+		isTruncated = true
+	}
+
+	for _, entry := range displayEntries {
 		typeColor := Cyan("FILE")
 		if entry.IsDir {
 			typeColor = Blue("DIR ")
@@ -202,7 +231,7 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 		permStr := os.FileMode(entry.Mode).String()
 		origSize := stats.FormatBytes(entry.OriginalSize)
 		compSize := stats.FormatBytes(entry.CompressedSize)
-		
+
 		var ratioStr string
 		if entry.IsDir {
 			origSize = "-"
@@ -230,20 +259,9 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 
 	table.Render()
 
-	fmt.Fprintln(Out)
-	prettyArchive := PrettyPath(summary.ArchivePath)
-	printAlignedRow("Archive", Bold(Cyan(prettyArchive)))
-
-	avgStr := "-"
-	if summary.AverageFileSize > 0 {
-		avgStr = stats.FormatBytes(summary.AverageFileSize)
+	if isTruncated {
+		fmt.Fprintf(Out, "\n   %s\n", Dim(fmt.Sprintf("✦ Showing %d of %d entries (use 'bo list <archive> --all' or '--json' to view all entries)", maxEntries, len(summary.Entries))))
 	}
-	printAlignedRow("Total Entries", fmt.Sprintf("%d files (avg %s), %d folders", summary.TotalFiles, avgStr, summary.TotalDirs))
-	printAlignedRow("Original Size", stats.FormatBytes(summary.UncompressedBytes))
-	printAlignedRow("Archive Size", stats.FormatBytes(summary.CompressedBytes))
-
-	ratioStr := fmt.Sprintf("%.2fx (%.1f%% saved)", 1.0/max(summary.CompressionRatio, 0.01), summary.SpaceSavedPercent)
-	printAlignedRow("Total Savings", Green(ratioStr))
 	fmt.Fprintln(Out)
 }
 

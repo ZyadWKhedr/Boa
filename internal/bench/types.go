@@ -6,13 +6,14 @@ import (
 
 // Options holds configuration for running a compression benchmark.
 type Options struct {
-	SourcePath      string `json:"source_path"`
-	Level           int    `json:"level"`            // -1 means benchmark all levels (0-9)
-	Runs            int    `json:"runs"`             // Number of iterations per level (default: 1)
-	BenchmarkDecomp bool   `json:"benchmark_decomp"` // Measure decompression throughput
-	KeepArchives    bool   `json:"keep_archives"`    // Preserve created benchmark archives
-	OutputDir       string `json:"output_dir"`       // Directory to store archives if kept
-	CompareVisual   bool   `json:"compare_visual"`   // Show ASCII bar chart visualizer
+	SourcePath      string                                                  `json:"source_path"`
+	Level           int                                                     `json:"level"`            // -1 means benchmark all levels (0-9)
+	Runs            int                                                     `json:"runs"`             // Number of iterations per level (default: 1)
+	BenchmarkDecomp bool                                                    `json:"benchmark_decomp"` // Measure decompression throughput
+	KeepArchives    bool                                                    `json:"keep_archives"`    // Preserve created benchmark archives
+	OutputDir       string                                                  `json:"output_dir"`       // Directory to store archives if kept
+	CompareVisual   bool                                                    `json:"compare_visual"`   // Show ASCII bar chart visualizer
+	OnProgress      func(phase string, current, total int, detail string)  `json:"-"`
 }
 
 // InputMetadata contains metadata about the benchmark target.

@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listJSON bool
+var (
+	listJSON bool
+	listAll  bool
+)
 
 var listCmd = &cobra.Command{
 	Use:     "list <archive.zip>",
@@ -39,12 +42,13 @@ var listCmd = &cobra.Command{
 			fmt.Println()
 		}
 
-		ui.RenderArchiveList(summary)
+		ui.RenderArchiveList(summary, listAll)
 		return nil
 	},
 }
 
 func init() {
 	listCmd.Flags().BoolVar(&listJSON, "json", false, "Output archive analysis in structured JSON format")
+	listCmd.Flags().BoolVarP(&listAll, "all", "a", false, "Display all entries without truncating large archives")
 	RootCmd.AddCommand(listCmd)
 }

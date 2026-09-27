@@ -47,10 +47,24 @@ and throughput (MB/s).`,
 			CompareVisual:   benchCompare,
 		}
 
+		if !benchJSON && !benchCSV && !flagQuiet {
+			opts.OnProgress = func(phase string, current, total int, detail string) {
+				if total > 0 {
+					fmt.Printf("\r\033[K   %s [%d/%d] %s: %s...", ui.Cyan("⏳"), current, total, phase, ui.Bold(detail))
+				} else {
+					fmt.Printf("\r\033[K   %s %s: %s...", ui.Cyan("⏳"), phase, ui.Bold(detail))
+				}
+			}
+		}
+
 		runner := bench.NewRunner()
 		report, err := runner.Run(opts)
 		if err != nil {
 			return err
+		}
+
+		if !benchJSON && !benchCSV && !flagQuiet {
+			fmt.Print("\r\033[K") // Clear in-flight progress line
 		}
 
 		// Handle machine-readable JSON output

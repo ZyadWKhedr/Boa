@@ -40,6 +40,9 @@ func (r *Runner) Run(opts Options) (*Report, error) {
 	}
 
 	// 1. Inspect input source metadata
+	if opts.OnProgress != nil {
+		opts.OnProgress("Scanning files", 0, 0, filepath.Base(cleanSrc))
+	}
 	inputMeta, err := r.inspectInput(cleanSrc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to inspect input source: %w", err)
@@ -76,12 +79,23 @@ func (r *Runner) Run(opts Options) (*Report, error) {
 	}
 
 	// 3. Execute benchmark for each level
-	for _, lvl := range levels {
+	for i, lvl := range levels {
+		if opts.OnProgress != nil {
+			lvlDesc := fmt.Sprintf("Level %d", lvl)
+			if lvl == 0 {
+				lvlDesc = "Level 0 (Store)"
+			}
+			opts.OnProgress("Testing compression", i+1, len(levels), lvlDesc)
+		}
 		res, err := r.benchmarkLevel(cleanSrc, lvl, opts, benchDir, inputMeta)
 		if err != nil {
 			return nil, fmt.Errorf("benchmark failed for level %d: %w", lvl, err)
 		}
 		report.Results = append(report.Results, res)
+	}
+
+	if opts.OnProgress != nil {
+		opts.OnProgress("Finalizing report", len(levels), len(levels), "done")
 	}
 
 	// 4. Generate summary highlights and trade-off insights

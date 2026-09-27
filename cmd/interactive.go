@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"compressor/internal/compress"
 	"compressor/internal/extract"
 	"compressor/internal/ui"
 	"golang.org/x/term"
@@ -366,7 +365,7 @@ func interactiveList(reader *bufio.Reader) {
 		return
 	}
 
-	ui.RenderArchiveList(summary)
+	ui.RenderArchiveList(summary, false)
 	waitForEnter()
 }
 
@@ -390,7 +389,7 @@ func interactiveInspect(reader *bufio.Reader) {
 		return
 	}
 
-	ui.RenderArchiveList(summary)
+	ui.RenderArchiveList(summary, false)
 	waitForEnter()
 }
 
@@ -403,6 +402,9 @@ func interactiveBench(reader *bufio.Reader) {
 	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
+	ui.PrintInfo(fmt.Sprintf("Benchmarking target: %s", ui.Bold(ui.PrettyPath(src))))
+	fmt.Println(ui.Dim(" Analyzing compression speed, ratio & throughput across levels..."))
+	fmt.Println()
 
 	ui.SuppressBanner = true
 	RootCmd.SetArgs([]string{"bench", src})
@@ -410,7 +412,6 @@ func interactiveBench(reader *bufio.Reader) {
 		ui.PrintError(err.Error())
 	}
 	ui.SuppressBanner = false
-	_ = compress.New()
 
 	waitForEnter()
 }
@@ -424,6 +425,9 @@ func interactiveCompare(reader *bufio.Reader) {
 	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
+	ui.PrintInfo(fmt.Sprintf("Comparing compression levels for: %s", ui.Bold(ui.PrettyPath(src))))
+	fmt.Println(ui.Dim(" Generating side-by-side trade-off matrices & visual comparison charts..."))
+	fmt.Println()
 
 	ui.SuppressBanner = true
 	RootCmd.SetArgs([]string{"bench", src, "--compare"})
@@ -431,7 +435,6 @@ func interactiveCompare(reader *bufio.Reader) {
 		ui.PrintError(err.Error())
 	}
 	ui.SuppressBanner = false
-	_ = compress.New()
 
 	waitForEnter()
 }
