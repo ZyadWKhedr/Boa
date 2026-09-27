@@ -11,52 +11,82 @@ Set Height 680
 Set Padding 20
 Set Theme "Catppuccin Mocha"
 Set WindowBar Colorful
+Set TypingSpeed 35ms
 
+# Launch Boa
 Type "bo"
-Sleep 500ms
+Sleep 700ms
 Enter
+Sleep 1800ms
+
+# Show the main menu
 Sleep 1500ms
 
-# Navigate menu with arrow keys
+# Open Pack
 Down
-Sleep 400ms
-Down
-Sleep 400ms
-Up
-Sleep 400ms
-Up
-Sleep 600ms
-
-# Press Enter to open File Explorer
+Sleep 500ms
 Enter
 Sleep 1200ms
 
 # Navigate file picker
 Down
-Sleep 400ms
+Sleep 500ms
 Down
-Sleep 400ms
+Sleep 500ms
 
-# Select folder to compress
+# Select demo project
 Enter
-Sleep 1000ms
+Sleep 1200ms
 
 # Confirm compression
 Enter
-Sleep 2s
+Sleep 3s
 
-# Return to menu
+# Show compression result
+Sleep 1800ms
+
+# Return to main menu
 Enter
-Sleep 800ms
+Sleep 1000ms
 
-# Run inspect
-Type "bo list cmd.zip"
+# Clear screen
+Type "clear"
+Enter
 Sleep 500ms
+
+# Inspect generated archive
+Type "bo list demo-project.zip"
+Sleep 600ms
 Enter
+Sleep 3000ms
+
+# Keep archive information visible
+Sleep 1800ms
+
+# Clear screen
+Type "clear"
+Enter
+Sleep 500ms
+
+# Benchmark compression
+Type "bo bench ./demo-project"
+Sleep 600ms
+Enter
+Sleep 5s
+
+# Keep benchmark results visible
 Sleep 2500ms
 
-# Run benchmark
-Type "bo bench ./cmd"
-Sleep 500ms
+# Clear screen
+Type "clear"
 Enter
-Sleep 3s
+Sleep 500ms
+
+# Demonstrate unpacking
+Type "bo unpack demo-project.zip"
+Sleep 600ms
+Enter
+Sleep 3000ms
+
+# Show final result
+Sleep 2000ms

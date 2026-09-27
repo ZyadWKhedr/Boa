@@ -1,0 +1,11 @@
+id,name,role,department,score,active
+1,Zyad Wael,Core Maintainer,Engineering,99.8,true
+2,Ada Lovelace,Pioneer,Computing,100.0,true
+3,Alan Turing,Father of CS,Cryptography,100.0,true
+4,Ken Thompson,Creator,Unix,99.9,true
+5,Rob Pike,Creator,Go,99.9,true
+6,Dennis Ritchie,Creator,C,100.0,true
+7,Linus Torvalds,Creator,Linux,100.0,true
+8,Grace Hopper,Pioneer,Compilers,100.0,true
+9,Claude Shannon,Father of Info Theory,Mathematics,100.0,true
+10,Barbara Liskov,Pioneer,Software Architecture,99.9,true

@@ -1,0 +1,29 @@
+{
+  "project": "Boa",
+  "description": "Fast, secure, interactive compression engine in Go",
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "Zyad Wael",
+      "role": "Creator & Maintainer",
+      "socials": {
+        "x": "https://x.com/Zyadwaelll05",
+        "linkedin": "https://www.linkedin.com/in/zyad-wael-a9035a275/"
+      }
+    }
+  ],
+  "features": [
+    "Zip-Slip prevention",
+    "Streaming chunked I/O",
+    "Interactive terminal file picker",
+    "Deflate levels 0 through 9 benchmarking",
+    "Zero external Cgo dependencies"
+  ],
+  "supported_platforms": ["darwin-arm64", "darwin-amd64", "linux-amd64", "linux-arm64", "windows-amd64"],
+  "benchmarks": {
+    "default_level": 6,
+    "fastest_level": 1,
+    "store_level": 0,
+    "max_level": 9
+  }
+}

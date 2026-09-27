@@ -1,0 +1,22 @@
+Boa Benchmark Sample Document
+==============================
+
+The primary goal of the Boa compression engine is to provide a clean, high-performance,
+and secure terminal tool for archiving and decompressing files.
+
+Key Technical Principles:
+1. Streaming chunked I/O to avoid buffering large multi-gigabyte files into RAM.
+2. Canonical boundary path checks to block Zip-Slip attacks (../../ escapes).
+3. Live benchmark comparison across all Deflate compression levels (0 through 9).
+4. Interactive terminal raw-mode UI with arrow-key navigation.
+5. Deterministic, cross-platform behavior on macOS, Linux, and Windows.
+
+Deflate Compression Levels:
+- Level 0: Store (no compression, maximum speed)
+- Level 1: Best speed / fastest compression
+- Level 2-5: Incremental compression balance
+- Level 6: Default compression (optimal balance between CPU time and compression ratio)
+- Level 7-8: Higher compression
+- Level 9: Best compression / maximum space reduction
+
+This text file is structured with repeated technical patterns to simulate realistic source documentation and text logs during compression benchmarking.

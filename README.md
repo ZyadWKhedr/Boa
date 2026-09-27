@@ -266,41 +266,89 @@ FILE  -rw-r--r--      946 B   479 B    49%  2026-09-27 13:08  cmd/version.go
 
 ---
 
-### 5. Benchmark (Speed vs Ratio)
-`bo bench` evaluates compression levels 0, 1, 6, and 9 side-by-side with throughput metrics:
+### 5. Benchmark (Speed vs Ratio & Trade-offs)
+`bo bench` evaluates compression levels 0 through 9 side-by-side with real-time throughput metrics, ratio multipliers, duration, and trade-off analysis:
 
 ```text
-$ bo bench ./cmd
+$ bo bench ./internal
 
-▶ Benchmarking Compression Levels on: ./cmd
+ Boa Compression Benchmark
 
-Compression Level  Method   Output Size  Reduction  Ratio   Time  Throughput
-─────────────────  ───────  ───────────  ─────────  ─────  ─────  ──────────
-0 Store             STORE       29.9 KB      -4.6%  0.96x  844µs   33.0 MB/s
-1 Fastest          DEFLATE      13.5 KB      52.8%  2.12x    1ms   19.4 MB/s
-6 Balanced ★       DEFLATE      12.5 KB      56.3%  2.29x    1ms   15.5 MB/s
-9 Maximum          DEFLATE      12.3 KB      56.8%  2.31x    1ms   14.7 MB/s
+ Input
+ ────────────────────────────────────────────
+   Path:          internal
+   Files:         15
+   Directories:   7
+   Input size:    68.0 KB
 
- ✦ Recommendation: Level 6 gives 56.3% reduction at 15.5 MB/s with optimal CPU efficiency.
-   Level 9 saves 139 B more space (0.5% extra) but took 1ms vs 1ms.
+ Results
+ ──────────────────────────────────────────────────────────────
+Level      Time     Size  Saved  Ratio      Speed
+─────────  ────  ───────  ─────  ─────  ─────────
+0 (store)   1ms  71.2 KB  -4.7%  0.95x  48.4 MB/s
+1           3ms  27.8 KB  59.1%  2.45x  17.0 MB/s
+2           3ms  27.3 KB  59.8%  2.49x  21.0 MB/s
+3           4ms  26.7 KB  60.7%  2.55x  15.0 MB/s
+4           3ms  25.9 KB  62.0%  2.63x  17.6 MB/s
+5           4ms  25.3 KB  62.8%  2.69x  15.2 MB/s
+6 ★         5ms  25.2 KB  63.0%  2.70x  12.9 MB/s
+7           5ms  24.9 KB  63.4%  2.73x  12.9 MB/s
+8           3ms  24.8 KB  63.5%  2.74x  18.3 MB/s
+9           5ms  24.7 KB  63.6%  2.75x  11.7 MB/s
+
+ Summary
+ ────────────────────────────────────────────
+   Fastest:         Level 0   • 48.4 MB/s
+   Smallest:        Level 9   • 24.7 KB
+   Best balance:    Level 6   • 12.9 MB/s / 25.2 KB
+
+   • Level 6 compared with Level 1: +3.8% compression, -24.2% throughput
+   • Levels 6–9 produced less than 1.0% difference in archive size (0.6% extra space saved at Level 9).
+```
+
+#### Why Compression Levels Behave Differently
+- **Level 0 (Store)**: No LZ77 dictionary search or Huffman encoding; fastest I/O speed.
+- **Level 1 (Fastest)**: Short match search depth with eager evaluations; high throughput for streaming pipelines.
+- **Level 6 (Default)**: Balanced match evaluations providing ~95% of maximum compression with low CPU overhead.
+- **Level 9 (Maximum)**: Deep chain searches with lazy match evaluation; best density for archival storage at the cost of additional CPU time.
+
+#### Advanced Benchmark Options:
+```bash
+bo bench ./project --compare           # Visual ASCII bar charts for size & throughput
+bo bench ./project --runs 3            # Average results over multiple iterations
+bo bench ./project --level 6           # Benchmark a specific level only
+bo bench ./project --decomp            # Also benchmark decompression duration & throughput
+bo bench ./project --json              # Output structured JSON for CI/CD pipelines
+bo bench ./project --csv               # Export tabular metrics to CSV
+bo bench ./project --keep              # Preserve generated benchmark archives on disk
 ```
 
 ---
 
 ### 6. JSON Export
-`bo list --json archive.zip` returns structured metadata for scripting:
+`bo list --json archive.zip` and `bo bench --json <folder>` return machine-readable output:
 
 ```json
 {
-  "total_files": 7,
-  "total_dirs": 1,
-  "uncompressed_bytes": 14032,
-  "compressed_bytes": 7578,
-  "average_file_size": 2004,
-  "compression_ratio": 0.54,
-  "space_saved_bytes": 6454,
-  "space_saved_percent": 46.1,
-  "archive_path": "cmd.zip"
+  "title": "Boa Compression Benchmark",
+  "input": {
+    "path": "internal",
+    "total_files": 15,
+    "size_bytes": 69632,
+    "size_human": "68.0 KB"
+  },
+  "results": [
+    {
+      "level": 6,
+      "name": "6 (Default)",
+      "method": "DEFLATE",
+      "duration_ms": 5.2,
+      "compressed_size": 25804,
+      "ratio_multiplier": 2.70,
+      "space_saved_percent": 63.0,
+      "throughput_mbps": 12.9
+    }
+  ]
 }
 ```
 

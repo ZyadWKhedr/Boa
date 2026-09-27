@@ -37,13 +37,31 @@ func TestCmdPackAndUnpackE2E(t *testing.T) {
 		t.Fatalf("RootCmd list failed: %v", err)
 	}
 
-	// 3. Test Bench
+	// 3. Test Bench Default
 	RootCmd.SetArgs([]string{"bench", srcDir})
 	if err := RootCmd.Execute(); err != nil {
 		t.Fatalf("RootCmd bench failed: %v", err)
 	}
 
-	// 4. Test Unpack
+	// 4. Test Bench JSON
+	RootCmd.SetArgs([]string{"bench", srcDir, "--json", "-l", "6"})
+	if err := RootCmd.Execute(); err != nil {
+		t.Fatalf("RootCmd bench --json failed: %v", err)
+	}
+
+	// 5. Test Bench CSV
+	RootCmd.SetArgs([]string{"bench", srcDir, "--csv", "-l", "1"})
+	if err := RootCmd.Execute(); err != nil {
+		t.Fatalf("RootCmd bench --csv failed: %v", err)
+	}
+
+	// 6. Test Bench Compare
+	RootCmd.SetArgs([]string{"bench", srcDir, "--compare", "--runs", "2"})
+	if err := RootCmd.Execute(); err != nil {
+		t.Fatalf("RootCmd bench --compare failed: %v", err)
+	}
+
+	// 7. Test Unpack
 	RootCmd.SetArgs([]string{"unpack", zipOut, "-o", destUnpack, "-f", "--quiet"})
 	if err := RootCmd.Execute(); err != nil {
 		t.Fatalf("RootCmd unpack failed: %v", err)
