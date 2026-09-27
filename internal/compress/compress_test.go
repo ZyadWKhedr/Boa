@@ -102,3 +102,109 @@ func TestPackDryRun(t *testing.T) {
 		t.Errorf("Dry-run created file on disk when it should not have")
 	}
 }
+
+func TestPackStoreMode(t *testing.T) {
+	srcDir, err := os.MkdirTemp("", "compress_store_*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(srcDir)
+
+	file1 := filepath.Join(srcDir, "raw.txt")
+	testData := []byte("Uncompressed raw storage testing data string with repeated repetitive patterns 123456789")
+	if err := os.WriteFile(file1, testData, 0o644); err != nil {
+		t.Fatalf("failed to write raw.txt: %v", err)
+	}
+
+	zipOut := filepath.Join(srcDir, "store.zip")
+
+	engine := New()
+	opts := types.PackOptions{
+		SourcePaths:      []string{file1},
+		OutputZipPath:    zipOut,
+		Method:           types.MethodStore,
+		CompressionLevel: 0,
+		Overwrite:        true,
+	}
+
+	summary, err := engine.Pack(opts)
+	if err != nil {
+		t.Fatalf("Pack with MethodStore failed: %v", err)
+	}
+
+	if summary.CompressionMethod != "Store" {
+		t.Errorf("Expected summary CompressionMethod 'Store', got %q", summary.CompressionMethod)
+	}
+
+	// Verify that header method is zip.Store (0)
+	reader, err := zip.OpenReader(zipOut)
+	if err != nil {
+		t.Fatalf("Failed to open store.zip: %v", err)
+	}
+	defer reader.Close()
+
+	if len(reader.File) == 0 {
+		t.Fatalf("Expected at least 1 entry in store.zip")
+	}
+
+	for _, f := range reader.File {
+		if !f.FileInfo().IsDir() {
+			if f.Method != zip.Store {
+				t.Errorf("Expected zip method Store (%d), got %d", zip.Store, f.Method)
+			}
+		}
+	}
+}
+
+func TestPackZstdMode(t *testing.T) {
+	srcDir, err := os.MkdirTemp("", "compress_zstd_*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(srcDir)
+
+	file1 := filepath.Join(srcDir, "payload.txt")
+	testData := []byte("Zstandard modern compression testing data string with lots of repetition repetition repetition 123456789")
+	if err := os.WriteFile(file1, testData, 0o644); err != nil {
+		t.Fatalf("failed to write payload.txt: %v", err)
+	}
+
+	zipOut := filepath.Join(srcDir, "zstd.zip")
+
+	engine := New()
+	opts := types.PackOptions{
+		SourcePaths:      []string{file1},
+		OutputZipPath:    zipOut,
+		Method:           types.MethodZstd,
+		CompressionLevel: 3,
+		Overwrite:        true,
+	}
+
+	summary, err := engine.Pack(opts)
+	if err != nil {
+		t.Fatalf("Pack with MethodZstd failed: %v", err)
+	}
+
+	if summary.CompressionMethod != "Zstandard" {
+		t.Errorf("Expected summary CompressionMethod 'Zstandard', got %q", summary.CompressionMethod)
+	}
+
+	// Verify that header method is 93 (ZipMethodZstd)
+	reader, err := zip.OpenReader(zipOut)
+	if err != nil {
+		t.Fatalf("Failed to open zstd.zip: %v", err)
+	}
+	defer reader.Close()
+
+	if len(reader.File) == 0 {
+		t.Fatalf("Expected at least 1 entry in zstd.zip")
+	}
+
+	for _, f := range reader.File {
+		if !f.FileInfo().IsDir() {
+			if f.Method != types.ZipMethodZstd {
+				t.Errorf("Expected zip method Zstd (%d), got %d", types.ZipMethodZstd, f.Method)
+			}
+		}
+	}
+}

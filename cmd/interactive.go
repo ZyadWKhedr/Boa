@@ -21,11 +21,13 @@ type menuItem struct {
 }
 
 var menuItems = []menuItem{
-	{Number: "1.", Name: "Pack", Desc: "Compress folders into dense archives"},
-	{Number: "2.", Name: "Unpack", Desc: "Safely extract zip archives"},
-	{Number: "3.", Name: "Inspect", Desc: "Explore archive structure & metadata"},
-	{Number: "4.", Name: "Benchmark", Desc: "Compare compression speed & ratios"},
-	{Number: "5.", Name: "Status", Desc: "Runtime health & system info"},
+	{Number: "1.", Name: "Pack", Desc: "Compress folders or files into dense archives"},
+	{Number: "2.", Name: "Unpack", Desc: "Safely extract zip archives with Zip-Slip defense"},
+	{Number: "3.", Name: "List", Desc: "List files, sizes & directory contents of an archive"},
+	{Number: "4.", Name: "Inspect", Desc: "Explore archive structure, ratios & metadata"},
+	{Number: "5.", Name: "Benchmark", Desc: "Measure compression speed, duration & throughput"},
+	{Number: "6.", Name: "Compare", Desc: "Side-by-side visual bar charts across compression levels"},
+	{Number: "7.", Name: "Status", Desc: "Runtime health, Go environment & platform info"},
 }
 
 // RunInteractiveDashboard launches real-time interactive arrow-key navigation.
@@ -73,11 +75,17 @@ func RunInteractiveDashboard() {
 		case "5":
 			selectedIndex = 4
 			handleAction(4)
+		case "6":
+			selectedIndex = 5
+			handleAction(5)
+		case "7":
+			selectedIndex = 6
+			handleAction(6)
 		case "ENTER", "SPACE":
 			handleAction(selectedIndex)
 		case "v", "V":
-			selectedIndex = 4
-			handleAction(4)
+			selectedIndex = 6
+			handleAction(6)
 		case "h", "H", "?":
 			fmt.Print("\033[H\033[2J")
 			ui.PrintBanner()
@@ -116,7 +124,7 @@ func renderMenu(selected int) {
 	}
 
 	fmt.Println()
-	fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Confirm  |  1-5 Jump  |  V Version  |  Q Quit"))
+	fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Confirm  |  1-7 Jump  |  V Version  |  Q Quit"))
 }
 
 func handleAction(index int) {
@@ -130,8 +138,12 @@ func handleAction(index int) {
 	case 2:
 		interactiveList(reader)
 	case 3:
-		interactiveBench(reader)
+		interactiveInspect(reader)
 	case 4:
+		interactiveBench(reader)
+	case 5:
+		interactiveCompare(reader)
+	case 6:
 		fmt.Print("\033[H\033[2J")
 		ui.PrintBanner()
 		fmt.Println()
@@ -209,13 +221,13 @@ func fallbackInteractive() {
 		for _, item := range menuItems {
 			fmt.Printf("  %s %-12s %s\n", item.Number, item.Name, item.Desc)
 		}
-		fmt.Print("\n Select option [1-5, Q]: ")
+		fmt.Print("\n Select option [1-7, Q]: ")
 		choice, _ := reader.ReadString('\n')
 		choice = strings.ToLower(strings.TrimSpace(choice))
 		if choice == "q" || choice == "exit" {
 			return
 		}
-		if idx, err := strconv.Atoi(choice); err == nil && idx >= 1 && idx <= 5 {
+		if idx, err := strconv.Atoi(choice); err == nil && idx >= 1 && idx <= len(menuItems) {
 			handleAction(idx - 1)
 		}
 	}
@@ -335,7 +347,7 @@ func interactiveUnpack(reader *bufio.Reader) {
 }
 
 func interactiveList(reader *bufio.Reader) {
-	archive, err := PickPath("Select Zip Archive to Inspect", PickZipOnly)
+	archive, err := PickPath("Select Zip Archive to List", PickZipOnly)
 	if err != nil {
 		return
 	}
@@ -344,6 +356,30 @@ func interactiveList(reader *bufio.Reader) {
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection(fmt.Sprintf("Archive Contents: %s", ui.PrettyPath(archive)))
+	fmt.Println()
+
+	engine := extract.New()
+	summary, err := engine.InspectArchive(archive)
+	if err != nil {
+		ui.PrintError(err.Error())
+		waitForEnter()
+		return
+	}
+
+	ui.RenderArchiveList(summary)
+	waitForEnter()
+}
+
+func interactiveInspect(reader *bufio.Reader) {
+	archive, err := PickPath("Select Zip Archive to Inspect", PickZipOnly)
+	if err != nil {
+		return
+	}
+
+	fmt.Print("\033[H\033[2J")
+	ui.PrintBanner()
+	fmt.Println()
+	ui.PrintSection(fmt.Sprintf("Deep Inspection: %s", ui.PrettyPath(archive)))
 	fmt.Println()
 
 	engine := extract.New()
@@ -370,6 +406,27 @@ func interactiveBench(reader *bufio.Reader) {
 
 	ui.SuppressBanner = true
 	RootCmd.SetArgs([]string{"bench", src})
+	if err := RootCmd.Execute(); err != nil {
+		ui.PrintError(err.Error())
+	}
+	ui.SuppressBanner = false
+	_ = compress.New()
+
+	waitForEnter()
+}
+
+func interactiveCompare(reader *bufio.Reader) {
+	src, err := PickPath("Select Folder or File to Compare", PickAny)
+	if err != nil {
+		return
+	}
+
+	fmt.Print("\033[H\033[2J")
+	ui.PrintBanner()
+	fmt.Println()
+
+	ui.SuppressBanner = true
+	RootCmd.SetArgs([]string{"bench", src, "--compare"})
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}

@@ -14,6 +14,7 @@ import (
 	"compressor/internal/safety"
 	"compressor/internal/stats"
 	"compressor/pkg/types"
+	"github.com/klauspost/compress/zstd"
 )
 
 // Engine performs compression operations.
@@ -40,8 +41,23 @@ func (e *Engine) Pack(opts types.PackOptions) (*types.ArchiveSummary, error) {
 
 	startTime := time.Now()
 
-	methodName := "Deflate"
-	if opts.CompressionLevel == 0 {
+	// Normalize method and level
+	if opts.Method == "" {
+		if opts.CompressionLevel == 0 {
+			opts.Method = types.MethodStore
+		} else {
+			opts.Method = types.MethodDeflate
+		}
+	}
+
+	normLevel, err := types.ValidateLevel(opts.Method, opts.CompressionLevel)
+	if err != nil {
+		return nil, err
+	}
+	opts.CompressionLevel = normLevel
+
+	methodName := opts.Method.DisplayName()
+	if opts.Method == types.MethodDeflate && opts.CompressionLevel == 0 {
 		methodName = "Store"
 	}
 
@@ -85,18 +101,29 @@ func (e *Engine) Pack(opts types.PackOptions) (*types.ArchiveSummary, error) {
 
 	zipWriter := zip.NewWriter(tempFile)
 
-	// Configure compression level if specified
-	if opts.CompressionLevel >= 0 && opts.CompressionLevel <= 9 {
-		if opts.CompressionLevel == 0 {
-			// Store (no compression)
-			zipWriter.RegisterCompressor(zip.Deflate, func(out io.Writer) (io.WriteCloser, error) {
-				return flate.NewWriter(out, flate.NoCompression)
-			})
-		} else {
+	// Configure method-specific compressors
+	switch opts.Method {
+	case types.MethodDeflate:
+		if opts.CompressionLevel > 0 {
 			zipWriter.RegisterCompressor(zip.Deflate, func(out io.Writer) (io.WriteCloser, error) {
 				return flate.NewWriter(out, opts.CompressionLevel)
 			})
 		}
+	case types.MethodZstd:
+		zipWriter.RegisterCompressor(types.ZipMethodZstd, func(out io.Writer) (io.WriteCloser, error) {
+			var zstdLvl zstd.EncoderLevel
+			switch {
+			case opts.CompressionLevel <= 1:
+				zstdLvl = zstd.SpeedFastest
+			case opts.CompressionLevel <= 3:
+				zstdLvl = zstd.SpeedDefault
+			case opts.CompressionLevel <= 7:
+				zstdLvl = zstd.SpeedBetterCompression
+			default:
+				zstdLvl = zstd.SpeedBestCompression
+			}
+			return zstd.NewWriter(out, zstd.WithEncoderLevel(zstdLvl))
+		})
 	}
 
 	// Pack each source path
@@ -200,11 +227,18 @@ func (e *Engine) packPath(zw *zip.Writer, srcPath string, opts types.PackOptions
 			return nil
 		}
 
-		// Handle files
-		if opts.CompressionLevel == 0 {
+		// Handle files based on method
+		switch opts.Method {
+		case types.MethodStore:
 			header.Method = zip.Store
-		} else {
-			header.Method = zip.Deflate
+		case types.MethodZstd:
+			header.Method = types.ZipMethodZstd
+		default:
+			if opts.CompressionLevel == 0 {
+				header.Method = zip.Store
+			} else {
+				header.Method = zip.Deflate
+			}
 		}
 
 		writer, err := zw.CreateHeader(header)

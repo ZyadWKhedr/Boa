@@ -111,3 +111,114 @@ func TestZipSlipAttackBlocked(t *testing.T) {
 		t.Fatalf("Security failure: evil.txt was written outside target boundary!")
 	}
 }
+
+func TestUnpackStoreMode(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "extract_store_*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	srcDir := filepath.Join(tempDir, "source")
+	destDir := filepath.Join(tempDir, "extracted")
+	zipPath := filepath.Join(tempDir, "store.zip")
+
+	_ = os.MkdirAll(srcDir, 0o755)
+	testContent := []byte("Store mode extraction payload data content string")
+	_ = os.WriteFile(filepath.Join(srcDir, "store_test.txt"), testContent, 0o644)
+
+	compEngine := compress.New()
+	_, err = compEngine.Pack(types.PackOptions{
+		SourcePaths:      []string{srcDir},
+		OutputZipPath:    zipPath,
+		Method:           types.MethodStore,
+		CompressionLevel: 0,
+		Overwrite:        true,
+	})
+	if err != nil {
+		t.Fatalf("Pack in Store mode failed: %v", err)
+	}
+
+	extractEngine := New()
+	summary, err := extractEngine.Unpack(types.UnpackOptions{
+		ArchivePath:    zipPath,
+		DestinationDir: destDir,
+		Overwrite:      true,
+	})
+	if err != nil {
+		t.Fatalf("Unpack of Store archive failed: %v", err)
+	}
+
+	if summary.TotalFiles < 1 {
+		t.Errorf("Expected at least 1 file extracted, got %d", summary.TotalFiles)
+	}
+
+	extractedFile := filepath.Join(destDir, "source", "store_test.txt")
+	gotContent, err := os.ReadFile(extractedFile)
+	if err != nil {
+		t.Fatalf("Failed to read extracted file: %v", err)
+	}
+	if string(gotContent) != string(testContent) {
+		t.Errorf("Content mismatch: expected %q, got %q", string(testContent), string(gotContent))
+	}
+}
+
+func TestUnpackZstdMode(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "extract_zstd_*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	srcDir := filepath.Join(tempDir, "source")
+	destDir := filepath.Join(tempDir, "extracted")
+	zipPath := filepath.Join(tempDir, "zstd.zip")
+
+	_ = os.MkdirAll(srcDir, 0o755)
+	testContent := []byte("Zstandard Method 93 extraction test payload data with lots of repeating tokens 123456789")
+	_ = os.WriteFile(filepath.Join(srcDir, "zstd_test.txt"), testContent, 0o644)
+
+	compEngine := compress.New()
+	_, err = compEngine.Pack(types.PackOptions{
+		SourcePaths:      []string{srcDir},
+		OutputZipPath:    zipPath,
+		Method:           types.MethodZstd,
+		CompressionLevel: 3,
+		Overwrite:        true,
+	})
+	if err != nil {
+		t.Fatalf("Pack in Zstandard mode failed: %v", err)
+	}
+
+	extractEngine := New()
+	summary, err := extractEngine.Unpack(types.UnpackOptions{
+		ArchivePath:    zipPath,
+		DestinationDir: destDir,
+		Overwrite:      true,
+	})
+	if err != nil {
+		t.Fatalf("Unpack of Zstandard archive failed: %v", err)
+	}
+
+	if summary.TotalFiles < 1 {
+		t.Errorf("Expected at least 1 file extracted, got %d", summary.TotalFiles)
+	}
+
+	extractedFile := filepath.Join(destDir, "source", "zstd_test.txt")
+	gotContent, err := os.ReadFile(extractedFile)
+	if err != nil {
+		t.Fatalf("Failed to read extracted zstd file: %v", err)
+	}
+	if string(gotContent) != string(testContent) {
+		t.Errorf("Content mismatch: expected %q, got %q", string(testContent), string(gotContent))
+	}
+
+	// Test InspectArchive on Zstd zip
+	inspectSummary, err := extractEngine.InspectArchive(zipPath)
+	if err != nil {
+		t.Fatalf("InspectArchive on Zstd zip failed: %v", err)
+	}
+	if inspectSummary.CompressionMethod != "Zstandard" {
+		t.Errorf("Expected inspect summary CompressionMethod 'Zstandard', got %q", inspectSummary.CompressionMethod)
+	}
+}

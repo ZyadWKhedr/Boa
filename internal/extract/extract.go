@@ -13,7 +13,18 @@ import (
 	"compressor/internal/safety"
 	"compressor/internal/stats"
 	"compressor/pkg/types"
+	"github.com/klauspost/compress/zstd"
 )
+
+func init() {
+	zip.RegisterDecompressor(types.ZipMethodZstd, func(r io.Reader) io.ReadCloser {
+		zr, err := zstd.NewReader(r)
+		if err != nil {
+			return nil
+		}
+		return zr.IOReadCloser()
+	})
+}
 
 // Engine performs decompression and archive inspection operations.
 type Engine struct{}
@@ -214,9 +225,16 @@ func (e *Engine) InspectArchive(archivePath string) (*types.ArchiveSummary, erro
 			summary.TotalFiles++
 			summary.UncompressedBytes += entry.OriginalSize
 			summary.CompressedBytes += entry.CompressedSize
+			if summary.CompressionMethod == "" {
+				summary.CompressionMethod = types.MethodNameFromID(f.Method)
+			}
 		}
 
 		summary.Entries = append(summary.Entries, entry)
+	}
+
+	if summary.CompressionMethod == "" {
+		summary.CompressionMethod = "Store"
 	}
 
 	if summary.TotalFiles > 0 {

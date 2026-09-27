@@ -1,5 +1,4 @@
 # VHS Tape Script for Boa Terminal Demo
-# Install VHS: brew install vhs
 # Run: vhs docs/demo.tape
 
 Output docs/img/demo.gif
@@ -11,70 +10,156 @@ Set Height 760
 Set Padding 20
 Set Theme "Catppuccin Mocha"
 Set WindowBar Colorful
-Set TypingSpeed 30ms
+Set TypingSpeed 35ms
 
-# 1. Interactive Dashboard
-Type "bo"
+# Launch interactive dashboard
+Type "cd ~/Desktop && bo"
 Sleep 600ms
 Enter
 Sleep 1800ms
-Down
-Sleep 400ms
-Down
-Sleep 400ms
-Down
-Sleep 400ms
-Up
-Sleep 400ms
-Type "q"
+
+# ==========================================
+# 1. PACK: Compress ~/Desktop/boa-test
+# ==========================================
+Enter
 Sleep 800ms
-
-Type "clear"
-Enter
-Sleep 400ms
-
-# 2. Pack Desktop Folder
-Type "bo pack ~/Desktop/boa-test -l 6"
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
 Sleep 600ms
+Enter
+Sleep 1000ms
 Enter
 Sleep 2500ms
-
-Type "clear"
 Enter
-Sleep 400ms
+Sleep 1200ms
 
-# 3. Inspect Archive Contents
-Type "bo list ~/Desktop/boa-test.zip"
+# ==========================================
+# 2. LIST: Explore archive file contents
+# ==========================================
+Down
+Sleep 250ms
+Down
 Sleep 600ms
 Enter
-Sleep 3500ms
-
-Type "clear"
-Enter
-Sleep 400ms
-
-# 4. Benchmark Deflate Levels (0-9) & Trade-offs
-Type "bo bench ~/Desktop/boa-test --compare"
-Sleep 600ms
-Enter
-Sleep 5000ms
-
-Type "clear"
-Enter
-Sleep 400ms
-
-# 5. Safely Unpack Archive
-Type "bo unpack ~/Desktop/boa-test.zip -o ~/Desktop/boa-test-unpacked --force"
-Sleep 600ms
-Enter
-Sleep 2500ms
-
-Type "clear"
-Enter
-Sleep 400ms
-
-# 6. System Status & Runtime Info
-Type "bo status"
+Sleep 800ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
 Sleep 600ms
 Enter
 Sleep 3000ms
+Enter
+Sleep 1200ms
+
+# ==========================================
+# 3. INSPECT: Deep metadata analysis
+# ==========================================
+Down
+Sleep 600ms
+Enter
+Sleep 800ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 600ms
+Enter
+Sleep 3000ms
+Enter
+Sleep 1200ms
+
+# ==========================================
+# 4. COMPARE: Multi-level visual comparison
+# ==========================================
+Down
+Sleep 250ms
+Down
+Sleep 600ms
+Enter
+Sleep 800ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 600ms
+Enter
+Sleep 5000ms
+Enter
+Sleep 1200ms
+
+# ==========================================
+# 5. UNPACK: Safely extract archive
+# ==========================================
+Up
+Sleep 250ms
+Up
+Sleep 250ms
+Up
+Sleep 250ms
+Up
+Sleep 600ms
+Enter
+Sleep 800ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 600ms
+Enter
+Sleep 1000ms
+Enter
+Sleep 2500ms
+Enter
+Sleep 1200ms
+
+# ==========================================
+# 6. STATUS: Runtime health & system info
+# ==========================================
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 250ms
+Down
+Sleep 600ms
+Enter
+Sleep 2500ms
+Enter
+Sleep 1200ms
+
+# ==========================================
+# 7. QUIT: Graceful exit
+# ==========================================
+Type "q"
+Sleep 1800ms
