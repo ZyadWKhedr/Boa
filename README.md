@@ -106,10 +106,10 @@ go install github.com/ZyadWKhedr/Boa@latest
 
 ### Install a Specific Release Version
 
-To install a specific release version (e.g. `v0.2.0`):
+To install a specific release version (e.g. `v0.2.1`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.2.0
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.2.1
 ```
 
 ### Build from Source
@@ -175,7 +175,7 @@ Typing `bo` in your terminal launches the real-time interactive dashboard with a
 | |_) | (_) | (_| |   https://github.com/ZyadWKhedr/Boa
 |____/ \___/ \__,_|   Tight, fast, lossless compression for your files.
 
- Version v0.2.0  ·  Interactive compression toolkit
+ Version v0.2.1  ·  Interactive compression toolkit
 
  ➤ 1.  Pack         Compress folders or files into dense archives
    2.  Unpack       Safely extract zip archives with Zip-Slip defense
