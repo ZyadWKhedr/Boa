@@ -161,6 +161,8 @@ func readKey() (string, error) {
 		switch buf[0] {
 		case 3:
 			return "CTRL_C", nil
+		case 9:
+			return "TAB", nil
 		case 13, 10:
 			return "ENTER", nil
 		case 27:

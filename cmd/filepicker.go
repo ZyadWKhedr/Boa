@@ -75,23 +75,30 @@ func PickPath(title string, mode FilePickerMode) (string, error) {
 			if len(items) > 0 {
 				selectedIdx = (selectedIdx + 1) % len(items)
 			}
-		case "LEFT", "BACKSPACE":
+		case "LEFT", "h", "H", "BACKSPACE":
 			// Go up to parent directory
 			parent := filepath.Dir(currentDir)
 			if parent != currentDir {
 				currentDir = parent
 				selectedIdx = 0
 			}
+		case "RIGHT", "TAB", "l", "L", "o", "O":
+			// Step inside folder if a directory is highlighted
+			if len(items) > 0 {
+				chosen := items[selectedIdx]
+				if chosen.IsParent {
+					currentDir = filepath.Dir(currentDir)
+					selectedIdx = 0
+				} else if chosen.IsDir && chosen.Path != currentDir {
+					currentDir = chosen.Path
+					selectedIdx = 0
+				}
+			}
 		case "ENTER", "SPACE":
 			if len(items) == 0 {
 				continue
 			}
 			chosen := items[selectedIdx]
-
-			// If selecting the current folder marker
-			if chosen.Path == currentDir {
-				return currentDir, nil
-			}
 
 			// If selecting ".."
 			if chosen.IsParent {
@@ -100,22 +107,7 @@ func PickPath(title string, mode FilePickerMode) (string, error) {
 				continue
 			}
 
-			// If it's a directory
-			if chosen.IsDir {
-				if mode == PickFolderOnly {
-					// Ask user if they want to choose this folder or enter it
-					// Entering is done via right arrow or selecting inside, but by default enter directory
-					currentDir = chosen.Path
-					selectedIdx = 0
-				} else {
-					// Navigate inside directory
-					currentDir = chosen.Path
-					selectedIdx = 0
-				}
-				continue
-			}
-
-			// It's a file selection
+			// Return the selected folder or file
 			return chosen.Path, nil
 
 		case "s", "S":
@@ -249,5 +241,5 @@ func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx in
 
 	fmt.Println()
 	fmt.Println(ui.Dim("========================================================================"))
-	fmt.Println(ui.Dim(" ↑↓ Navigate  |  Enter Open/Select  |  S Select Current Folder  |  Q Cancel"))
+	fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Select Item  |  → / Tab Open Folder  |  ← Back  |  Q Cancel"))
 }
