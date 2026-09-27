@@ -6,13 +6,49 @@
 
 # Boa
 
-**Fast, secure, interactive compression for your terminal.**
-
 [![Go Version](https://img.shields.io/badge/go-1.21%2B-00ADD8?logo=go)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E599.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-00C7BE)](./README.md)
 [![Security Audited](https://img.shields.io/badge/Security-ZipSlip%20Protected-brightgreen)](./SECURITY_AUDIT.md)
+[![Follow on X](https://img.shields.io/badge/Follow-%40Zyadwaelll05-black?logo=x)](https://x.com/Zyadwaelll05)
+[![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Zyad%20Wael-0A66C2?logo=linkedin)](https://www.linkedin.com/in/zyad-wael-a9035a275/)
 
+</div>
+
+<br/>
+
+> Tight, fast, and interactive compression engine for your terminal. Compresses folders, extracts archives, inspects metadata, benchmarks performance, and navigates your filesystem without leaving the command line.
+
+<br/>
+
+---
+
+## Features
+
+- **All-in-One CLI Toolkit**: Combines fast zip compression, safe extraction, in-place header inspection, live speed benchmarking, and an interactive terminal file explorer in a single zero-dependency binary.
+- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams. Compresses multi-gigabyte folders without consuming excess RAM.
+- **Zip-Slip & Path Security**: Built-in canonical path boundary validation that blocks directory traversals (`../../`), null-byte injections, and escaping symlinks before writing to disk.
+- **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest speed), `6` (Default), up to `9` (Maximum Deflate).
+- **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓` / `jk`) without typing long paths manually.
+- **Dense Terminal UI**: Stable column alignment, single-screen summaries, ANSI color palette with automatic `NO_COLOR` support.
+- **Cross-Platform Parity**: Native builds and path normalization for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
+
+---
+
+## Why Boa?
+
+Most command-line compression workflows force you to memorize obtuse flags across different utilities (`zip`, `unzip`, `tar`, `7z`) or switch between GUI file managers and terminal windows.
+
+Boa delivers a **modern terminal-native archive experience**:
+- **Interactive File Explorer**: Navigate your filesystem, highlight folders, and press `Enter` to compress without typing long paths.
+- **Streaming Low-RAM Engine**: Compresses large multi-gigabyte directories in direct chunked streams.
+- **Secure by Default**: Automatically blocks Zip-Slip directory traversal attacks (`../../`) and malicious symlink escapes.
+- **Instant Benchmarking**: Compare compression speeds and ratios across Deflate levels (0 to 9) side-by-side.
+
+<br/>
+
+<div align="center">
+  <img src="./docs/img/big-boa.png" width="760" alt="Boa - Compress Your Files" />
 </div>
 
 <br/>
@@ -27,24 +63,48 @@
 │   4. Benchmark   Compare compression speed & ratios          │
 │   5. Status      Runtime health & system info                │
 │                                                              │
-│   ↑↓ Navigate    Enter Confirm    1-5 Jump    Q Quit         │
+│   ↑↓ Navigate    Enter Select Item    → / Tab Open    Q Quit │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 <br/>
 
-## Install
+---
 
-### macOS / Linux (One-Line Script)
+## Quick Start
+
+Boa supports macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
+
+### Install via Script (macOS / Linux)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash
 ```
 
-### Go Install
+The script installs into `~/.local/bin` (or `/usr/local/bin` if run as root) and creates symlinks for `boa`, `bo`, and `compressor`.
+
+### Install into a User-Owned Directory (Password-Free)
+
+```bash
+mkdir -p "$HOME/.local/bin"
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Add `export PATH="$HOME/.local/bin:$PATH"` to your `~/.zshrc` or `~/.bashrc` for new terminals.
+
+### Install via Go
 
 ```bash
 go install github.com/ZyadWKhedr/Boa@latest
+```
+
+### Install a Specific Release Version
+
+To install a specific release version (e.g. `v0.1.0`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.1.0
 ```
 
 ### Build from Source
@@ -57,75 +117,19 @@ make install
 
 ---
 
-## Quick Examples
+## Run
 
 ```bash
-bo                      # Launch interactive menu & file explorer
-bo pack ./my-folder     # Compress folder into my-folder.zip
-bo unpack project.zip   # Extract archive safely
-bo list project.zip     # View file sizes, CRC32, and compression ratios
-bo bench ./my-folder    # Benchmark throughput speeds (MB/s) across levels (0-9)
+bo                      # Interactive menu & in-terminal file explorer
+bo pack <path>          # Compress folder or file into a zip archive
+bo unpack <archive.zip> # Safely extract zip archive into directory
+bo list <archive.zip>   # Inspect contents, file sizes, and compression ratios
+bo bench <path>         # Benchmark throughput speeds (MB/s) across levels (0-9)
+bo version              # Show version, commit SHA, and platform info
+bo --help               # Show help reference
 ```
 
----
-
-## Why Boa?
-
-Most command-line compression workflows force you to memorize obtuse flags across different utilities (`zip`, `unzip`, `tar`, `7z`) or switch between GUI file managers and terminal windows.
-
-Boa delivers a **modern terminal-native archive experience**:
-- **Interactive File Explorer**: Navigate your filesystem, select folders, and compress without typing long paths manually.
-- **Streaming Low-RAM Engine**: Compresses large multi-gigabyte directories in direct chunked streams.
-- **Secure by Default**: Automatically blocks Zip-Slip directory traversal attacks (`../../`) and malicious symlink escapes before writing to disk.
-- **Instant Benchmarking**: Compare compression speeds and ratios across Deflate levels (0 to 9) side-by-side.
-
-<br/>
-
-<div align="center">
-  <img src="./docs/img/big-boa.png" width="760" alt="Boa - Compress Your Files" />
-</div>
-
-<br/>
-
----
-
-## Features
-
-- **All-in-One CLI Toolkit**: Combines fast zip compression, safe extraction, in-place header inspection, live speed benchmarking, and an interactive terminal file explorer in a single zero-dependency binary.
-- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams.
-- **Zip-Slip & Path Security**: Built-in canonical path boundary validation that blocks directory traversals (`../../`), null-byte injections, and escaping symlinks.
-- **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest speed), `6` (Default), up to `9` (Maximum Deflate).
-- **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓` / `jk`).
-- **Dense Terminal UI**: Stable column alignment, single-screen summaries, and ANSI color palette with automatic `NO_COLOR` support.
-- **Cross-Platform Parity**: Native builds for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
-
----
-
-## Command Reference
-
-```
-COMMANDS
-  bo                           Main menu & file explorer
-  bo pack                      Compress folders into zip archives
-  bo unpack                    Safely extract zip archives
-  bo list                      Inspect contents & compression ratios
-  bo bench                     Benchmark compression levels (0-9)
-  bo version                   Show version & platform info
-  bo --help                    Show help
-
-  bo pack ./folder -o dist.zip -l 9
-  bo pack ./folder --dry-run
-  bo unpack dist.zip -o ./out --force
-  bo list dist.zip --json
-  bo bench ./large-data
-
-OPTIONS
-  -v, --verbose                Show detailed operation logs
-  -q, --quiet                  Suppress non-essential output
-      --no-color               Disable ANSI color formatting
-```
-
-### Options and Flags
+### Preview Safely
 
 ```bash
 bo pack ./my-folder --dry-run          # Preview files to pack and estimated size
@@ -138,11 +142,11 @@ bo list archive.zip --json             # Export structured JSON metadata
 
 ---
 
-## Safety Architecture
+## Safety
 
 Boa validates paths, enforces extraction boundaries, and asks for confirmation when overwriting existing files.
 
-- **Zip-Slip Defense**: All entry paths in incoming archives are sanitized with canonical prefix checks. Any entry with `../`, leading slashes (`/`), or drive roots (`C:\`) is blocked with an explicit security error before disk access.
+- **Zip-Slip Defense**: All entry paths in incoming archives are sanitized with canonical prefix checks. Any entry containing `../`, leading slashes (`/`), or drive roots (`C:\`) is blocked with an explicit security error before disk access.
 - **Symlink Boundary Checks**: Symlinks pointing outside the extraction boundary are prevented from executing.
 - **Atomic Operations**: Compression writes to temporary files first (`.compressor_tmp_*.zip`) before atomically moving the finished archive into place.
 - **Same-Directory Defaults**: Compressed files are automatically saved directly in the same parent directory as the target source.
@@ -173,7 +177,7 @@ Update 1.0.0 available, run bo update
  ↑↓ / jk Navigate  |  Enter Confirm  |  1-5 Jump  |  V Version  |  Q Quit
 ```
 
-Selecting **Pack** or **Unpack** opens the in-terminal **File Explorer**:
+Selecting **Pack** opens the in-terminal **File Explorer**:
 
 ```text
 ▶ Select Folder or File to Compress
@@ -190,7 +194,7 @@ Location: /Users/zyadwael/Go/compressor
   📄  main.go
 
 ========================================================================
- ↑↓ Navigate  |  Enter Open/Select  |  S Select Current Folder  |  Q Cancel
+ ↑↓ / jk Navigate  |  Enter Select Item  |  → / Tab Open Folder  |  ← Back  |  Q Cancel
 ```
 
 ---
