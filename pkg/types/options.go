@@ -13,8 +13,13 @@ type PackOptions struct {
 	// OutputZipPath is the destination path for the created .zip archive.
 	OutputZipPath string
 
-	// CompressionLevel specifies the flate compression level (-1 to 9).
-	// Default is 6 (DefaultCompression), 0 is Store (no compression), 9 is BestCompression, 1 is BestSpeed.
+	// Method specifies the compression algorithm: MethodDeflate (default), MethodStore, or MethodZstd.
+	Method CompressionMethod
+
+	// CompressionLevel specifies the method-specific compression level.
+	// For DEFLATE: 1 (BestSpeed) to 9 (BestCompression), default 6.
+	// For Zstandard: 1 (Fastest) to 4 or standard levels (default: 3).
+	// For Store: Not applicable (0).
 	CompressionLevel int
 
 	// ExcludePatterns are glob patterns for files/directories to skip (e.g. "*.git*", ".DS_Store", "node_modules").
