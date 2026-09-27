@@ -72,3 +72,9 @@ func TestCmdPackAndUnpackE2E(t *testing.T) {
 		t.Fatalf("Extracted file %q does not exist", extractedFile)
 	}
 }
+
+func TestAnimateBoaSnake(t *testing.T) {
+	// Verify animation loop runs without panic
+	AnimateBoaSnake("Testing slithering boa snake...", 5, 1)
+}
+

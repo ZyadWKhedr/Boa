@@ -27,6 +27,7 @@ var menuItems = []menuItem{
 	{Number: "5.", Name: "Benchmark", Desc: "Measure compression speed, duration & throughput"},
 	{Number: "6.", Name: "Compare", Desc: "Side-by-side visual bar charts across compression levels"},
 	{Number: "7.", Name: "Status", Desc: "Runtime health, Go environment & platform info"},
+	{Number: "8.", Name: "Uninstall", Desc: "Safely remove Boa binaries & symlinks from system"},
 }
 
 // RunInteractiveDashboard launches real-time interactive arrow-key navigation.
@@ -87,6 +88,9 @@ func RunInteractiveDashboard() {
 		case "7":
 			selectedIndex = 6
 			handleAction(6)
+		case "8", "u", "U":
+			selectedIndex = 7
+			handleAction(7)
 		case "ENTER", "SPACE":
 			handleAction(selectedIndex)
 		case "v", "V":
@@ -129,7 +133,7 @@ func renderMenu(selected int) {
 	}
 
 	fmt.Println()
-	fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Confirm  |  1-7 Jump  |  V Version  |  Q Quit"))
+	fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Confirm  |  1-8 Jump  |  V Version  |  Q Quit"))
 }
 
 func handleAction(index int) {
@@ -160,6 +164,8 @@ func handleAction(index int) {
 		_ = RootCmd.Execute()
 		ui.SuppressBanner = false
 		waitForEnter()
+	case 7:
+		interactiveUninstall(reader)
 	}
 }
 
@@ -447,3 +453,10 @@ func interactiveCompare(reader *bufio.Reader) {
 
 	waitForEnter()
 }
+
+func interactiveUninstall(reader *bufio.Reader) {
+	fmt.Print("\033[H\033[2J\033[3J")
+	RunUninstall(false)
+	waitForEnter()
+}
+

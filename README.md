@@ -25,12 +25,13 @@
 
 ## Features
 
-- **All-in-One CLI Toolkit**: Combines fast zip compression, safe extraction, in-place header inspection, live speed benchmarking, and an interactive terminal file explorer in a single zero-dependency binary.
+- **Multi-Algorithm Compression**: Supports standard **DEFLATE** (levels 1–9, universal compatibility), raw **Store** (level 0, I/O-bound throughput), and modern **Zstandard (`zstd`)** (Method ID 93, ultra-dense and high throughput).
+- **All-in-One CLI Toolkit**: Combines fast compression, safe extraction, in-place header inspection, live multi-level benchmarking, and a full terminal file explorer in a single zero-dependency binary.
 - **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams. Compresses multi-gigabyte folders without consuming excess RAM.
 - **Zip-Slip & Path Security**: Built-in canonical path boundary validation that blocks directory traversals (`../../`), null-byte injections, and escaping symlinks before writing to disk.
-- **Granular Compression Tuning**: Supports compression levels `0` (Store), `1` (Fastest speed), `6` (Default), up to `9` (Maximum Deflate).
-- **Interactive Terminal File Explorer**: Browse folders and zip files directly from your terminal using arrow keys (`↑↓` / `jk`) without typing long paths manually.
-- **Dense Terminal UI**: Stable column alignment, single-screen summaries, ANSI color palette with automatic `NO_COLOR` support.
+- **Dynamic Best Balance Benchmarking**: Automatically computes the real mathematical efficiency knee-point balancing space savings ($65\%$) against throughput ($35\%$) with side-by-side ASCII comparison charts.
+- **Interactive File Explorer**: Fullscreen alternate-screen TUI (`bo`) with folder stepping, single-file picking, whole-folder packing, and zero page stacking.
+- **User-Friendly Inspection**: Overview metadata cards rendered first with gracefully capped file manifests to prevent terminal flooding on massive archives.
 - **Cross-Platform Parity**: Native builds and path normalization for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
 
 ---
@@ -40,10 +41,11 @@
 Most command-line compression workflows force you to memorize obtuse flags across different utilities (`zip`, `unzip`, `tar`, `7z`) or switch between GUI file managers and terminal windows.
 
 Boa delivers a **modern terminal-native archive experience**:
-- **Interactive File Explorer**: Navigate your filesystem, highlight folders, and press `Enter` to compress without typing long paths.
+- **Interactive File Explorer**: Navigate your filesystem, step inside directories, highlight single files or entire folders, and compress without typing paths.
+- **Multi-Engine Support**: Choose between DEFLATE (default), Store (no compression), and Zstandard (`zstd`) with `-m / --method`.
 - **Streaming Low-RAM Engine**: Compresses large multi-gigabyte directories in direct chunked streams.
 - **Secure by Default**: Automatically blocks Zip-Slip directory traversal attacks (`../../`) and malicious symlink escapes.
-- **Instant Benchmarking**: Compare compression speeds and ratios across Deflate levels (0 to 9) side-by-side.
+- **Instant Benchmarking**: Compare compression speeds and ratios across levels (0 to 9) and algorithms with dynamic efficiency rankings.
 
 <br/>
 
@@ -54,17 +56,20 @@ Boa delivers a **modern terminal-native archive experience**:
 <br/>
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│                            BOA                               │
-│                                                              │
-│   1. Pack        Compress folders into dense archives        │
-│   2. Unpack      Safely extract zip archives                 │
-│   3. Inspect     Explore archive structure & metadata        │
-│   4. Benchmark   Compare compression speed & ratios          │
-│   5. Status      Runtime health & system info                │
-│                                                              │
-│   ↑↓ Navigate    Enter Select Item    → / Tab Open    Q Quit │
-└──────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                     BOA                                     │
+│                                                                             │
+│   1. Pack        Compress folders or files into dense archives              │
+│   2. Unpack      Safely extract zip archives with Zip-Slip defense          │
+│   3. List        List files, sizes & directory contents of an archive       │
+│   4. Inspect     Explore archive structure, ratios & metadata               │
+│   5. Benchmark   Measure compression speed, duration & throughput           │
+│   6. Compare     Side-by-side visual bar charts across compression levels   │
+│   7. Status      Runtime health, Go environment & platform info             │
+│   8. Uninstall   Safely remove Boa binaries & symlinks from system          │
+│                                                                             │
+│   ↑↓ / jk Navigate  |  Enter Confirm  |  1-8 Jump  |  V Version  |  Q Quit  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 <br/>
@@ -101,10 +106,10 @@ go install github.com/ZyadWKhedr/Boa@latest
 
 ### Install a Specific Release Version
 
-To install a specific release version (e.g. `v0.1.0`):
+To install a specific release version (e.g. `v0.2.0`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.1.0
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.2.0
 ```
 
 ### Build from Source
@@ -120,12 +125,15 @@ make install
 ## Run
 
 ```bash
-bo                      # Interactive menu & in-terminal file explorer
-bo pack <path>          # Compress folder or file into a zip archive
+bo                      # Interactive dashboard & fullscreen file explorer
+bo pack <path>          # Compress folder or file (DEFLATE level 6 default)
+bo pack <path> -m zstd  # Compress using modern Zstandard (Method 93)
+bo pack <path> -m store # Package raw files without compression
 bo unpack <archive.zip> # Safely extract zip archive into directory
 bo list <archive.zip>   # Inspect contents, file sizes, and compression ratios
 bo bench <path>         # Benchmark throughput speeds (MB/s) across levels (0-9)
 bo version              # Show version, commit SHA, and platform info
+bo uninstall            # Safely remove Boa binaries and symlinks from system
 bo --help               # Show help reference
 ```
 
@@ -133,10 +141,11 @@ bo --help               # Show help reference
 
 ```bash
 bo pack ./my-folder --dry-run          # Preview files to pack and estimated size
-bo unpack archive.zip --dry-run        # Preview extraction paths safely
+bo pack ./my-folder -m zstd -l 3       # Zstandard compression with custom level
 bo pack ./my-folder -e "node_modules"  # Exclude patterns (*.tmp, .git*, node_modules)
-bo pack ./my-folder -l 9               # Use maximum compression level
+bo pack ./my-folder -l 9               # Use maximum DEFLATE compression level
 bo unpack archive.zip -o ./dist -f     # Overwrite destination files with --force
+bo list archive.zip --all              # Display complete file list without truncation
 bo list archive.zip --json             # Export structured JSON metadata
 ```
 
@@ -166,24 +175,27 @@ Typing `bo` in your terminal launches the real-time interactive dashboard with a
 | |_) | (_) | (_| |   https://github.com/ZyadWKhedr/Boa
 |____/ \___/ \__,_|   Tight, fast, lossless compression for your files.
 
-Version v0.1.0  ·  Interactive compression toolkit
+ Version v0.2.0  ·  Interactive compression toolkit
 
-   1. Pack        Compress folders into dense archives
-   2. Unpack      Safely extract zip archives
-   3. Inspect     Explore archive structure & metadata
-   4. Benchmark   Compare compression speed & ratios
- ➤ 5. Status      Runtime health & system info
+ ➤ 1.  Pack         Compress folders or files into dense archives
+   2.  Unpack       Safely extract zip archives with Zip-Slip defense
+   3.  List         List files, sizes & directory contents of an archive
+   4.  Inspect      Explore archive structure, ratios & metadata
+   5.  Benchmark    Measure compression speed, duration & throughput
+   6.  Compare      Side-by-side visual bar charts across compression levels
+   7.  Status       Runtime health, Go environment & platform info
+   8.  Uninstall    Safely remove Boa binaries & symlinks from system
 
- ↑↓ / jk Navigate  |  Enter Confirm  |  1-5 Jump  |  V Version  |  Q Quit
+ ↑↓ / jk Navigate  |  Enter Confirm  |  1-8 Jump  |  V Version  |  Q Quit
 ```
 
 Selecting **Pack** opens the in-terminal **File Explorer**:
 
 ```text
 ▶ Select Folder or File to Compress
-Location: ~/projects/myapp
+Location: ~/Desktop/projects
 
-➤ ✔  [SELECT THIS CURRENT FOLDER: myapp]
+➤ ✔  [PACK THIS ENTIRE FOLDER: projects]  (or press Space / S)
   📁  .. (Parent Directory)
   📁  cmd/
   📁  docs/
@@ -194,7 +206,7 @@ Location: ~/projects/myapp
   📄  main.go
 
 ========================================================================
- ↑↓ / jk Navigate  |  Enter Select Item  |  → / Tab Open Folder  |  ← Back  |  Q Cancel
+ ↑↓ / jk Navigate  |  Enter Step Into / Pick  |  Space/S Pack Folder  |  ← Back  |  Q Cancel
 ```
 
 ---

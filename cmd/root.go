@@ -65,6 +65,7 @@ func getMoleHelpTemplate() string {
   bo list                      Inspect contents & compression ratios
   bo bench                     Benchmark compression levels (0-9)
   bo version                   Show version & platform info
+  bo uninstall                 Safely remove Boa binaries & symlinks
   bo --help                    Show help
 
   bo pack ./folder -o dist.zip -l 9
