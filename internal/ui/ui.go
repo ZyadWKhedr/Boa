@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"compressor/internal/stats"
 	"compressor/pkg/types"
@@ -11,8 +12,27 @@ import (
 
 var Out io.Writer = os.Stdout
 
+// SuppressBanner prevents duplicate banner printing in interactive sessions.
+var SuppressBanner = false
+
+// PrettyPath converts long absolute home paths into compact ~/ paths for clean display.
+func PrettyPath(p string) string {
+	if p == "" {
+		return ""
+	}
+	home, err := os.UserHomeDir()
+	if err == nil && strings.HasPrefix(p, home) {
+		return "~" + strings.TrimPrefix(p, home)
+	}
+	return p
+}
+
 // PrintBanner prints the exact Mole-styled ASCII header banner for Boa.
 func PrintBanner() {
+	if SuppressBanner {
+		return
+	}
+
 	if NoColor {
 		fmt.Fprintln(Out, ` ____                 
 | __ )  ___   __ _    
@@ -57,123 +77,86 @@ func PrintError(msg string) {
 
 // PrintSection prints a section header with stable formatting.
 func PrintSection(title string) {
-	fmt.Fprintf(Out, "\n%s\n", Bold(Cyan("▶ "+title)))
+	fmt.Fprintf(Out, "%s\n", Bold(Cyan("▶ "+title)))
 }
 
-// HumanSpaceEquivalent gives a cute human-friendly translation like Mole ("That's like ~19 4K movies worth of space!").
-func HumanSpaceEquivalent(savedBytes int64) string {
-	if savedBytes <= 0 {
-		return ""
-	}
-	const (
-		gb = 1024 * 1024 * 1024
-		mb = 1024 * 1024
-	)
-
-	if savedBytes >= 4*gb {
-		movies := float64(savedBytes) / (4.5 * gb)
-		return fmt.Sprintf("That's like ~%.0f 4K movies worth of space!", max(movies, 1))
-	} else if savedBytes >= 500*mb {
-		albums := float64(savedBytes) / (120 * mb)
-		return fmt.Sprintf("That's like ~%.0f lossless music albums worth of space!", max(albums, 1))
-	} else if savedBytes >= 10*mb {
-		photos := float64(savedBytes) / (3.5 * mb)
-		return fmt.Sprintf("That's like ~%.0f high-res RAW photos worth of space!", max(photos, 1))
-	}
-	docs := float64(savedBytes) / (50 * 1024)
-	return fmt.Sprintf("That's like ~%.0f text documents worth of space!", max(docs, 1))
-}
-
-// RenderCompressionSummary prints a summary card styled after Mole's aesthetic double-bordered cards.
+// RenderCompressionSummary prints a clean, beautifully formatted, easy-to-read summary card.
 func RenderCompressionSummary(summary *types.ArchiveSummary, isDryRun bool) {
 	if summary == nil {
 		return
 	}
 
-	div := Dim("========================================================================")
 	fmt.Fprintln(Out)
-	fmt.Fprintln(Out, div)
-
 	if isDryRun {
-		fmt.Fprintf(Out, " %s\n", Bold(Magenta("DRY RUN COMPLETE! (Simulation Mode)")))
-		fmt.Fprintf(Out, " 📍 Target Archive: %s\n", Bold(Cyan(summary.ArchivePath)))
-		avgStr := "-"
-		if summary.AverageFileSize > 0 {
-			avgStr = stats.FormatBytes(summary.AverageFileSize)
-		}
-		fmt.Fprintf(Out, " Potential space: %s | Files analyzed: %d (avg size: %s) | Categories: %d folders\n",
-			Green(stats.FormatBytes(summary.UncompressedBytes)),
-			summary.TotalFiles,
-			avgStr,
-			summary.TotalDirs,
-		)
+		fmt.Fprintf(Out, " %s\n\n", Bold(Magenta("✦ Dry Run Preview (No files written)")))
 	} else {
-		fmt.Fprintf(Out, " %s\n", Bold(Green("COMPRESSION COMPLETE!")))
-		fmt.Fprintf(Out, " 📍 Saved To: %s\n", Bold(Cyan(summary.ArchivePath)))
-
-		ratioStr := fmt.Sprintf("%.2fx (%.1f%% saved)", 1.0/max(summary.CompressionRatio, 0.01), summary.SpaceSavedPercent)
-		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
-		
-		fmt.Fprintf(Out, " Space saved: %s | Compression ratio: %s | Speed: %s\n",
-			Bold(Green(stats.FormatBytes(summary.SpaceSavedBytes))),
-			Cyan(ratioStr),
-			Cyan(speedStr),
-		)
-
-		if equiv := HumanSpaceEquivalent(summary.SpaceSavedBytes); equiv != "" {
-			fmt.Fprintf(Out, " %s\n", Italic(Green(equiv)))
-		}
-
-		avgStr := "-"
-		if summary.AverageFileSize > 0 {
-			avgStr = stats.FormatBytes(summary.AverageFileSize)
-		}
-		fmt.Fprintf(Out, " Files packed: %d (avg file size: %s) | Categories: %d folders | Time: %s\n",
-			summary.TotalFiles,
-			Cyan(avgStr),
-			summary.TotalDirs,
-			stats.FormatDuration(summary.Duration),
-		)
+		fmt.Fprintf(Out, " %s\n\n", Bold(Green("✔ Compression Complete")))
 	}
 
-	fmt.Fprintln(Out, div)
+	prettyDest := PrettyPath(summary.ArchivePath)
+
+	printAlignedRow("Archive", Bold(Cyan(prettyDest)))
+	printAlignedRow("Original Size", stats.FormatBytes(summary.UncompressedBytes))
+
+	if !isDryRun {
+		printAlignedRow("Compressed", stats.FormatBytes(summary.CompressedBytes))
+		
+		savingsPercent := fmt.Sprintf("%.1f%% reduction", summary.SpaceSavedPercent)
+		savingsStr := fmt.Sprintf("%s (%s)", stats.FormatBytes(summary.SpaceSavedBytes), Green(savingsPercent))
+		printAlignedRow("Space Saved", savingsStr)
+
+		ratioStr := fmt.Sprintf("%.2fx", 1.0/max(summary.CompressionRatio, 0.01))
+		printAlignedRow("Ratio", Cyan(ratioStr))
+
+		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
+		printAlignedRow("Speed", speedStr)
+	}
+
+	avgStr := "-"
+	if summary.AverageFileSize > 0 {
+		avgStr = stats.FormatBytes(summary.AverageFileSize)
+	}
+	itemsStr := fmt.Sprintf("%d files (avg %s), %d folders", summary.TotalFiles, avgStr, summary.TotalDirs)
+	printAlignedRow("Packed Items", itemsStr)
+	printAlignedRow("Duration", stats.FormatDuration(summary.Duration))
+
+	fmt.Fprintln(Out)
 }
 
-// RenderExtractionSummary prints an extraction summary card.
+// RenderExtractionSummary prints a clean extraction summary card.
 func RenderExtractionSummary(summary *types.ArchiveSummary, destDir string, isDryRun bool) {
 	if summary == nil {
 		return
 	}
 
-	div := Dim("========================================================================")
 	fmt.Fprintln(Out)
-	fmt.Fprintln(Out, div)
-
 	if isDryRun {
-		fmt.Fprintf(Out, " %s\n", Bold(Magenta("EXTRACTION PREVIEW (Dry Run)")))
-		fmt.Fprintf(Out, " 📍 Target Directory: %s\n", Bold(Cyan(destDir)))
-		fmt.Fprintf(Out, " Target items: %d files, %d folders | Total uncompressed: %s\n",
-			summary.TotalFiles, summary.TotalDirs, Green(stats.FormatBytes(summary.UncompressedBytes)))
+		fmt.Fprintf(Out, " %s\n\n", Bold(Magenta("✦ Extraction Preview (Dry Run)")))
 	} else {
-		fmt.Fprintf(Out, " %s\n", Bold(Green("EXTRACTION COMPLETE!")))
-		fmt.Fprintf(Out, " 📍 Extracted To: %s\n", Bold(Cyan(destDir)))
-		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
-		fmt.Fprintf(Out, " Total unpacked: %s | Speed: %s | Time: %s\n",
-			Bold(Green(stats.FormatBytes(summary.UncompressedBytes))),
-			Cyan(speedStr),
-			stats.FormatDuration(summary.Duration),
-		)
-		avgStr := "-"
-		if summary.AverageFileSize > 0 {
-			avgStr = stats.FormatBytes(summary.AverageFileSize)
-		}
-		fmt.Fprintf(Out, " Extracted %d files (avg file size: %s) into destination.\n",
-			summary.TotalFiles,
-			Cyan(avgStr),
-		)
+		fmt.Fprintf(Out, " %s\n\n", Bold(Green("✔ Extraction Complete")))
 	}
 
-	fmt.Fprintln(Out, div)
+	prettyDest := PrettyPath(destDir)
+	prettySrc := PrettyPath(summary.ArchivePath)
+
+	printAlignedRow("Source Archive", prettySrc)
+	printAlignedRow("Extracted To", Bold(Cyan(prettyDest)))
+	printAlignedRow("Total Size", stats.FormatBytes(summary.UncompressedBytes))
+
+	avgStr := "-"
+	if summary.AverageFileSize > 0 {
+		avgStr = stats.FormatBytes(summary.AverageFileSize)
+	}
+	itemsStr := fmt.Sprintf("%d files (avg %s), %d folders", summary.TotalFiles, avgStr, summary.TotalDirs)
+	printAlignedRow("Items", itemsStr)
+
+	if !isDryRun {
+		speedStr := stats.CalculateSpeed(summary.UncompressedBytes, summary.Duration)
+		printAlignedRow("Speed", speedStr)
+	}
+	printAlignedRow("Duration", stats.FormatDuration(summary.Duration))
+
+	fmt.Fprintln(Out)
 }
 
 // RenderArchiveList renders a dense file listing table.
@@ -230,21 +213,25 @@ func RenderArchiveList(summary *types.ArchiveSummary) {
 
 	table.Render()
 
-	div := Dim("========================================================================")
-	fmt.Fprintln(Out, div)
-	fmt.Fprintf(Out, " 📍 Archive: %s\n", Bold(Cyan(summary.ArchivePath)))
+	fmt.Fprintln(Out)
+	prettyArchive := PrettyPath(summary.ArchivePath)
+	printAlignedRow("Archive", Bold(Cyan(prettyArchive)))
+
 	avgStr := "-"
 	if summary.AverageFileSize > 0 {
 		avgStr = stats.FormatBytes(summary.AverageFileSize)
 	}
+	printAlignedRow("Total Entries", fmt.Sprintf("%d files (avg %s), %d folders", summary.TotalFiles, avgStr, summary.TotalDirs))
+	printAlignedRow("Original Size", stats.FormatBytes(summary.UncompressedBytes))
+	printAlignedRow("Archive Size", stats.FormatBytes(summary.CompressedBytes))
+
 	ratioStr := fmt.Sprintf("%.2fx (%.1f%% saved)", 1.0/max(summary.CompressionRatio, 0.01), summary.SpaceSavedPercent)
-	fmt.Fprintf(Out, " Total: %d files (avg size: %s), %d folders | Raw: %s | Packed: %s | Ratio: %s\n",
-		summary.TotalFiles, Cyan(avgStr), summary.TotalDirs,
-		stats.FormatBytes(summary.UncompressedBytes),
-		stats.FormatBytes(summary.CompressedBytes),
-		Green(ratioStr),
-	)
-	fmt.Fprintln(Out, div)
+	printAlignedRow("Total Savings", Green(ratioStr))
+	fmt.Fprintln(Out)
+}
+
+func printAlignedRow(label, value string) {
+	fmt.Fprintf(Out, "   %-16s %s\n", Dim(label), value)
 }
 
 func max(a, b float64) float64 {

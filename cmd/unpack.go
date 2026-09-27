@@ -45,11 +45,6 @@ Enforces strict Zip Slip path traversal security, symlink boundary checks, and s
 
 		if !flagQuiet {
 			ui.PrintBanner()
-			if unpackDryRun {
-				ui.PrintInfo(fmt.Sprintf("Simulating extraction for %q -> %q", archivePath, destDir))
-			} else {
-				ui.PrintInfo(fmt.Sprintf("Unpacking %q -> %q (Safe Mode active)...", archivePath, destDir))
-			}
 		}
 
 		engine := extract.New()

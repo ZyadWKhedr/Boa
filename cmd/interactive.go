@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -40,7 +41,6 @@ func RunInteractiveDashboard() {
 	for {
 		renderMenu(selectedIndex)
 
-		// Switch stdin to raw mode to read single keypresses immediately
 		oldState, err := term.MakeRaw(fd)
 		if err != nil {
 			fallbackInteractive()
@@ -79,7 +79,7 @@ func RunInteractiveDashboard() {
 			selectedIndex = 4
 			handleAction(4)
 		case "h", "H", "?":
-			fmt.Print("\033[H\033[2J") // Clear screen
+			fmt.Print("\033[H\033[2J")
 			ui.PrintBanner()
 			fmt.Println()
 			_ = RootCmd.Help()
@@ -135,8 +135,10 @@ func handleAction(index int) {
 		fmt.Print("\033[H\033[2J")
 		ui.PrintBanner()
 		fmt.Println()
+		ui.SuppressBanner = true
 		RootCmd.SetArgs([]string{"version"})
 		_ = RootCmd.Execute()
+		ui.SuppressBanner = false
 		waitForEnter()
 	}
 }
@@ -148,7 +150,6 @@ func waitForEnter() {
 	_, _ = buf.ReadString('\n')
 }
 
-// readKey reads and decodes a single key or ANSI escape sequence in raw mode.
 func readKey() (string, error) {
 	var buf [3]byte
 	n, err := os.Stdin.Read(buf[:])
@@ -158,22 +159,22 @@ func readKey() (string, error) {
 
 	if n == 1 {
 		switch buf[0] {
-		case 3: // Ctrl+C
+		case 3:
 			return "CTRL_C", nil
-		case 13, 10: // Enter
+		case 13, 10:
 			return "ENTER", nil
-		case 27: // Esc
+		case 27:
 			return "ESC", nil
-		case 32: // Space
+		case 32:
 			return "SPACE", nil
-		case 127: // Backspace
+		case 127:
 			return "BACKSPACE", nil
 		default:
 			return string(buf[:1]), nil
 		}
 	}
 
-	if n == 3 && buf[0] == 27 && buf[1] == 91 { // ANSI escape \033[
+	if n == 3 && buf[0] == 27 && buf[1] == 91 {
 		switch buf[2] {
 		case 'A':
 			return "UP", nil
@@ -210,75 +211,119 @@ func fallbackInteractive() {
 }
 
 func interactivePack(reader *bufio.Reader) {
-	// Launch File Picker
 	src, err := PickPath("Select Folder or File to Compress", PickAny)
 	if err != nil {
 		return
 	}
 
+	// Calculate default zip name in same directory
+	absSrc, _ := filepath.Abs(src)
+	parentDir := filepath.Dir(absSrc)
+	baseName := filepath.Base(absSrc)
+	defaultName := strings.TrimSuffix(baseName, filepath.Ext(baseName)) + ".zip"
+	defaultDest := filepath.Join(parentDir, defaultName)
+
+	level := 6
+	dest := defaultDest
+
 	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
-	ui.PrintSection("Configure Compression")
-	fmt.Printf(" Selected source: %s\n\n", ui.Bold(ui.Cyan(src)))
+	fmt.Println()
+	ui.PrintSection("Pack Configuration")
+	fmt.Printf("   %-16s %s\n", ui.Dim("Source"), ui.Bold(ui.Cyan(ui.PrettyPath(src))))
+	fmt.Printf("   %-16s %s\n", ui.Dim("Destination"), ui.Bold(ui.Cyan(ui.PrettyPath(defaultDest))))
+	fmt.Printf("   %-16s %s\n\n", ui.Dim("Level"), "6 (Default)")
 
-	fmt.Print(ui.Bold(" Destination archive name (leave empty for auto-name): "))
-	dest, _ := reader.ReadString('\n')
-	dest = strings.TrimSpace(dest)
+	fmt.Print(ui.Dim(" Press Enter to compress (or 'c' to customize, 'q' to cancel): "))
+	optChoice, _ := reader.ReadString('\n')
+	optChoice = strings.ToLower(strings.TrimSpace(optChoice))
 
-	fmt.Print(ui.Bold(" Compression level [0=Store, 1=Fastest, 6=Default, 9=Best] (default 6): "))
-	lvlStr, _ := reader.ReadString('\n')
-	lvlStr = strings.TrimSpace(lvlStr)
-	level := 6
-	if lvlStr != "" {
-		if val, err := strconv.Atoi(lvlStr); err == nil && val >= 0 && val <= 9 {
-			level = val
+	if optChoice == "q" || optChoice == "cancel" {
+		return
+	}
+
+	if optChoice == "c" || optChoice == "custom" {
+		fmt.Println()
+		fmt.Print(ui.Bold(" Custom destination archive name (leave empty for default): "))
+		customDest, _ := reader.ReadString('\n')
+		customDest = strings.TrimSpace(customDest)
+		if customDest != "" {
+			dest = customDest
+		}
+
+		fmt.Print(ui.Bold(" Compression level [0=Store, 1=Fast, 6=Default, 9=Best]: "))
+		lvlStr, _ := reader.ReadString('\n')
+		lvlStr = strings.TrimSpace(lvlStr)
+		if lvlStr != "" {
+			if val, err := strconv.Atoi(lvlStr); err == nil && val >= 0 && val <= 9 {
+				level = val
+			}
 		}
 	}
 
-	args := []string{"pack", src, "-l", strconv.Itoa(level), "-f"}
-	if dest != "" {
-		args = append(args, "-o", dest)
-	}
+	args := []string{"pack", src, "-l", strconv.Itoa(level), "-o", dest, "-f"}
 
+	ui.SuppressBanner = true
 	RootCmd.SetArgs(args)
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}
+	ui.SuppressBanner = false
 
 	waitForEnter()
 }
 
 func interactiveUnpack(reader *bufio.Reader) {
-	// Launch File Picker for Zip archives
 	archive, err := PickPath("Select Zip Archive to Extract", PickZipOnly)
 	if err != nil {
 		return
 	}
 
+	absArc, _ := filepath.Abs(archive)
+	parentDir := filepath.Dir(absArc)
+	baseName := strings.TrimSuffix(filepath.Base(absArc), filepath.Ext(absArc))
+	defaultDest := filepath.Join(parentDir, baseName)
+
+	dest := defaultDest
+
 	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
-	ui.PrintSection("Configure Extraction")
-	fmt.Printf(" Selected archive: %s\n\n", ui.Bold(ui.Cyan(archive)))
+	fmt.Println()
+	ui.PrintSection("Unpack Configuration")
+	fmt.Printf("   %-16s %s\n", ui.Dim("Archive"), ui.Bold(ui.Cyan(ui.PrettyPath(archive))))
+	fmt.Printf("   %-16s %s\n\n", ui.Dim("Extract To"), ui.Bold(ui.Cyan(ui.PrettyPath(defaultDest))))
 
-	fmt.Print(ui.Bold(" Destination folder (leave blank for default): "))
-	dest, _ := reader.ReadString('\n')
-	dest = strings.TrimSpace(dest)
+	fmt.Print(ui.Dim(" Press Enter to extract (or 'c' to customize, 'q' to cancel): "))
+	optChoice, _ := reader.ReadString('\n')
+	optChoice = strings.ToLower(strings.TrimSpace(optChoice))
 
-	args := []string{"unpack", archive, "-f"}
-	if dest != "" {
-		args = append(args, "-o", dest)
+	if optChoice == "q" || optChoice == "cancel" {
+		return
 	}
 
+	if optChoice == "c" || optChoice == "custom" {
+		fmt.Println()
+		fmt.Print(ui.Bold(" Custom output directory (leave empty for default): "))
+		customDest, _ := reader.ReadString('\n')
+		customDest = strings.TrimSpace(customDest)
+		if customDest != "" {
+			dest = customDest
+		}
+	}
+
+	args := []string{"unpack", archive, "-o", dest, "-f"}
+
+	ui.SuppressBanner = true
 	RootCmd.SetArgs(args)
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}
+	ui.SuppressBanner = false
 
 	waitForEnter()
 }
 
 func interactiveList(reader *bufio.Reader) {
-	// Launch File Picker for Zip archives
 	archive, err := PickPath("Select Zip Archive to Inspect", PickZipOnly)
 	if err != nil {
 		return
@@ -286,8 +331,9 @@ func interactiveList(reader *bufio.Reader) {
 
 	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
-	ui.PrintSection("Archive Inspection")
-	fmt.Printf(" Inspecting: %s\n\n", ui.Bold(ui.Cyan(archive)))
+	fmt.Println()
+	ui.PrintSection(fmt.Sprintf("Archive Contents: %s", ui.PrettyPath(archive)))
+	fmt.Println()
 
 	engine := extract.New()
 	summary, err := engine.InspectArchive(archive)
@@ -309,11 +355,14 @@ func interactiveBench(reader *bufio.Reader) {
 
 	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
+	fmt.Println()
 
+	ui.SuppressBanner = true
 	RootCmd.SetArgs([]string{"bench", src})
 	if err := RootCmd.Execute(); err != nil {
 		ui.PrintError(err.Error())
 	}
+	ui.SuppressBanner = false
 	_ = compress.New()
 
 	waitForEnter()

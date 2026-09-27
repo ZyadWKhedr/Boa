@@ -54,11 +54,6 @@ exclusion filters (e.g. node_modules, .git), and streaming I/O for maximum perfo
 
 		if !flagQuiet {
 			ui.PrintBanner()
-			if packDryRun {
-				ui.PrintInfo(fmt.Sprintf("Simulating compression for %q -> %q (Level %d)", primarySource, destZip, packLevel))
-			} else {
-				ui.PrintInfo(fmt.Sprintf("Packing %q -> %q (Compression Level %d)...", primarySource, destZip, packLevel))
-			}
 		}
 
 		engine := compress.New()
