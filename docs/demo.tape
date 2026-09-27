@@ -5,88 +5,76 @@
 Output docs/img/demo.gif
 Output docs/img/demo.mp4
 
-Set FontSize 16
-Set Width 1100
-Set Height 680
+Set FontSize 15
+Set Width 1200
+Set Height 760
 Set Padding 20
 Set Theme "Catppuccin Mocha"
 Set WindowBar Colorful
-Set TypingSpeed 35ms
+Set TypingSpeed 30ms
 
-# Launch Boa
+# 1. Interactive Dashboard
 Type "bo"
-Sleep 700ms
-Enter
-Sleep 1800ms
-
-# Show the main menu
-Sleep 1500ms
-
-# Open Pack
-Down
-Sleep 500ms
-Enter
-Sleep 1200ms
-
-# Navigate file picker
-Down
-Sleep 500ms
-Down
-Sleep 500ms
-
-# Select demo project
-Enter
-Sleep 1200ms
-
-# Confirm compression
-Enter
-Sleep 3s
-
-# Show compression result
-Sleep 1800ms
-
-# Return to main menu
-Enter
-Sleep 1000ms
-
-# Clear screen
-Type "clear"
-Enter
-Sleep 500ms
-
-# Inspect generated archive
-Type "bo list demo-project.zip"
 Sleep 600ms
 Enter
-Sleep 3000ms
-
-# Keep archive information visible
 Sleep 1800ms
+Down
+Sleep 400ms
+Down
+Sleep 400ms
+Down
+Sleep 400ms
+Up
+Sleep 400ms
+Type "q"
+Sleep 800ms
 
-# Clear screen
 Type "clear"
 Enter
-Sleep 500ms
+Sleep 400ms
 
-# Benchmark compression
-Type "bo bench ./demo-project"
+# 2. Pack Desktop Folder
+Type "bo pack ~/Desktop/boa-test -l 6"
 Sleep 600ms
 Enter
-Sleep 5s
-
-# Keep benchmark results visible
 Sleep 2500ms
 
-# Clear screen
 Type "clear"
 Enter
-Sleep 500ms
+Sleep 400ms
 
-# Demonstrate unpacking
-Type "bo unpack demo-project.zip"
+# 3. Inspect Archive Contents
+Type "bo list ~/Desktop/boa-test.zip"
+Sleep 600ms
+Enter
+Sleep 3500ms
+
+Type "clear"
+Enter
+Sleep 400ms
+
+# 4. Benchmark Deflate Levels (0-9) & Trade-offs
+Type "bo bench ~/Desktop/boa-test --compare"
+Sleep 600ms
+Enter
+Sleep 5000ms
+
+Type "clear"
+Enter
+Sleep 400ms
+
+# 5. Safely Unpack Archive
+Type "bo unpack ~/Desktop/boa-test.zip -o ~/Desktop/boa-test-unpacked --force"
+Sleep 600ms
+Enter
+Sleep 2500ms
+
+Type "clear"
+Enter
+Sleep 400ms
+
+# 6. System Status & Runtime Info
+Type "bo status"
 Sleep 600ms
 Enter
 Sleep 3000ms
-
-# Show final result
-Sleep 2000ms

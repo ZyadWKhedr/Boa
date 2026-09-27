@@ -19,7 +19,7 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:     "version",
-	Aliases: []string{"v"},
+	Aliases: []string{"v", "status", "info"},
 	Short:   "Print the version and runtime environment information",
 	Run: func(cmd *cobra.Command, args []string) {
 		ui.PrintBanner()
