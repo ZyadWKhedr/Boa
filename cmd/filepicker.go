@@ -244,7 +244,7 @@ func readDirItems(dir string, mode FilePickerMode) ([]FileItem, error) {
 }
 
 func renderFilePicker(title, currentDir string, items []FileItem, selectedIdx int, mode FilePickerMode) {
-	fmt.Print("\033[H\033[2J\033[3J") // Clear screen and scrollback buffer
+	fmt.Print("\033[H\033[2J") // Clear visible screen without wiping scrollback history
 
 	ui.PrintBanner()
 	fmt.Println()

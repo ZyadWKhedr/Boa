@@ -97,7 +97,7 @@ func RunInteractiveDashboard() {
 			selectedIndex = 6
 			handleAction(6)
 		case "h", "H", "?":
-			fmt.Print("\033[H\033[2J\033[3J")
+			fmt.Print("\033[H\033[2J")
 			ui.PrintBanner()
 			fmt.Println()
 			_ = RootCmd.Help()
@@ -111,7 +111,7 @@ func RunInteractiveDashboard() {
 }
 
 func renderMenu(selected int) {
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 
 	ui.PrintBanner()
 	fmt.Println()
@@ -137,8 +137,12 @@ func renderMenu(selected int) {
 }
 
 func handleAction(index int) {
-	fmt.Print("\033[?25h")        // Show cursor during action execution
-	defer fmt.Print("\033[?25l") // Hide cursor when returning to dashboard menu
+	// Exit alternate screen buffer & show cursor so output writes directly to standard scrollable terminal buffer
+	fmt.Print("\033[?1049l\033[?25h")
+	defer func() {
+		// Re-enter alternate buffer & hide cursor when returning to dashboard menu
+		fmt.Print("\033[?1049h\033[?25l")
+	}()
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -156,7 +160,7 @@ func handleAction(index int) {
 	case 5:
 		interactiveCompare(reader)
 	case 6:
-		fmt.Print("\033[H\033[2J\033[3J")
+		fmt.Print("\033[H\033[2J")
 		ui.PrintBanner()
 		fmt.Println()
 		ui.SuppressBanner = true
@@ -263,7 +267,7 @@ func interactivePack(reader *bufio.Reader) {
 	level := 6
 	dest := defaultDest
 
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection("Pack Configuration")
@@ -323,7 +327,7 @@ func interactiveUnpack(reader *bufio.Reader) {
 
 	dest := defaultDest
 
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection("Unpack Configuration")
@@ -366,7 +370,7 @@ func interactiveList(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection(fmt.Sprintf("Archive Contents: %s", ui.PrettyPath(archive)))
@@ -380,7 +384,7 @@ func interactiveList(reader *bufio.Reader) {
 		return
 	}
 
-	ui.RenderArchiveList(summary, false)
+	ui.RenderArchiveList(summary, true)
 	waitForEnter()
 }
 
@@ -390,7 +394,7 @@ func interactiveInspect(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection(fmt.Sprintf("Deep Inspection: %s", ui.PrettyPath(archive)))
@@ -404,7 +408,7 @@ func interactiveInspect(reader *bufio.Reader) {
 		return
 	}
 
-	ui.RenderArchiveList(summary, false)
+	ui.RenderArchiveList(summary, true)
 	waitForEnter()
 }
 
@@ -414,7 +418,7 @@ func interactiveBench(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintInfo(fmt.Sprintf("Benchmarking target: %s", ui.Bold(ui.PrettyPath(src))))
@@ -437,7 +441,7 @@ func interactiveCompare(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintInfo(fmt.Sprintf("Comparing compression levels for: %s", ui.Bold(ui.PrettyPath(src))))
@@ -455,7 +459,7 @@ func interactiveCompare(reader *bufio.Reader) {
 }
 
 func interactiveUninstall(reader *bufio.Reader) {
-	fmt.Print("\033[H\033[2J\033[3J")
+	fmt.Print("\033[H\033[2J")
 	RunUninstall(false)
 	waitForEnter()
 }
