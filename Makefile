@@ -18,9 +18,11 @@ build:
 
 install: build
 	@mkdir -p $(HOME)/.local/bin
+	@rm -f $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/$(ALIAS_NAME) $(HOME)/.local/bin/compressor
 	@cp $(BUILD_DIR)/$(BINARY_NAME) $(HOME)/.local/bin/$(BINARY_NAME)
-	@ln -sf $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/$(ALIAS_NAME)
-	@ln -sf $(HOME)/.local/bin/$(BINARY_NAME) $(HOME)/.local/bin/compressor
+	@codesign -s - -f $(HOME)/.local/bin/$(BINARY_NAME) 2>/dev/null || true
+	@ln -sf $(BINARY_NAME) $(HOME)/.local/bin/$(ALIAS_NAME)
+	@ln -sf $(BINARY_NAME) $(HOME)/.local/bin/compressor
 	@echo "Installed $(BINARY_NAME), $(ALIAS_NAME), and compressor to $(HOME)/.local/bin"
 
 test:

@@ -53,6 +53,7 @@ TMP_FILE="${TMP_DIR}/boa"
 
 if curl -fsSL "$DOWNLOAD_URL" -o "$TMP_FILE" 2>/dev/null; then
     chmod +x "$TMP_FILE"
+    rm -f "${INSTALL_DIR}/${BINARY_NAME}"
     mv "$TMP_FILE" "${INSTALL_DIR}/${BINARY_NAME}"
 else
     # Fallback to Go build if binary not found or pre-release
@@ -60,6 +61,7 @@ else
     if command -v go >/dev/null 2>&1; then
         go install "github.com/${REPO}@latest"
         GOBIN="$(go env GOPATH)/bin"
+        rm -f "${INSTALL_DIR}/${BINARY_NAME}"
         cp "${GOBIN}/compressor" "${INSTALL_DIR}/${BINARY_NAME}" 2>/dev/null || cp "${GOBIN}/boa" "${INSTALL_DIR}/${BINARY_NAME}" 2>/dev/null || true
     else
         echo "Error: Could not download release binary and Go compiler is not installed."
@@ -69,9 +71,15 @@ fi
 
 rm -rf "$TMP_DIR"
 
+# Ad-hoc sign on macOS to prevent AMFI SIGKILL
+if [ "$OS" = "darwin" ] && command -v codesign >/dev/null 2>&1; then
+    codesign -s - -f "${INSTALL_DIR}/${BINARY_NAME}" 2>/dev/null || true
+fi
+
 # Create symlinks
-ln -sf "${INSTALL_DIR}/${BINARY_NAME}" "${INSTALL_DIR}/${ALIAS_NAME}"
-ln -sf "${INSTALL_DIR}/${BINARY_NAME}" "${INSTALL_DIR}/compressor"
+rm -f "${INSTALL_DIR}/${ALIAS_NAME}" "${INSTALL_DIR}/compressor"
+ln -sf "${BINARY_NAME}" "${INSTALL_DIR}/${ALIAS_NAME}"
+ln -sf "${BINARY_NAME}" "${INSTALL_DIR}/compressor"
 
 echo "✔ Successfully installed Boa (${BINARY_NAME}, ${ALIAS_NAME}) into ${INSTALL_DIR}!"
 echo ""
