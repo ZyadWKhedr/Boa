@@ -77,3 +77,29 @@ func MethodNameFromID(methodID uint16) string {
 		return fmt.Sprintf("Method(%d)", methodID)
 	}
 }
+
+// ValidateLevel validates and normalizes the compression level for a given CompressionMethod.
+func ValidateLevel(method CompressionMethod, level int) (int, error) {
+	switch method {
+	case MethodStore:
+		return 0, nil
+
+	case MethodZstd:
+		if level == -1 {
+			return 3, nil // Default for zstd
+		}
+		if level < 1 || level > 11 {
+			return 0, fmt.Errorf("invalid compression level %d for zstd: must be between 1 and 11 (default: 3)", level)
+		}
+		return level, nil
+
+	default: // MethodDeflate
+		if level == -1 {
+			return 6, nil // Default for deflate
+		}
+		if level < 0 || level > 9 {
+			return 0, fmt.Errorf("invalid compression level %d for deflate: must be between 0 and 9 (default: 6)", level)
+		}
+		return level, nil
+	}
+}
