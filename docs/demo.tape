@@ -6,7 +6,7 @@ Output docs/img/demo.mp4
 
 Set FontSize 15
 Set Width 1200
-Set Height 760
+Set Height 780
 Set Padding 20
 Set Theme "Catppuccin Mocha"
 Set WindowBar Colorful
@@ -44,7 +44,7 @@ Sleep 1200ms
 # 2. LIST: Explore archive file contents
 # ==========================================
 Down
-Sleep 250ms
+Sleep 300ms
 Down
 Sleep 600ms
 Enter
@@ -65,8 +65,10 @@ Enter
 Sleep 1200ms
 
 # ==========================================
-# 3. INSPECT: Deep metadata analysis
+# 3. BENCHMARK: Live speed & knee-point scoring
 # ==========================================
+Down
+Sleep 300ms
 Down
 Sleep 600ms
 Enter
@@ -82,15 +84,15 @@ Sleep 250ms
 Down
 Sleep 600ms
 Enter
-Sleep 3000ms
+Sleep 800ms
+Enter
+Sleep 5000ms
 Enter
 Sleep 1200ms
 
 # ==========================================
-# 4. COMPARE: Multi-level visual comparison
+# 4. COMPARE: Multi-level visual bar charts
 # ==========================================
-Down
-Sleep 250ms
 Down
 Sleep 600ms
 Enter
@@ -105,6 +107,8 @@ Down
 Sleep 250ms
 Down
 Sleep 600ms
+Enter
+Sleep 800ms
 Enter
 Sleep 5000ms
 Enter
@@ -154,12 +158,14 @@ Sleep 250ms
 Down
 Sleep 600ms
 Enter
-Sleep 2500ms
+Sleep 3000ms
 Enter
 Sleep 1200ms
 
 # ==========================================
-# 7. QUIT: Graceful exit
+# 7. MENU VIEW & GRACEFUL EXIT
 # ==========================================
+Down
+Sleep 800ms
 Type "q"
 Sleep 1800ms
