@@ -13,11 +13,11 @@ import (
 
 var (
 	// Version holds the semantic version of Compressor CLI.
-	Version = "v0.1.0"
+	Version = "v0.3.0"
 	// Commit holds the git commit hash.
 	Commit = "dev"
 	// Date holds the build timestamp.
-	Date = "2026-09-27"
+	Date = "2026-10-04"
 
 	// RootCmd is the base command for Boa CLI.
 	RootCmd *cobra.Command

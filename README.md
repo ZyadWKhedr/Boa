@@ -25,25 +25,27 @@
 
 ## Features
 
-- **Multi-Algorithm Compression**: Supports standard **DEFLATE** (levels 1–9, universal compatibility), raw **Store** (level 0, I/O-bound throughput), and modern **Zstandard (`zstd`)** (Method ID 93, ultra-dense and high throughput).
-- **All-in-One CLI Toolkit**: Combines fast compression, safe extraction, in-place header inspection, live multi-level benchmarking, and a full terminal file explorer in a single zero-dependency binary.
-- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams. Compresses multi-gigabyte folders without consuming excess RAM.
+- **Multi-Algorithm & Media Engine**: Supports standard **DEFLATE** (levels 1–9), raw **Store** (level 0), modern **Zstandard (`zstd`)**, and perceptual optimization for **Images, Audio, and Video** with configurable quality and bitrate.
+- **Fail-Closed Safety Policy**: Code, documents, text, databases, archives, executables, and unknown files are **always 100% lossless**. Lossy compression requires verified media magic bytes and explicit consent.
+- **Bubble Tea Terminal Interface**: Fullscreen Elm-architecture TUI (`bo`) with interactive file explorer, multi-step media wizard, live size estimation ranges, and contextual technique modals.
+- **Educational Knowledge Base (`bo learn`)**: Embedded reference explaining algorithm mechanics, tradeoffs, analogies, gains, and losses.
+- **All-in-One CLI Toolkit**: Combines fast compression, safe extraction, in-place header inspection, live multi-level benchmarking, and a full terminal file explorer in a single binary.
+- **Streaming I/O Engine**: Low memory footprint during both compression and extraction with direct chunked streams.
 - **Zip-Slip & Path Security**: Built-in canonical path boundary validation that blocks directory traversals (`../../`), null-byte injections, and escaping symlinks before writing to disk.
-- **Dynamic Best Balance Benchmarking**: Automatically computes the real mathematical efficiency knee-point balancing space savings ($65\%$) against throughput ($35\%$) with side-by-side ASCII comparison charts.
-- **Interactive File Explorer**: Fullscreen alternate-screen TUI (`bo`) with folder stepping, single-file picking, whole-folder packing, and zero page stacking.
-- **User-Friendly Inspection**: Overview metadata cards rendered first with gracefully capped file manifests to prevent terminal flooding on massive archives.
+- **Dynamic Best Balance Benchmarking**: Automatically computes the real mathematical efficiency knee-point balancing space savings ($65\%$) against throughput ($35\%$) with side-by-side comparison charts.
 - **Cross-Platform Parity**: Native builds and path normalization for macOS (Apple Silicon & Intel), Linux (x86_64 & ARM), and Windows.
 
 ---
 
 ## Why Boa?
 
-Most command-line compression workflows force you to memorize obtuse flags across different utilities (`zip`, `unzip`, `tar`, `7z`) or switch between GUI file managers and terminal windows.
+Most command-line compression utilities force users to memorize arcane flags across separate tools or risk silent quality loss on mixed directories.
 
-Boa delivers a **modern terminal-native archive experience**:
-- **Interactive File Explorer**: Navigate your filesystem, step inside directories, highlight single files or entire folders, and compress without typing paths.
+Boa delivers a **modern, safe, media-aware terminal archive experience**:
+- **Interactive Bubble Tea TUI**: Navigate files, configure media presets, adjust visual quality sliders, and preview estimated archive sizes in real time.
+- **Media-Aware Optimization**: Automatically compress JPEG/PNG images, transcode audio (AAC/Opus/MP3), and scale videos while keeping all source code and documents bit-for-bit identical.
+- **Educational Guide**: Understand *why* and *how* compression techniques work directly in your terminal with `bo learn`.
 - **Multi-Engine Support**: Choose between DEFLATE (default), Store (no compression), and Zstandard (`zstd`) with `-m / --method`.
-- **Streaming Low-RAM Engine**: Compresses large multi-gigabyte directories in direct chunked streams.
 - **Secure by Default**: Automatically blocks Zip-Slip directory traversal attacks (`../../`) and malicious symlink escapes.
 - **Instant Benchmarking**: Compare compression speeds and ratios across levels (0 to 9) and algorithms with dynamic efficiency rankings.
 
@@ -56,20 +58,16 @@ Boa delivers a **modern terminal-native archive experience**:
 <br/>
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                                     BOA                                     │
-│                                                                             │
-│   1. Pack        Compress folders or files into dense archives              │
-│   2. Unpack      Safely extract zip archives with Zip-Slip defense          │
-│   3. List        List files, sizes & directory contents of an archive       │
-│   4. Inspect     Explore archive structure, ratios & metadata               │
-│   5. Benchmark   Measure compression speed, duration & throughput           │
-│   6. Compare     Side-by-side visual bar charts across compression levels   │
-│   7. Status      Runtime health, Go environment & platform info             │
-│   8. Uninstall   Safely remove Boa binaries & symlinks from system          │
-│                                                                             │
-│   ↑↓ / jk Navigate  |  Enter Confirm  |  1-8 Jump  |  V Version  |  Q Quit  │
-└─────────────────────────────────────────────────────────────────────────────┘
+ 🐍 Boa Interactive Compression Dashboard
+ Version v0.3.0  ·  Interactive compression toolkit
+
+ ➤ 1.  Compress         Package files into a zip archive with smart media options
+   2.  Extract          Safely unzip archives with Zip-Slip path defense
+   3.  Browse Archive   Inspect files, sizes, ratios & lossy metadata
+   4.  Learn            Educational guide: how compression algorithms work
+   5.  More...          Benchmarks, level comparison, system status & tools
+
+ ↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit
 ```
 
 <br/>
