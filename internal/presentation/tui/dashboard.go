@@ -11,10 +11,12 @@ import (
 
 	"compressor/internal/bench"
 	"compressor/internal/domain"
+	"compressor/internal/infrastructure/classifier"
 	"compressor/internal/presentation/cli"
 	"compressor/internal/ui"
 	"compressor/internal/usecase"
 	"compressor/pkg/types"
+	tea "github.com/charmbracelet/bubbletea"
 	"golang.org/x/term"
 )
 
@@ -197,57 +199,43 @@ func (d *Dashboard) interactivePack(reader *bufio.Reader) {
 	defaultName := strings.TrimSuffix(baseName, filepath.Ext(baseName)) + ".zip"
 	defaultDest := filepath.Join(parentDir, defaultName)
 
-	level := 6
-	dest := defaultDest
-	method := types.MethodDeflate
+	scanUC := usecase.NewScanPathUseCase(classifier.NewMagicClassifier())
+	estimator := usecase.NewEstimateSavingsUseCase()
 
-	fmt.Print("\033[H\033[2J")
-	ui.PrintBanner()
-	fmt.Println()
-	ui.PrintSection("Pack Configuration")
-	fmt.Printf("   %-16s %s\n", ui.Dim("Source"), ui.Bold(ui.Cyan(ui.PrettyPath(src))))
-	fmt.Printf("   %-16s %s\n", ui.Dim("Destination"), ui.Bold(ui.Cyan(ui.PrettyPath(defaultDest))))
-	fmt.Printf("   %-16s %s\n\n", ui.Dim("Method / Level"), "DEFLATE / Level 6 (Default)")
-
-	fmt.Print(ui.Dim(" Press Enter to compress (or 'c' to customize, 'q' to cancel): "))
-	optChoice, _ := reader.ReadString('\n')
-	optChoice = strings.ToLower(strings.TrimSpace(optChoice))
-
-	if optChoice == "q" || optChoice == "cancel" {
+	scanRes, err := scanUC.Execute(context.Background(), src, []string{".git*", ".DS_Store", "node_modules"})
+	if err != nil {
+		ui.PrintError(err.Error())
+		d.waitForEnter()
 		return
 	}
 
-	if optChoice == "c" || optChoice == "custom" {
-		fmt.Println()
-		fmt.Print(ui.Bold(" Custom destination archive name (leave empty for default): "))
-		customDest, _ := reader.ReadString('\n')
-		customDest = strings.TrimSpace(customDest)
-		if customDest != "" {
-			dest = customDest
-		}
-
-		fmt.Print(ui.Bold(" Method [deflate, store, zstd] (default: deflate): "))
-		mStr, _ := reader.ReadString('\n')
-		if parsedM, err := types.ParseMethod(mStr); err == nil {
-			method = parsedM
-		}
-
-		fmt.Print(ui.Bold(" Compression level (0-9 for deflate, 1-11 for zstd): "))
-		lvlStr, _ := reader.ReadString('\n')
-		if val, err := strconv.Atoi(strings.TrimSpace(lvlStr)); err == nil {
-			level = val
-		}
+	wizard := NewWizardModel(scanRes, estimator, d.LearnUC)
+	p := tea.NewProgram(wizard)
+	finalModel, err := p.Run()
+	if err != nil {
+		ui.PrintError(fmt.Sprintf("TUI error: %v", err))
+		d.waitForEnter()
+		return
 	}
 
-	if !strings.HasSuffix(strings.ToLower(dest), ".zip") {
-		dest += ".zip"
+	resModel, ok := finalModel.(WizardModel)
+	if !ok || resModel.Result.Cancelled {
+		return
+	}
+
+	prefs := resModel.Result.Preferences
+	method := types.MethodDeflate
+	if prefs.ArchiveMethod == domain.MethodZstd {
+		method = types.MethodZstd
+	} else if prefs.ArchiveMethod == domain.MethodStore {
+		method = types.MethodStore
 	}
 
 	opts := types.PackOptions{
 		SourcePaths:      []string{src},
-		OutputZipPath:    dest,
+		OutputZipPath:    defaultDest,
 		Method:           method,
-		CompressionLevel: level,
+		CompressionLevel: prefs.DefaultLevel,
 		ExcludePatterns:  []string{".git*", ".DS_Store", "node_modules"},
 		Overwrite:        true,
 	}
