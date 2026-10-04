@@ -103,6 +103,7 @@ type ArchiveSummary struct {
 	CompressionLevel  int           `json:"compression_level,omitempty"`
 	Duration          time.Duration `json:"duration"`
 	ArchivePath       string        `json:"archive_path,omitempty"`
+	Comment           string        `json:"comment,omitempty"`
 	Entries           []FileEntry   `json:"entries,omitempty"`
 }
 

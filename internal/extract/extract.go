@@ -198,6 +198,7 @@ func (e *Engine) InspectArchive(archivePath string) (*types.ArchiveSummary, erro
 
 	summary := &types.ArchiveSummary{
 		ArchivePath: archivePath,
+		Comment:     reader.Comment,
 		Entries:     make([]types.FileEntry, 0, len(reader.File)),
 	}
 
