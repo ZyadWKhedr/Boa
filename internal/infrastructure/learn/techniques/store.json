@@ -1,0 +1,13 @@
+{
+  "id": "store",
+  "name": "Store (Uncompressed Packaging)",
+  "category": "lossless",
+  "media_kind": "general",
+  "summary": "Packages files into a single container without applying any compression algorithms.",
+  "analogy": "Putting loose papers into a cardboard binder without folding or shrinking them.",
+  "what_you_gain": "Instant packaging speed strictly bound by disk read/write throughput (zero CPU load).",
+  "what_you_lose": "Zero byte savings; archive size equals the sum of input file sizes.",
+  "best_for": "Files that are already compressed (e.g., MP4, JPEG, MP3, ZIP) or when speed is paramount.",
+  "avoid_for": "Plain text, code, log files, or uncompressed raw data where compression can save 70%+ space.",
+  "go_deeper": "Standard ZIP Method 0. Bypasses entropy coding and dictionary parsing entirely, streaming raw bytes directly into the archive container."
+}

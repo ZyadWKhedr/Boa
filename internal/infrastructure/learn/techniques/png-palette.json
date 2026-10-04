@@ -1,0 +1,13 @@
+{
+  "id": "png-palette",
+  "name": "PNG Palette Quantization",
+  "category": "lossy",
+  "media_kind": "image",
+  "summary": "Reduces truecolor 24-bit PNG images to an optimized 256-color palette, saving 60-70% file size.",
+  "analogy": "Limiting a painter's color palette from 16 million shades down to the 256 most representative hues.",
+  "what_you_gain": "Dramatic size reduction for graphics, diagrams, screenshots, and icons while retaining sharp lines.",
+  "what_you_lose": "Smooth gradients across photographic subjects may show subtle color banding or dithering grain.",
+  "best_for": "Web graphics, documentation screenshots, diagrams, and icon assets.",
+  "avoid_for": "Continuous-tone portrait photography where 256 colors are insufficient for natural skin tones.",
+  "go_deeper": "Uses color quantization (Median Cut / Wu's algorithm) and Floyd-Steinberg error diffusion to map 24-bit RGB to an indexed 8-bit palette."
+}

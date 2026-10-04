@@ -1,0 +1,13 @@
+{
+  "id": "video-quality",
+  "name": "Video Quality (CRF Encoding)",
+  "category": "lossy",
+  "media_kind": "video",
+  "summary": "Re-encodes video frames using Constant Rate Factor (CRF) to allocate bits where motion and detail demand them most.",
+  "analogy": "A court reporter writing fast in shorthand during frantic moments and using neat handwriting during quiet pauses.",
+  "what_you_gain": "50-80% file size reduction for raw screen captures, home videos, and large video recordings.",
+  "what_you_lose": "Video compression is CPU-intensive; fine background noise or dark gradient banding may become slightly visible.",
+  "best_for": "Large video captures, tutorial recordings, and mobile video archives.",
+  "avoid_for": "Raw camera footage (ProRes/RAW) intended for professional video editing or color grading.",
+  "go_deeper": "H.264 / H.265 / AV1 codecs divide video into macroblocks, performing spatial intra-prediction and temporal motion estimation."
+}

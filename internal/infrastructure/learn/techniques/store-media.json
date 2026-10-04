@@ -1,0 +1,13 @@
+{
+  "id": "store-media",
+  "name": "Store-as-is (Lossless Media Storage)",
+  "category": "lossless",
+  "media_kind": "general",
+  "summary": "Stores already-compressed media (JPEGs, MP4s, MP3s) untouched to avoid quality degradation or size expansion.",
+  "analogy": "Leaving sealed vacuum-packed groceries alone rather than trying to repack them.",
+  "what_you_gain": "Zero generational quality loss; 100% preservation of original files with lightning-fast archive packing.",
+  "what_you_lose": "No further size reduction on media files.",
+  "best_for": "Default lossless archiving of photo collections, music folders, and video recordings.",
+  "avoid_for": "Uncompressed raw media (BMP, WAV) that can easily be reduced with dedicated lossless codecs.",
+  "go_deeper": "Lossless re-encoding of already-lossy containers (e.g. JPEG or H.264) cannot reduce size without breaking format syntax or introducing artifacts."
+}

@@ -192,6 +192,14 @@ func RenderArchiveList(summary *types.ArchiveSummary, showAll bool) {
 	}
 	printAlignedRow("Method", methodStr)
 
+	if strings.Contains(summary.Comment, "Boa-Lossy") {
+		printAlignedRow("Media Encoding", BadgeWarn("CONTAINS LOSSY-OPTIMIZED MEDIA"))
+	}
+
+	if summary.CompressionMethod == "Zstandard" {
+		printAlignedRow("Compatibility", Yellow("Requires Boa or 7-Zip (native OS unzip cannot open zstd zips)"))
+	}
+
 	avgStr := "-"
 	if summary.AverageFileSize > 0 {
 		avgStr = stats.FormatBytes(summary.AverageFileSize)

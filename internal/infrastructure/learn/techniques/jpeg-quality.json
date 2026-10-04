@@ -1,0 +1,13 @@
+{
+  "id": "jpeg-quality",
+  "name": "JPEG Quality Reduction",
+  "category": "lossy",
+  "media_kind": "image",
+  "summary": "Discards high-frequency visual details that human eyes cannot easily distinguish, shrinking photos by 50-80%.",
+  "analogy": "Smoothing subtle texture variations in the background of a painting so it takes fewer brushstrokes to describe.",
+  "what_you_gain": "Massive 50-80% file size reduction for photographs with minimal visible quality degradation.",
+  "what_you_lose": "Irreversible loss of subtle pixel gradients and fine textures; repeated re-encoding causes compression artifacts.",
+  "best_for": "Everyday photo collections, web asset bundling, and image-heavy project archives.",
+  "avoid_for": "Screenshots with fine text, pixel art, medical imaging, or archival photography.",
+  "go_deeper": "Converts RGB to YCbCr chroma-subsampled planes, computes 8x8 Discrete Cosine Transform (DCT), and quantizes high-frequency coefficients."
+}

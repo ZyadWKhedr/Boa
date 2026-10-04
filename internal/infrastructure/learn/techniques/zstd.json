@@ -1,0 +1,13 @@
+{
+  "id": "zstd",
+  "name": "Zstandard (zstd)",
+  "category": "lossless",
+  "media_kind": "general",
+  "summary": "Modern ultra-fast, high-density lossless compression created by Facebook/Meta.",
+  "analogy": "A high-speed industrial baler that packs boxes tighter while running three times faster than older machines.",
+  "what_you_gain": "Significantly higher compression ratios and blazingly fast multi-gigabyte decompression throughput.",
+  "what_you_lose": "Compatibility: Built-in Windows Explorer and older macOS Archive Utilities cannot open zstd zips natively.",
+  "best_for": "Internal backups, developer tools, database dumps, and systems with Boa or 7-Zip installed.",
+  "avoid_for": "Sharing with non-technical users who rely exclusively on default OS double-click extraction.",
+  "go_deeper": "Standardized in RFC 8878 and PKZIP method 93. Utilizes Finite State Entropy (FSE / tANS) coding with large window search."
+}
