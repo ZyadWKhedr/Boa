@@ -1,0 +1,13 @@
+{
+  "id": "opt-png",
+  "name": "Lossless PNG Optimization",
+  "category": "lossless",
+  "media_kind": "image",
+  "summary": "Re-encodes PNG image filters and deflate streams to shave off 10-30% of file size with zero pixel changes.",
+  "analogy": "Rearranging items inside a suitcase so they fit tighter without bending or removing anything.",
+  "what_you_gain": "Smaller PNG file sizes while keeping 100% pixel-perfect image accuracy and transparency.",
+  "what_you_lose": "Requires CPU time to evaluate optimal row filter strategies (Sub, Up, Average, Paeth).",
+  "best_for": "Screenshots, UI assets, logos, and illustrations with solid color blocks and text.",
+  "avoid_for": "Photographs with millions of unique colors where JPEG/WebP is far more appropriate.",
+  "go_deeper": "PNG uses 2D spatial filtering per scanline before DEFLATE. Optimization tests optimal filter combinations to minimize entropy."
+}

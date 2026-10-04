@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"bufio"
@@ -12,23 +12,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagUninstallForce bool
-)
-
-var uninstallCmd = &cobra.Command{
-	Use:   "uninstall",
-	Short: "🗑 Safely remove Boa binaries, symlinks, and aliases from your system",
-	Long: `Uninstall removes all installed Boa executable files, aliases (bo, compressor),
+func (a *App) newUninstallCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "uninstall",
+		Short: "🗑 Safely remove Boa binaries, symlinks, and aliases from your system",
+		Long: `Uninstall removes all installed Boa executable files, aliases (bo, compressor),
 and installation references cleanly from ~/.local/bin and /usr/local/bin.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		RunUninstall(flagUninstallForce)
-	},
-}
+		Run: func(cmd *cobra.Command, args []string) {
+			force, _ := cmd.Flags().GetBool("force")
+			RunUninstall(force)
+		},
+	}
 
-func init() {
-	uninstallCmd.Flags().BoolVarP(&flagUninstallForce, "force", "f", false, "Bypass confirmation prompt and uninstall immediately")
-	RootCmd.AddCommand(uninstallCmd)
+	cmd.Flags().BoolP("force", "f", false, "Bypass confirmation prompt and uninstall immediately")
+	return cmd
 }
 
 // AnimateBoaSnake displays a live slithering boa snake moving smoothly from left to right.
@@ -42,7 +39,6 @@ func AnimateBoaSnake(taskName string, steps int, stepDelay time.Duration) {
 	}
 
 	for i := 0; i <= steps; i++ {
-		// Calculate position across the track
 		pos := (i * (trackWidth - 7)) / steps
 		if pos < 0 {
 			pos = 0
@@ -55,7 +51,6 @@ func AnimateBoaSnake(taskName string, steps int, stepDelay time.Duration) {
 		leftPad := strings.Repeat(" ", pos)
 		rightPad := strings.Repeat(" ", trackWidth-7-pos)
 
-		// Render track with slithering green boa snake
 		coloredSnake := ui.Bold(ui.Green(body))
 		track := fmt.Sprintf("[%s%s%s]", leftPad, coloredSnake, rightPad)
 
@@ -91,7 +86,6 @@ func RunUninstall(force bool) {
 	ui.PrintSection("Uninstalling Boa")
 	fmt.Println()
 
-	// Candidate paths to search and clean
 	homeDir, _ := os.UserHomeDir()
 	candidatePaths := []string{
 		filepath.Join(homeDir, ".local", "bin", "boa"),
@@ -102,7 +96,6 @@ func RunUninstall(force bool) {
 		"/usr/local/bin/compressor",
 	}
 
-	// Also check current executable path
 	if execPath, err := os.Executable(); err == nil {
 		if realExec, err := filepath.EvalSymlinks(execPath); err == nil {
 			candidatePaths = append(candidatePaths, realExec)
@@ -110,10 +103,8 @@ func RunUninstall(force bool) {
 		candidatePaths = append(candidatePaths, execPath)
 	}
 
-	// Phase 1: Scanning
 	AnimateBoaSnake("Scanning installation directories...", 25, 30*time.Millisecond)
 
-	// Phase 2: Removing binaries & symlinks
 	var removed []string
 	var failed []string
 
@@ -126,7 +117,6 @@ func RunUninstall(force bool) {
 		}
 		seen[path] = true
 
-		// Check if file exists or symlink exists
 		if _, err := os.Lstat(path); err == nil {
 			if err := os.Remove(path); err == nil {
 				removed = append(removed, path)
@@ -136,7 +126,6 @@ func RunUninstall(force bool) {
 		}
 	}
 
-	// Phase 3: Finalizing
 	AnimateBoaSnake("Finalizing cleanup...", 20, 25*time.Millisecond)
 
 	fmt.Println()

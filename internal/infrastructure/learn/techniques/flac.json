@@ -1,0 +1,13 @@
+{
+  "id": "flac",
+  "name": "Lossless Audio (FLAC)",
+  "category": "lossless",
+  "media_kind": "audio",
+  "summary": "Compresses uncompressed audio (like WAV and AIFF) to half its size with exact sample preservation.",
+  "analogy": "Zipping an audio stream using musical mathematical patterns instead of general text patterns.",
+  "what_you_gain": "Reduces raw uncompressed studio recordings by 40-60% without losing a single bit of audio fidelity.",
+  "what_you_lose": "Files are still significantly larger than lossy formats like MP3 or AAC.",
+  "best_for": "Archiving uncompressed WAV/AIFF master recordings and sound libraries.",
+  "avoid_for": "Audio that is already encoded as MP3 or AAC (converting lossy audio to FLAC bloats the file).",
+  "go_deeper": "Linear Predictive Coding (LPC) models the waveform and encodes only the small prediction residuals using Rice/Golomb entropy coding."
+}

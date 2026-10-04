@@ -1,0 +1,13 @@
+{
+  "id": "strip-meta",
+  "name": "Metadata Stripping",
+  "category": "lossless",
+  "media_kind": "general",
+  "summary": "Removes non-essential embedded metadata (EXIF GPS tags, camera serials, author comments, thumbnail caches).",
+  "analogy": "Removing shipping tags and price stickers from a gift box before putting it into a package.",
+  "what_you_gain": "Enhances personal privacy (removes GPS coordinates) and saves 10-100 KB per photo without touching pixels.",
+  "what_you_lose": "Camera settings, timestamp history, and geolocation metadata are permanently deleted.",
+  "best_for": "Privacy-conscious sharing and optimizing collections with thousands of camera photos.",
+  "avoid_for": "Professional photography archives where camera settings, copyright info, and color profiles must be kept.",
+  "go_deeper": "Strips auxiliary APP1/EXIF, XMP, and IPTC header segments from file containers while preserving image payload bitstreams."
+}

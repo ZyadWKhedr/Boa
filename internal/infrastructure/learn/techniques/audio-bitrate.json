@@ -1,0 +1,13 @@
+{
+  "id": "audio-bitrate",
+  "name": "Audio Bitrate Presets",
+  "category": "lossy",
+  "media_kind": "audio",
+  "summary": "Encodes audio using psychoacoustic models at target bitrates (Small: 96k, Balanced: 160k, High: 256k).",
+  "analogy": "A sound engineer muting sounds that are drowned out by louder simultaneous instruments.",
+  "what_you_gain": "Reduces audio size by 70-90% compared to raw WAV while sounding virtually indistinguishable to most listeners.",
+  "what_you_lose": "Inaudible ultrasonic frequencies and masked harmonics are discarded permanently.",
+  "best_for": "Voice recordings, podcasts, background music, sound effects, and casual listening.",
+  "avoid_for": "Master studio stems intended for subsequent mixing, mastering, or frequency analysis.",
+  "go_deeper": "Uses psychoacoustic masking models (AAC / MP3) to calculate the Absolute Threshold of Hearing and Modified Discrete Cosine Transform (MDCT)."
+}

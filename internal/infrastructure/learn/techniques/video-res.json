@@ -1,0 +1,13 @@
+{
+  "id": "video-res",
+  "name": "Video Resolution Downscaling",
+  "category": "lossy",
+  "media_kind": "video",
+  "summary": "Scales high-resolution video (e.g. 4K to 1080p or 1080p to 720p) to immediately cut pixel count in half or quarter.",
+  "analogy": "Printing a giant poster as a postcard so it fits in a small envelope.",
+  "what_you_gain": "Immediate 60-80% file size reduction before video codec compression even begins.",
+  "what_you_lose": "Fine details visible on 4K monitors (small text, distant faces) become softer.",
+  "best_for": "Archiving oversized 4K phone recordings or screen recordings meant for mobile viewing.",
+  "avoid_for": "Video containing tiny crisp text or critical high-precision visual data.",
+  "go_deeper": "Uses bicubic / Lanczos resampling spatial filter kernels to compute interpolated pixel values across downscaled grid coordinates."
+}

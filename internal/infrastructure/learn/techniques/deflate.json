@@ -1,0 +1,13 @@
+{
+  "id": "deflate",
+  "name": "DEFLATE (Standard ZIP)",
+  "category": "lossless",
+  "media_kind": "general",
+  "summary": "The universal lossless compression algorithm supported by every computer, OS, and unzip utility.",
+  "analogy": "Replacing repeated phrases with short shorthand abbreviations in an index notebook.",
+  "what_you_gain": "100% universal compatibility across Windows, macOS, Linux, and mobile without third-party software.",
+  "what_you_lose": "Slower compression speeds and lower density compared to modern algorithms like Zstandard.",
+  "best_for": "Archives meant to be shared with clients, colleagues, or downloaded from the web.",
+  "avoid_for": "Already compressed media (JPEGs, MP4s) where it wastes CPU without saving space.",
+  "go_deeper": "Standardized in RFC 1951 (ZIP Method 8). Combines LZ77 sliding-window dictionary substitution with dynamic Huffman entropy coding."
+}
