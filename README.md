@@ -163,48 +163,139 @@ Boa validates paths, enforces extraction boundaries, and asks for confirmation w
 
 ## Features in Detail
 
-### 1. Interactive Main Menu & File Picker
-Typing `bo` in your terminal launches the real-time interactive dashboard with arrow-key (`↑↓` / `jk`) navigation:
+### 1. Interactive Bubble Tea Dashboard & Multi-Media Wizard
+Typing `bo` in your terminal launches the fullscreen interactive dashboard built with [Charm Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss):
 
 ```text
- ____                 
-| __ )  ___   __ _    
-|  _ \ / _ \ / _` |   
-| |_) | (_) | (_| |   https://github.com/ZyadWKhedr/Boa
-|____/ \___/ \__,_|   Tight, fast, lossless compression for your files.
+ 🐍 Boa Interactive Compression Dashboard
+ Version v0.3.0  ·  Interactive compression toolkit
 
- Version v0.2.1  ·  Interactive compression toolkit
+ ➤ 1.  Compress         Package files into a zip archive with smart media options
+   2.  Extract          Safely unzip archives with Zip-Slip path defense
+   3.  Browse Archive   Inspect files, sizes, ratios & lossy metadata
+   4.  Learn            Educational guide: how compression algorithms work
+   5.  More...          Benchmarks, level comparison, system status & tools
 
- ➤ 1.  Pack         Compress folders or files into dense archives
-   2.  Unpack       Safely extract zip archives with Zip-Slip defense
-   3.  List         List files, sizes & directory contents of an archive
-   4.  Inspect      Explore archive structure, ratios & metadata
-   5.  Benchmark    Measure compression speed, duration & throughput
-   6.  Compare      Side-by-side visual bar charts across compression levels
-   7.  Status       Runtime health, Go environment & platform info
-   8.  Uninstall    Safely remove Boa binaries & symlinks from system
-
- ↑↓ / jk Navigate  |  Enter Confirm  |  1-8 Jump  |  V Version  |  Q Quit
+ ↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit
 ```
 
-Selecting **Pack** opens the in-terminal **File Explorer**:
+#### In-Terminal File Explorer
+Selecting **Compress** or **Extract** opens the interactive directory browser with instant folder navigation, directory breadcrumbs, formatted sizes, and file type indicators:
 
 ```text
-▶ Select Folder or File to Compress
-Location: ~/Desktop/projects
+ 📁 Select Folder or File to Compress
+ Current Directory: ~/Projects/media-gallery
 
-➤ ✔  [PACK THIS ENTIRE FOLDER: projects]  (or press Space / S)
-  📁  .. (Parent Directory)
-  📁  cmd/
-  📁  docs/
-  📁  internal/
-  📁  pkg/
-  📄  Makefile
-  📄  README.md
-  📄  main.go
+ ➤ 📁  .. (parent directory)
+   📁  audio/
+   📁  documents/
+   📁  photos/
+   📁  videos/
+   📄  Makefile (1.2 KB)
+   📄  README.md (3.4 KB)
+   📦  backup.zip (14.2 MB)
 
-========================================================================
- ↑↓ / jk Navigate  |  Enter Step Into / Pick  |  Space/S Pack Folder  |  ← Back  |  Q Cancel
+ ↑↓/jk Navigate  ·  →/l Open Dir  ·  Enter Select  ·  Space Current Dir  ·  Esc Cancel
+```
+
+#### Multi-Step Media Compression Wizard
+When compressing directories containing photos, music, or videos, Boa launches a multi-step wizard:
+
+```text
+ 🐍 Boa Compression Wizard (Step 2 of 4)
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📸 Image Compression (24 files · 48.2 MB)
+ Techniques: JPEG quality recompression, PNG palette reduction
+
+ Mode:     [ Lossless ]  ▶ [ Lossy ] ◀
+ Quality:  [████████████████░░░░]  80%  (←/→ to adjust)
+
+ 📊 Estimated Total Size: 18.5 MB ~ 24.1 MB (Saved: ~50% to ~62%)
+
+ ℹ Tip: 80% retains crisp visual clarity for 99% of viewing contexts.
+ Press '?' for in-depth educational guide on JPEG Quality.
+
+ ────────────────────────────────────────────────────────────
+ ↑↓ Switch Row  ·  ←→ Adjust  ·  ? Help  ·  Enter Next  ·  Esc Cancel
+```
+
+- **Live Estimated Range**: Recalculates projected savings dynamically as you adjust quality sliders.
+- **Contextual Knowledge Modal**: Press `?` at any step to view real-time educational explanations of the active compression algorithm.
+- **Explicit Consent**: If any lossy settings are selected, a dedicated confirmation screen details expected visual trade-offs before packing.
+
+---
+
+### 2. Media Compression Engine & Safety Policies
+
+Boa features a content-aware compression engine designed with strict safety rules:
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                        CONTENT CLASSIFICATION                          │
+│               (Magic Bytes & Container Probing)                        │
+└──────────────────────────────────┬─────────────────────────────────────┘
+                                   │
+         ┌─────────────────────────┴─────────────────────────┐
+         ▼                                                   ▼
+┌──────────────────────────────────┐        ┌────────────────────────────┐
+│   MEDIA FILES (Image/Audio/Vid)  │        │   ALL OTHER / UNKNOWN      │
+│   JPEG, PNG, MP3, WAV, MP4...    │        │   Code, Text, Docs, DBs... │
+└────────────────┬─────────────────┘        └─────────────┬──────────────┘
+                 │                                        │
+        [Policy Check #1 & #2]                            │
+                 │                                        │
+        Lossy Permitted?                                  │
+         ├── YES (with explicit consent)                  │
+         │   └── JPEG Quality / PNG Palette               │
+         │       Audio Bitrate / Video CRF                │
+         │                                                │
+         └── NO (Default) ────────────────────────────────┼─────────────────┐
+                                                          ▼                 ▼
+                                                   [100% LOSSLESS]   [100% LOSSLESS]
+                                                   DEFLATE (1-9)      Zstandard / Store
+```
+
+- **Fail-Closed Safety Policy**: Non-media files (source code, text, documents, databases, executables) are **never** subjected to lossy compression under any circumstance.
+- **Content-First Magic Byte Probing**: Inspects file headers to defeat deceptive file extensions (e.g. source code renamed to `.jpg`).
+- **Source File Integrity**: Original source files on disk are never altered; output archives are created via atomic staging streams.
+- **ZIP Lossy Comment Tracking**: Archives containing lossy files are stamped with `Boa-Lossy: ...` comment headers, rendering clear badges in `bo list` while remaining 100% compatible with standard OS unzipping utilities.
+
+#### CLI Media Compression Flags
+```bash
+# Compress with lossy image optimization at 75% quality
+bo pack ./media -o ./output.zip --lossy images --quality 75
+
+# Transcode images and audio, and strip non-essential metadata
+bo pack ./media -o ./output.zip --lossy images,audio --quality 80 --strip-metadata
+
+# Target specific audio and video compression
+bo pack ./media -o ./output.zip --lossy video --quality 65
+```
+
+---
+
+### 3. Educational Knowledge Base (`bo learn`)
+Boa embeds a comprehensive compression knowledge base directly into the binary:
+
+```bash
+bo learn                # List all lossless and lossy techniques
+bo learn jpeg-quality   # Learn how DCT quantization and chroma subsampling work
+bo learn deflate        # Learn LZ77 sliding window and Huffman entropy coding
+bo learn opt-png        # Learn Deflate line filtering and palette quantization
+```
+
+Example explanation output:
+```text
+ [LEARN] JPEG Quality Compression
+ Summary: Perceptual frequency reduction via discrete cosine transform (DCT) and quantization.
+
+ 💡 Analogy: Like drawing a portrait with high detail on faces, while slightly smoothing out background leaves that human eyes barely notice.
+
+ ✔ Gain: 40% to 75% file size reduction with virtually invisible visual degradation at 75-85%.
+ ✖ Loss: Irreversible loss of raw sensor data and fine high-frequency noise.
+
+ 🎯 Best: Photos, web graphics, digital camera scans, social media distribution.
+ ⚠️ Avoid: Line art, logos, text screenshots, graphics with sharp contrasting edges, master photo archives.
 ```
 
 ---
