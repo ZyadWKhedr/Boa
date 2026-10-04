@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"compressor/internal/bench"
@@ -17,7 +16,7 @@ import (
 	"compressor/internal/usecase"
 	"compressor/pkg/types"
 	tea "github.com/charmbracelet/bubbletea"
-	"golang.org/x/term"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type menuItem struct {
@@ -40,6 +39,205 @@ var moreMenu = []menuItem{
 	{Number: "3.", Name: "System Status", Desc: "Runtime health, Go environment & platform info"},
 	{Number: "4.", Name: "Uninstall", Desc: "Safely remove Boa binaries & symlinks from system"},
 	{Number: "5.", Name: "Back", Desc: "Return to main menu"},
+}
+
+// MenuAction represents the user selection from the menu.
+type MenuAction int
+
+const (
+	ActionNone MenuAction = iota
+	ActionCompress
+	ActionExtract
+	ActionBrowse
+	ActionLearn
+	ActionBenchmark
+	ActionCompare
+	ActionStatus
+	ActionUninstall
+	ActionQuit
+)
+
+// DashboardModel is the Bubble Tea model for the main interactive menu.
+type DashboardModel struct {
+	version     string
+	inMoreMenu  bool
+	selectedIdx int
+	width       int
+	height      int
+	Action      MenuAction
+	Quitting    bool
+}
+
+// NewDashboardModel initializes the Bubble Tea dashboard model.
+func NewDashboardModel(version string, inMoreMenu bool) DashboardModel {
+	return DashboardModel{
+		version:    version,
+		inMoreMenu: inMoreMenu,
+		width:      80,
+		height:     24,
+	}
+}
+
+func (m DashboardModel) Init() tea.Cmd {
+	return nil
+}
+
+func (m DashboardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	items := mainMenu
+	if m.inMoreMenu {
+		items = moreMenu
+	}
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			if m.inMoreMenu {
+				m.inMoreMenu = false
+				m.selectedIdx = 0
+				return m, nil
+			}
+			m.Quitting = true
+			m.Action = ActionQuit
+			return m, tea.Quit
+
+		case "esc":
+			if m.inMoreMenu {
+				m.inMoreMenu = false
+				m.selectedIdx = 0
+				return m, nil
+			}
+			m.Quitting = true
+			m.Action = ActionQuit
+			return m, tea.Quit
+
+		case "up", "k":
+			m.selectedIdx = (m.selectedIdx - 1 + len(items)) % len(items)
+			return m, nil
+
+		case "down", "j":
+			m.selectedIdx = (m.selectedIdx + 1) % len(items)
+			return m, nil
+
+		case "1":
+			return m.selectIndex(0)
+		case "2":
+			return m.selectIndex(1)
+		case "3":
+			return m.selectIndex(2)
+		case "4":
+			return m.selectIndex(3)
+		case "5":
+			return m.selectIndex(4)
+
+		case "?":
+			if !m.inMoreMenu {
+				m.Action = ActionLearn
+				return m, tea.Quit
+			}
+
+		case "enter", " ":
+			return m.selectIndex(m.selectedIdx)
+		}
+	}
+
+	return m, nil
+}
+
+func (m DashboardModel) selectIndex(idx int) (tea.Model, tea.Cmd) {
+	if m.inMoreMenu {
+		switch idx {
+		case 0:
+			m.Action = ActionBenchmark
+			return m, tea.Quit
+		case 1:
+			m.Action = ActionCompare
+			return m, tea.Quit
+		case 2:
+			m.Action = ActionStatus
+			return m, tea.Quit
+		case 3:
+			m.Action = ActionUninstall
+			return m, tea.Quit
+		case 4:
+			m.inMoreMenu = false
+			m.selectedIdx = 0
+			return m, nil
+		}
+	} else {
+		switch idx {
+		case 0:
+			m.Action = ActionCompress
+			return m, tea.Quit
+		case 1:
+			m.Action = ActionExtract
+			return m, tea.Quit
+		case 2:
+			m.Action = ActionBrowse
+			return m, tea.Quit
+		case 3:
+			m.Action = ActionLearn
+			return m, tea.Quit
+		case 4:
+			m.inMoreMenu = true
+			m.selectedIdx = 0
+			return m, nil
+		}
+	}
+	return m, nil
+}
+
+func (m DashboardModel) View() string {
+	if m.Quitting {
+		return lipgloss.NewStyle().Foreground(mutedColor).Render("\n Goodbye! 🐍\n")
+	}
+
+	var b strings.Builder
+
+	bannerStyle := lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
+	subtitleStyle := lipgloss.NewStyle().Foreground(mutedColor)
+
+	b.WriteString("\n " + bannerStyle.Render("🐍 Boa Interactive Compression Dashboard") + "\n")
+
+	title := "Interactive compression toolkit"
+	if m.inMoreMenu {
+		title = "Advanced Tools & Configuration"
+	}
+	b.WriteString(" " + subtitleStyle.Render("Version "+m.version+"  ·  "+title) + "\n\n")
+
+	items := mainMenu
+	if m.inMoreMenu {
+		items = moreMenu
+	}
+
+	for i, item := range items {
+		if i == m.selectedIdx {
+			cursor := lipgloss.NewStyle().Bold(true).Foreground(accentColor).Render("➤")
+			num := lipgloss.NewStyle().Bold(true).Foreground(accentColor).Render(item.Number)
+			name := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#0284C7")).Render(fmt.Sprintf(" %-16s ", item.Name))
+			desc := lipgloss.NewStyle().Foreground(accentColor).Render(item.Desc)
+			b.WriteString(fmt.Sprintf(" %s %s %s %s\n", cursor, num, name, desc))
+		} else {
+			num := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFFFF")).Render(item.Number)
+			name := fmt.Sprintf("%-18s", item.Name)
+			desc := lipgloss.NewStyle().Foreground(mutedColor).Render(item.Desc)
+			b.WriteString(fmt.Sprintf("   %s %s %s\n", num, name, desc))
+		}
+	}
+
+	b.WriteString("\n")
+	if m.inMoreMenu {
+		b.WriteString(" " + subtitleStyle.Render("↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  Esc/q Back to Main Menu") + "\n")
+	} else {
+		b.WriteString(" " + subtitleStyle.Render("↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit") + "\n")
+	}
+
+	return b.String()
 }
 
 // Dashboard orchestrates the interactive fullscreen TUI.
@@ -72,160 +270,45 @@ func NewDashboard(
 	}
 }
 
-// Run launches the interactive terminal dashboard.
+// Run launches the interactive terminal dashboard powered by Bubble Tea.
 func (d *Dashboard) Run() {
-	fd := int(os.Stdin.Fd())
-	if !term.IsTerminal(fd) {
-		return
-	}
-
-	fmt.Print("\033[?1049h\033[?25l")
-	defer func() {
-		fmt.Print("\033[?25h\033[?1049l")
-	}()
-
-	selectedIndex := 0
+	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		items := mainMenu
-		if d.inMoreMenu {
-			items = moreMenu
-		}
-
-		if selectedIndex >= len(items) {
-			selectedIndex = 0
-		}
-
-		d.renderMenu(items, selectedIndex)
-
-		oldState, err := term.MakeRaw(fd)
+		model := NewDashboardModel(d.Version, d.inMoreMenu)
+		p := tea.NewProgram(model, tea.WithAltScreen())
+		finalModel, err := p.Run()
 		if err != nil {
-			d.fallbackInteractive()
 			return
 		}
 
-		key, err := ReadKey()
-		_ = term.Restore(fd, oldState)
-		if err != nil {
-			break
-		}
-
-		switch key {
-		case "UP", "k", "K":
-			selectedIndex = (selectedIndex - 1 + len(items)) % len(items)
-		case "DOWN", "j", "J":
-			selectedIndex = (selectedIndex + 1) % len(items)
-		case "1":
-			d.handleAction(0)
-		case "2":
-			d.handleAction(1)
-		case "3":
-			d.handleAction(2)
-		case "4":
-			d.handleAction(3)
-		case "5":
-			d.handleAction(4)
-		case "?":
-			if !d.inMoreMenu {
-				d.handleAction(3) // Learn
-			}
-		case "ENTER", "SPACE":
-			d.handleAction(selectedIndex)
-		case "q", "Q", "ESC", "CTRL_C":
-			if d.inMoreMenu {
-				d.inMoreMenu = false
-				selectedIndex = 0
-				continue
-			}
-			fmt.Print("\033[?25h\033[?1049l")
+		m, ok := finalModel.(DashboardModel)
+		if !ok || m.Action == ActionQuit || m.Quitting {
 			fmt.Println(ui.Dim("\n Goodbye! 🐍\n"))
 			return
 		}
-	}
-}
 
-func (d *Dashboard) renderMenu(items []menuItem, selected int) {
-	fmt.Print("\033[H\033[2J")
+		d.inMoreMenu = m.inMoreMenu
 
-	ui.PrintBanner()
-	fmt.Println()
-	title := "Interactive compression toolkit"
-	if d.inMoreMenu {
-		title = "Advanced Tools & Configuration"
-	}
-	fmt.Printf(" %s\n\n", ui.Dim("Version "+d.Version+"  ·  "+title))
-
-	for i, item := range items {
-		if i == selected {
-			pointer := ui.Bold(ui.Cyan("➤"))
-			num := ui.Bold(ui.Cyan(item.Number))
-			name := ui.Bold(ui.Cyan(fmt.Sprintf("%-16s", item.Name)))
-			desc := ui.Cyan(item.Desc)
-			fmt.Printf(" %s %s  %s %s\n", pointer, num, name, desc)
-		} else {
-			num := ui.Bold(item.Number)
-			name := fmt.Sprintf("%-16s", item.Name)
-			desc := ui.Dim(item.Desc)
-			fmt.Printf("   %s  %s %s\n", num, name, desc)
+		switch m.Action {
+		case ActionCompress:
+			d.interactivePack(reader)
+		case ActionExtract:
+			d.interactiveUnpack(reader)
+		case ActionBrowse:
+			d.interactiveBrowse(reader)
+		case ActionLearn:
+			d.interactiveLearn(reader)
+		case ActionBenchmark:
+			d.interactiveBench(reader)
+		case ActionCompare:
+			d.interactiveCompare(reader)
+		case ActionStatus:
+			d.interactiveStatus(reader)
+		case ActionUninstall:
+			cli.RunUninstall(false)
+			d.waitForEnter(reader)
 		}
-	}
-
-	fmt.Println()
-	if d.inMoreMenu {
-		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Confirm  |  1-5 Jump  |  Esc Back to Main Menu"))
-	} else {
-		fmt.Println(ui.Dim(" ↑↓ / jk Navigate  |  Enter Confirm  |  1-5 Jump  |  ? Learn  |  Q Quit"))
-	}
-}
-
-func (d *Dashboard) handleAction(index int) {
-	if d.inMoreMenu {
-		d.handleMoreAction(index)
-		return
-	}
-
-	fmt.Print("\033[?1049l\033[?25h")
-	defer func() {
-		fmt.Print("\033[?1049h\033[?25l")
-	}()
-
-	reader := bufio.NewReader(os.Stdin)
-
-	switch index {
-	case 0:
-		d.interactivePack(reader)
-	case 1:
-		d.interactiveUnpack(reader)
-	case 2:
-		d.interactiveBrowse(reader)
-	case 3:
-		d.interactiveLearn(reader)
-	case 4:
-		d.inMoreMenu = true
-	}
-}
-
-func (d *Dashboard) handleMoreAction(index int) {
-	fmt.Print("\033[?1049l\033[?25h")
-	defer func() {
-		fmt.Print("\033[?1049h\033[?25l")
-	}()
-
-	reader := bufio.NewReader(os.Stdin)
-
-	switch index {
-	case 0:
-		d.interactiveBench(reader)
-	case 1:
-		d.interactiveCompare(reader)
-	case 2:
-		d.interactiveStatus(reader)
-	case 3:
-		fmt.Print("\033[H\033[2J")
-		cli.RunUninstall(false)
-		d.waitForEnter()
-	case 4:
-		d.inMoreMenu = false
 	}
 }
 
@@ -247,16 +330,16 @@ func (d *Dashboard) interactivePack(reader *bufio.Reader) {
 	scanRes, err := scanUC.Execute(context.Background(), src, []string{".git*", ".DS_Store", "node_modules"})
 	if err != nil {
 		ui.PrintError(fmt.Sprintf("Failed to inspect path: %v. Suggested fix: Check that the folder exists and has read permissions.", err))
-		d.waitForEnter()
+		d.waitForEnter(reader)
 		return
 	}
 
 	wizard := NewWizardModel(scanRes, estimator, d.LearnUC)
-	p := tea.NewProgram(wizard)
+	p := tea.NewProgram(wizard, tea.WithAltScreen())
 	finalModel, err := p.Run()
 	if err != nil {
 		ui.PrintError(fmt.Sprintf("TUI error: %v", err))
-		d.waitForEnter()
+		d.waitForEnter(reader)
 		return
 	}
 
@@ -272,7 +355,7 @@ func (d *Dashboard) interactivePack(reader *bufio.Reader) {
 	plan, err := planUC.Execute(context.Background(), scanRes, prefs, defaultDest)
 	if err != nil {
 		ui.PrintError(fmt.Sprintf("Cannot create compression plan: %v", err))
-		d.waitForEnter()
+		d.waitForEnter(reader)
 		return
 	}
 
@@ -295,7 +378,7 @@ func (d *Dashboard) interactivePack(reader *bufio.Reader) {
 		ui.RenderCompressionSummary(summary, false)
 	}
 
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
 func (d *Dashboard) interactiveUnpack(reader *bufio.Reader) {
@@ -311,7 +394,6 @@ func (d *Dashboard) interactiveUnpack(reader *bufio.Reader) {
 
 	dest := defaultDest
 
-	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection("Extract Archive")
@@ -349,7 +431,7 @@ func (d *Dashboard) interactiveUnpack(reader *bufio.Reader) {
 		ui.RenderExtractionSummary(summary, dest, false)
 	}
 
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
 func (d *Dashboard) interactiveBrowse(reader *bufio.Reader) {
@@ -358,7 +440,6 @@ func (d *Dashboard) interactiveBrowse(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection(fmt.Sprintf("Archive Browser: %s", ui.PrettyPath(archive)))
@@ -371,7 +452,7 @@ func (d *Dashboard) interactiveBrowse(reader *bufio.Reader) {
 		ui.RenderArchiveList(summary, true)
 	}
 
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
 func (d *Dashboard) interactiveBench(reader *bufio.Reader) {
@@ -380,7 +461,6 @@ func (d *Dashboard) interactiveBench(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintInfo(fmt.Sprintf("Benchmarking target: %s", ui.Bold(ui.PrettyPath(src))))
@@ -401,7 +481,7 @@ func (d *Dashboard) interactiveBench(reader *bufio.Reader) {
 		bench.RenderText(report, false, os.Stdout)
 	}
 
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
 func (d *Dashboard) interactiveCompare(reader *bufio.Reader) {
@@ -410,7 +490,6 @@ func (d *Dashboard) interactiveCompare(reader *bufio.Reader) {
 		return
 	}
 
-	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintInfo(fmt.Sprintf("Comparing compression levels for: %s", ui.Bold(ui.PrettyPath(src))))
@@ -431,11 +510,10 @@ func (d *Dashboard) interactiveCompare(reader *bufio.Reader) {
 		bench.RenderText(report, true, os.Stdout)
 	}
 
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
 func (d *Dashboard) interactiveLearn(reader *bufio.Reader) {
-	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 
@@ -488,55 +566,20 @@ func (d *Dashboard) interactiveLearn(reader *bufio.Reader) {
 		}
 	}
 
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
 func (d *Dashboard) interactiveStatus(reader *bufio.Reader) {
-	fmt.Print("\033[H\033[2J")
 	ui.PrintBanner()
 	fmt.Println()
 	ui.PrintSection("System & Runtime Status")
 	fmt.Printf("   %-16s %s\n", ui.Dim("Version"), ui.Bold(ui.Cyan(d.Version)))
 	fmt.Println()
-	d.waitForEnter()
+	d.waitForEnter(reader)
 }
 
-func (d *Dashboard) waitForEnter() {
+func (d *Dashboard) waitForEnter(reader *bufio.Reader) {
 	fmt.Println()
-	fmt.Print(ui.Dim(" Press Enter or 'q' to return to menu... "))
-	fd := int(os.Stdin.Fd())
-	if term.IsTerminal(fd) {
-		oldState, err := term.MakeRaw(fd)
-		if err == nil {
-			defer term.Restore(fd, oldState)
-			_, _ = ReadKey()
-			return
-		}
-	}
-	buf := bufio.NewReader(os.Stdin)
-	_, _ = buf.ReadString('\n')
-}
-
-func (d *Dashboard) fallbackInteractive() {
-	reader := bufio.NewReader(os.Stdin)
-	items := mainMenu
-	if d.inMoreMenu {
-		items = moreMenu
-	}
-	for {
-		ui.PrintBanner()
-		fmt.Println()
-		for _, item := range items {
-			fmt.Printf("  %s %-16s %s\n", item.Number, item.Name, item.Desc)
-		}
-		fmt.Print("\n Select option [1-5, Q]: ")
-		choice, _ := reader.ReadString('\n')
-		choice = strings.ToLower(strings.TrimSpace(choice))
-		if choice == "q" || choice == "exit" {
-			return
-		}
-		if idx, err := strconv.Atoi(choice); err == nil && idx >= 1 && idx <= len(items) {
-			d.handleAction(idx - 1)
-		}
-	}
+	fmt.Print(ui.Dim(" Press Enter to return to menu... "))
+	_, _ = reader.ReadString('\n')
 }

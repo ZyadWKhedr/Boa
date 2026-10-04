@@ -371,7 +371,7 @@ func (m WizardModel) View() string {
 
 	var sb strings.Builder
 	sb.WriteString("\n")
-	sb.WriteString(" " + titleStyle.Render("Boa Smart Archiving Wizard 🐍") + "\n\n")
+	sb.WriteString(" ");sb.WriteString(titleStyle.Render("Boa Smart Archiving Wizard 🐍"));sb.WriteString("\n\n")
 
 	switch m.currentStep {
 	case stepOverview:
