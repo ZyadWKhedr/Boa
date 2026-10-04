@@ -162,3 +162,34 @@ func TestCharacterizationDryRunAndExclusions(t *testing.T) {
 		}
 	}
 }
+
+// TestCharacterizationLossyImagesAndZipComment verifies non-interactive lossy flags and ZIP metadata comment.
+func TestCharacterizationLossyImagesAndZipComment(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "char_lossy_*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	srcDir := filepath.Join(tempDir, "media_folder")
+	_ = os.MkdirAll(srcDir, 0o755)
+	_ = os.WriteFile(filepath.Join(srcDir, "doc.txt"), []byte("Document must stay untouched"), 0o644)
+	_ = os.WriteFile(filepath.Join(srcDir, "photo.jpg"), []byte{0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46}, 0o644)
+
+	zipOut := filepath.Join(tempDir, "lossy_output.zip")
+
+	RootCmd.SetArgs([]string{"pack", srcDir, "-o", zipOut, "--lossy", "images", "--quality", "75", "-f", "--quiet"})
+	if err := RootCmd.Execute(); err != nil {
+		t.Fatalf("Pack with --lossy images failed: %v", err)
+	}
+
+	r, err := zip.OpenReader(zipOut)
+	if err != nil {
+		t.Fatalf("Failed to open created zip: %v", err)
+	}
+	defer r.Close()
+
+	if !strings.Contains(r.Comment, "Boa-Lossy") {
+		t.Errorf("Expected ZIP Comment to contain 'Boa-Lossy', got %q", r.Comment)
+	}
+}
