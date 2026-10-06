@@ -40,6 +40,12 @@ type PackOptions struct {
 	// BaseDir allows specifying a root directory to calculate relative paths inside the archive.
 	BaseDir string
 
+	// TotalFiles is an optional total file count for accurate progress bar estimation.
+	TotalFiles int
+
+	// TotalBytes is an optional total byte size for progress percentage estimation.
+	TotalBytes int64
+
 	// ProgressCallback reports progress during compression.
 	ProgressCallback func(currentFile string, bytesProcessed int64, filesProcessed int)
 }
@@ -69,6 +75,12 @@ type UnpackOptions struct {
 
 	// SafeMode enforces strict Zip Slip path traversal and symlink validation.
 	SafeMode bool
+
+	// TotalFiles is an optional total file count for progress bars.
+	TotalFiles int
+
+	// TotalBytes is an optional total byte size for progress bars.
+	TotalBytes int64
 
 	// ProgressCallback reports progress during extraction.
 	ProgressCallback func(currentFile string, bytesExtracted int64, filesExtracted int)

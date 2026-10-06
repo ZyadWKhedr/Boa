@@ -77,6 +77,11 @@ customizable compression levels, optional lossy media flags (--lossy images,audi
 				destZip += ".zip"
 			}
 
+			var pb *ui.ProgressBar
+			if !flagQuiet && !dryRun && !flagVerbose {
+				pb = ui.NewProgressBar("Compressing", 0, 0)
+			}
+
 			opts := types.PackOptions{
 				SourcePaths:      sources,
 				OutputZipPath:    destZip,
@@ -88,7 +93,9 @@ customizable compression levels, optional lossy media flags (--lossy images,audi
 				Verbose:          flagVerbose,
 				Quiet:            flagQuiet,
 				ProgressCallback: func(file string, bytes int64, count int) {
-					if flagVerbose && !flagQuiet {
+					if pb != nil {
+						pb.Update(file, bytes, count)
+					} else if flagVerbose && !flagQuiet {
 						fmt.Fprintf(ui.Out, "  %s %s\n", ui.Dim("→ Added:"), file)
 					}
 				},
@@ -168,7 +175,15 @@ customizable compression levels, optional lossy media flags (--lossy images,audi
 					return err
 				}
 
+				if pb != nil {
+					pb.Finish()
+					pb = ui.NewProgressBar("Compressing", plan.TotalFiles, plan.TotalBytes)
+				}
+
 				summary, err := a.PackUC.ExecutePlan(context.Background(), plan, opts)
+				if pb != nil {
+					pb.Finish()
+				}
 				if err != nil {
 					return err
 				}
@@ -181,6 +196,9 @@ customizable compression levels, optional lossy media flags (--lossy images,audi
 
 			// Standard lossless pack
 			summary, err := a.PackUC.Execute(context.Background(), opts)
+			if pb != nil {
+				pb.Finish()
+			}
 			if err != nil {
 				return err
 			}

@@ -42,6 +42,11 @@ Features built-in Zip-Slip security defenses, path sanitization, and progress re
 				destDir = filepath.Join(parentDir, baseName)
 			}
 
+			var pb *ui.ProgressBar
+			if !flagQuiet && !flagVerbose {
+				pb = ui.NewProgressBar("Extracting", 0, 0)
+			}
+
 			opts := types.UnpackOptions{
 				ArchivePath:      archivePath,
 				DestinationDir:   destDir,
@@ -49,13 +54,18 @@ Features built-in Zip-Slip security defenses, path sanitization, and progress re
 				Verbose:          flagVerbose,
 				Quiet:            flagQuiet,
 				ProgressCallback: func(file string, bytes int64, count int) {
-					if flagVerbose && !flagQuiet {
+					if pb != nil {
+						pb.Update(file, bytes, count)
+					} else if flagVerbose && !flagQuiet {
 						fmt.Fprintf(ui.Out, "  %s %s\n", ui.Dim("← Extracted:"), file)
 					}
 				},
 			}
 
 			summary, err := a.ExtractUC.Execute(context.Background(), opts)
+			if pb != nil {
+				pb.Finish()
+			}
 			if err != nil {
 				return err
 			}

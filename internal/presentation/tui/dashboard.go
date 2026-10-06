@@ -365,6 +365,8 @@ func (d *Dashboard) interactivePack(reader *bufio.Reader) {
 		return
 	}
 
+	pb := ui.NewProgressBar("Compressing", plan.TotalFiles, plan.TotalBytes)
+
 	opts := types.PackOptions{
 		SourcePaths:      []string{src},
 		OutputZipPath:    defaultDest,
@@ -372,12 +374,16 @@ func (d *Dashboard) interactivePack(reader *bufio.Reader) {
 		CompressionLevel: prefs.DefaultLevel,
 		ExcludePatterns:  []string{".git*", ".DS_Store", "node_modules"},
 		Overwrite:        true,
+		ProgressCallback: func(file string, bytes int64, count int) {
+			pb.Update(file, bytes, count)
+		},
 	}
 	if prefs.ArchiveMethod == domain.MethodZstd {
 		opts.Method = types.MethodZstd
 	}
 
 	summary, err := d.PackUC.ExecutePlan(context.Background(), plan, opts)
+	pb.Finish()
 	if err != nil {
 		ui.PrintError(fmt.Sprintf("Compression error: %v. Suggested fix: Ensure destination disk has sufficient free space.", err))
 	} else {
@@ -424,13 +430,19 @@ func (d *Dashboard) interactiveUnpack(reader *bufio.Reader) {
 		}
 	}
 
+	pb := ui.NewProgressBar("Extracting", 0, 0)
+
 	opts := types.UnpackOptions{
 		ArchivePath:    archive,
 		DestinationDir: dest,
 		Overwrite:      true,
+		ProgressCallback: func(file string, bytes int64, count int) {
+			pb.Update(file, bytes, count)
+		},
 	}
 
 	summary, err := d.ExtractUC.Execute(context.Background(), opts)
+	pb.Finish()
 	if err != nil {
 		ui.PrintError(fmt.Sprintf("Extraction failed: %v. Suggested fix: Verify the file is a valid zip archive.", err))
 	} else {

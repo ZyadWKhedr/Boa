@@ -262,7 +262,7 @@ func (e *Engine) packPath(zw *zip.Writer, srcPath string, opts types.PackOptions
 		summary.UncompressedBytes += written
 
 		if opts.ProgressCallback != nil {
-			opts.ProgressCallback(path, summary.UncompressedBytes, summary.TotalFiles)
+			opts.ProgressCallback(relPath, summary.UncompressedBytes, summary.TotalFiles)
 		}
 
 		return nil
