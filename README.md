@@ -62,7 +62,7 @@ Boa delivers a **modern, safe, media-aware terminal archive experience**:
 | __ )  ___   __ _    
 |  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
 | |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
-|____/ \___/ \__,_|   Version v0.3.2  ·  Interactive compression toolkit
+|____/ \___/ \__,_|   Version v0.3.3  ·  Interactive compression toolkit
 
 ➤ 1.  Compress         Package files into a zip archive with smart media options
   2.  Extract          Safely unzip archives with Zip-Slip path defense
@@ -107,10 +107,10 @@ go install github.com/ZyadWKhedr/Boa@latest
 
 ### Install a Specific Release Version
 
-To install a specific release version (e.g. `v0.3.2`):
+To install a specific release version (e.g. `v0.3.3`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.2
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.3
 ```
 
 ### Build from Source
@@ -174,7 +174,7 @@ Typing `bo` in your terminal launches the fullscreen interactive dashboard built
 | __ )  ___   __ _    
 |  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
 | |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
-|____/ \___/ \__,_|   Version v0.3.2  ·  Interactive compression toolkit
+|____/ \___/ \__,_|   Version v0.3.3  ·  Interactive compression toolkit
 
 ➤ 1.  Compress         Package files into a zip archive with smart media options
   2.  Extract          Safely unzip archives with Zip-Slip path defense

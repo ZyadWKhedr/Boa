@@ -5,6 +5,14 @@ All notable changes to **Boa** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.3.3] - 2026-10-06
+
+### Added
+- **Automatic GitHub Update Checker**: Non-blocking asynchronous version checking against official GitHub releases (`ZyadWKhedr/Boa`).
+- **Interactive Update Badge**: Live `[ UPDATE AVAILABLE: vX.Y.Z ]` header badge rendered on the TUI dashboard when a newer release is published.
+- **In-Place Upgrader & More Menu Option**: Added `Check Updates` / `Update Boa` under the **More...** submenu (`5`) and CLI command `bo update` (with alias `bo upgrade`).
+- **Binary Self-Replacement**: Automatic download of platform-specific binary assets (`boa-${OS}-${ARCH}`), in-place atomic binary replacement, macOS ad-hoc codesigning, and alias symlink maintenance.
+
 ---
 
 ## [v0.3.2] - 2026-10-06

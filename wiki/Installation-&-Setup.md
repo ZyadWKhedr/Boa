@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | ba
 ### Custom Release Installation
 To install a specific version:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.2
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.3
 ```
 
 ---
@@ -85,7 +85,7 @@ Output:
 |____/ \___/ \__,_|   
 
  ── Boa Runtime Environment ──
-   Version          v0.3.2
+   Version          v0.3.3
    Go Runtime       go1.23.0
    Platform         darwin/arm64
    Concurrency      10 logical threads

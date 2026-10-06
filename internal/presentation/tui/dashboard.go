@@ -11,12 +11,14 @@ import (
 	"compressor/internal/bench"
 	"compressor/internal/domain"
 	"compressor/internal/infrastructure/classifier"
+	"compressor/internal/infrastructure/updater"
 	"compressor/internal/presentation/cli"
 	"compressor/internal/ui"
 	"compressor/internal/usecase"
 	"compressor/pkg/types"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"time"
 )
 
 type menuItem struct {
@@ -36,9 +38,10 @@ var mainMenu = []menuItem{
 var moreMenu = []menuItem{
 	{Number: "1.", Name: "Benchmark", Desc: "Measure compression speed, duration & throughput"},
 	{Number: "2.", Name: "Compare Levels", Desc: "Side-by-side visual bar charts across compression levels"},
-	{Number: "3.", Name: "System Status", Desc: "Runtime health, Go environment & platform info"},
-	{Number: "4.", Name: "Uninstall", Desc: "Safely remove Boa binaries & symlinks from system"},
-	{Number: "5.", Name: "Back", Desc: "Return to main menu"},
+	{Number: "3.", Name: "Check Updates", Desc: "Automatically check & install latest release binary"},
+	{Number: "4.", Name: "System Status", Desc: "Runtime health, Go environment & platform info"},
+	{Number: "5.", Name: "Uninstall", Desc: "Safely remove Boa binaries & symlinks from system"},
+	{Number: "6.", Name: "Back", Desc: "Return to main menu"},
 }
 
 // MenuAction represents the user selection from the menu.
@@ -52,6 +55,7 @@ const (
 	ActionLearn
 	ActionBenchmark
 	ActionCompare
+	ActionUpdate
 	ActionStatus
 	ActionUninstall
 	ActionQuit
@@ -59,26 +63,55 @@ const (
 
 // DashboardModel is the Bubble Tea model for the main interactive menu.
 type DashboardModel struct {
-	version     string
-	inMoreMenu  bool
-	selectedIdx int
-	width       int
-	height      int
-	Action      MenuAction
-	Quitting    bool
+	version         string
+	inMoreMenu      bool
+	selectedIdx     int
+	width           int
+	height          int
+	updateChecked   bool
+	updateAvailable bool
+	latestVersion   string
+	Action          MenuAction
+	Quitting        bool
+}
+
+type updateCheckMsg struct {
+	available bool
+	latest    string
+}
+
+func checkUpdateCmd(currentVersion string) tea.Cmd {
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		rel, isNewer, err := updater.CheckForUpdate(ctx, currentVersion)
+		if err != nil || !isNewer || rel == nil {
+			return updateCheckMsg{available: false}
+		}
+		return updateCheckMsg{
+			available: true,
+			latest:    rel.TagName,
+		}
+	}
 }
 
 // NewDashboardModel initializes the Bubble Tea dashboard model.
-func NewDashboardModel(version string, inMoreMenu bool) DashboardModel {
+func NewDashboardModel(version string, inMoreMenu, updateChecked, updateAvailable bool, latestVersion string) DashboardModel {
 	return DashboardModel{
-		version:    version,
-		inMoreMenu: inMoreMenu,
-		width:      80,
-		height:     24,
+		version:         version,
+		inMoreMenu:      inMoreMenu,
+		width:           80,
+		height:          24,
+		updateChecked:   updateChecked,
+		updateAvailable: updateAvailable,
+		latestVersion:   latestVersion,
 	}
 }
 
 func (m DashboardModel) Init() tea.Cmd {
+	if !m.updateChecked {
+		return checkUpdateCmd(m.version)
+	}
 	return nil
 }
 
@@ -89,6 +122,12 @@ func (m DashboardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case updateCheckMsg:
+		m.updateChecked = true
+		m.updateAvailable = msg.available
+		m.latestVersion = msg.latest
+		return m, nil
+
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -134,6 +173,10 @@ func (m DashboardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.selectIndex(3)
 		case "5":
 			return m.selectIndex(4)
+		case "6":
+			if m.inMoreMenu {
+				return m.selectIndex(5)
+			}
 
 		case "?":
 			if !m.inMoreMenu {
@@ -159,12 +202,15 @@ func (m DashboardModel) selectIndex(idx int) (tea.Model, tea.Cmd) {
 			m.Action = ActionCompare
 			return m, tea.Quit
 		case 2:
-			m.Action = ActionStatus
+			m.Action = ActionUpdate
 			return m, tea.Quit
 		case 3:
-			m.Action = ActionUninstall
+			m.Action = ActionStatus
 			return m, tea.Quit
 		case 4:
+			m.Action = ActionUninstall
+			return m, tea.Quit
+		case 5:
 			m.inMoreMenu = false
 			m.selectedIdx = 0
 			return m, nil
@@ -209,16 +255,27 @@ func (m DashboardModel) View() string {
 		title = "Advanced Tools & Configuration"
 	}
 
+	var updateBadge string
+	if m.updateAvailable && m.latestVersion != "" {
+		badgeStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#16A34A"))
+		updateBadge = "  " + badgeStyle.Render(fmt.Sprintf(" UPDATE AVAILABLE: %s ", m.latestVersion))
+	}
+
 	b.WriteString("\n")
 	b.WriteString(" " + asciiStyle.Render(" ____                 ") + "\n")
 	b.WriteString(" " + asciiStyle.Render("| __ )  ___   __ _    ") + "\n")
 	b.WriteString(" " + asciiStyle.Render("|  _ \\ / _ \\ / _` |   ") + urlStyle.Render("https://github.com/ZyadWKhedr/Boa") + "\n")
 	b.WriteString(" " + asciiStyle.Render("| |_) | (_) | (_| |   ") + taglineStyle.Render("Tight, fast, lossless compression for your files.") + "\n")
-	b.WriteString(" " + asciiStyle.Render("|____/ \\___/ \\__,_|   ") + subtitleStyle.Render("Version "+m.version+"  ·  "+title) + "\n\n")
+	b.WriteString(" " + asciiStyle.Render("|____/ \\___/ \\__,_|   ") + subtitleStyle.Render("Version "+m.version) + updateBadge + subtitleStyle.Render("  ·  "+title) + "\n\n")
 
 	items := mainMenu
 	if m.inMoreMenu {
-		items = moreMenu
+		items = make([]menuItem, len(moreMenu))
+		copy(items, moreMenu)
+		if m.updateAvailable && m.latestVersion != "" {
+			items[2].Name = "Update Boa"
+			items[2].Desc = fmt.Sprintf("New version %s available - click to install", m.latestVersion)
+		}
 	}
 
 	for i, item := range items {
@@ -238,7 +295,7 @@ func (m DashboardModel) View() string {
 
 	b.WriteString("\n")
 	if m.inMoreMenu {
-		b.WriteString(" " + subtitleStyle.Render("↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  Esc/q Back to Main Menu") + "\n")
+		b.WriteString(" " + subtitleStyle.Render("↑↓/jk Navigate  ·  Enter Select  ·  1-6 Jump  ·  Esc/q Back to Main Menu") + "\n")
 	} else {
 		b.WriteString(" " + subtitleStyle.Render("↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit") + "\n")
 	}
@@ -248,13 +305,16 @@ func (m DashboardModel) View() string {
 
 // Dashboard orchestrates the interactive fullscreen TUI.
 type Dashboard struct {
-	PackUC      *usecase.PackArchiveUseCase
-	ExtractUC   *usecase.ExtractArchiveUseCase
-	InspectUC   *usecase.InspectArchiveUseCase
-	BenchmarkUC *usecase.BenchmarkUseCase
-	LearnUC     *usecase.LearnUseCase
-	Version     string
-	inMoreMenu  bool
+	PackUC          *usecase.PackArchiveUseCase
+	ExtractUC       *usecase.ExtractArchiveUseCase
+	InspectUC       *usecase.InspectArchiveUseCase
+	BenchmarkUC     *usecase.BenchmarkUseCase
+	LearnUC         *usecase.LearnUseCase
+	Version         string
+	inMoreMenu      bool
+	updateChecked   bool
+	updateAvailable bool
+	latestVersion   string
 }
 
 // NewDashboard creates a new Dashboard instance.
@@ -281,7 +341,7 @@ func (d *Dashboard) Run() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		model := NewDashboardModel(d.Version, d.inMoreMenu)
+		model := NewDashboardModel(d.Version, d.inMoreMenu, d.updateChecked, d.updateAvailable, d.latestVersion)
 		p := tea.NewProgram(model, tea.WithAltScreen())
 		finalModel, err := p.Run()
 		if err != nil {
@@ -295,6 +355,9 @@ func (d *Dashboard) Run() {
 		}
 
 		d.inMoreMenu = m.inMoreMenu
+		d.updateChecked = m.updateChecked
+		d.updateAvailable = m.updateAvailable
+		d.latestVersion = m.latestVersion
 
 		switch m.Action {
 		case ActionCompress:
@@ -309,6 +372,8 @@ func (d *Dashboard) Run() {
 			d.interactiveBench(reader)
 		case ActionCompare:
 			d.interactiveCompare(reader)
+		case ActionUpdate:
+			d.interactiveUpdate(reader)
 		case ActionStatus:
 			d.interactiveStatus(reader)
 		case ActionUninstall:
@@ -584,6 +649,15 @@ func (d *Dashboard) interactiveLearn(reader *bufio.Reader) {
 		}
 	}
 
+	d.waitForEnter(reader)
+}
+
+func (d *Dashboard) interactiveUpdate(reader *bufio.Reader) {
+	cli.RunUpdate(context.Background(), d.Version, false, false)
+	if rel, isNewer, err := updater.CheckForUpdate(context.Background(), d.Version); err == nil && !isNewer && rel != nil {
+		d.Version = rel.TagName
+		d.updateAvailable = false
+	}
 	d.waitForEnter(reader)
 }
 

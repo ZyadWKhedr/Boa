@@ -13,7 +13,7 @@ import (
 
 var (
 	// Version holds the semantic version of Compressor CLI.
-	Version = "v0.3.2"
+	Version = "v0.3.3"
 	// Commit holds the git commit hash.
 	Commit = "dev"
 	// Date holds the build timestamp.

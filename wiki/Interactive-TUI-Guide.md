@@ -89,3 +89,27 @@ If the selected folder contains images, audio, or video files, Boa initiates a s
 1. **Dynamic Size Estimator**: Automatically scans file types and predicts estimated compressed archive sizes before compression.
 2. **Contextual Knowledge Modals**: Press `?` at any stage to read an explanation of the underlying compression algorithm (e.g. DCT frequency reduction, LZ77 sliding window, quantization).
 3. **Explicit Lossy Confirmation**: If lossy modes are selected, a safety summary warns of quality trade-offs prior to archive generation.
+
+---
+
+## 4. More Tools & Update Checker
+
+Access advanced utilities from the **More...** submenu (`5`):
+
+```text
+  1.  Benchmark        Measure compression speed, duration & throughput
+  2.  Compare Levels   Side-by-side visual bar charts across compression levels
+  3.  Check Updates    Automatically check & install latest release binary
+  4.  System Status    Runtime health, Go environment & platform info
+  5.  Uninstall        Safely remove Boa binaries & symlinks from system
+  6.  Back             Return to main menu
+```
+
+### Update Available Badge
+Boa continuously queries GitHub Releases asynchronously. When a new release is detected, a badge appears in the header:
+
+```text
+Version v0.3.2  UPDATE AVAILABLE: v0.3.3  ·  Interactive compression toolkit
+```
+Selecting **Check Updates** (or pressing `3` in the More menu) will download the platform binary and automatically upgrade your installation in-place.
+

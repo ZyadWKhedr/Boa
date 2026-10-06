@@ -40,6 +40,7 @@ with built-in Zip-Slip security defenses and interactive dashboard tools.`,
 	rootCmd.AddCommand(a.newBenchCmd())
 	rootCmd.AddCommand(a.newVersionCmd())
 	rootCmd.AddCommand(a.newUninstallCmd())
+	rootCmd.AddCommand(a.newUpdateCmd())
 	rootCmd.AddCommand(a.newLearnCmd())
 
 	a.RootCmd = rootCmd

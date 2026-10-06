@@ -129,7 +129,41 @@ bo learn jpeg-quality   # Learn DCT frequency transform & quantization
 
 ---
 
-## 6. Global Flags
+## 6. `bo update` (Auto-Updater)
+
+Check for and automatically install the newest pre-built Boa release binary from GitHub.
+
+```bash
+bo update [flags]
+```
+
+### Aliases:
+`upgrade`, `self-update`
+
+### Flags:
+| Flag | Short | Default | Description |
+|---|---|---|---|
+| `--check` | `-c` | `false` | Check for updates without downloading or installing |
+| `--yes` | `-y` | `false` | Automatically accept prompts and install update |
+
+---
+
+## 7. `bo uninstall` (Safe System Removal)
+
+Cleanly remove Boa binaries, symlinks, and aliases (`boa`, `bo`, `compressor`) from `~/.local/bin` and `/usr/local/bin`.
+
+```bash
+bo uninstall [flags]
+```
+
+### Flags:
+| Flag | Short | Default | Description |
+|---|---|---|---|
+| `--force` | `-f` | `false` | Bypass confirmation prompt and uninstall immediately |
+
+---
+
+## 8. Global Flags
 
 | Flag | Short | Description |
 |---|---|---|

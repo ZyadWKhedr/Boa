@@ -3,13 +3,14 @@ package tui
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func TestDashboardModelNavigation(t *testing.T) {
-	model := NewDashboardModel("v1.0.0", false)
+	model := NewDashboardModel("v1.0.0", false, true, false, "")
 
 	// Test Initial state
 	if model.selectedIdx != 0 {
@@ -36,7 +37,19 @@ func TestDashboardModelNavigation(t *testing.T) {
 		t.Errorf("Expected selectedIdx reset to 0 in submenu")
 	}
 
-	// Press Esc to return to main menu
+	// Press '3' in More menu to select Check Updates
+	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'3'}})
+	m = updated.(DashboardModel)
+	if m.Action != ActionUpdate {
+		t.Errorf("Expected ActionUpdate, got %v", m.Action)
+	}
+	if cmd == nil {
+		t.Errorf("Expected tea.Quit command")
+	}
+
+	// Press Esc in More menu to return to main menu
+	m.inMoreMenu = true
+	m.Action = ActionNone
 	updated, _ = m.Update(tea.KeyMsg{Type: tea.KeyEsc})
 	m = updated.(DashboardModel)
 	if m.inMoreMenu {
@@ -44,13 +57,27 @@ func TestDashboardModelNavigation(t *testing.T) {
 	}
 
 	// Press '1' to trigger Compress
-	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'1'}})
+	updated, cmd = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'1'}})
 	m = updated.(DashboardModel)
 	if m.Action != ActionCompress {
 		t.Errorf("Expected ActionCompress, got %v", m.Action)
 	}
 	if cmd == nil {
 		t.Errorf("Expected tea.Quit command")
+	}
+}
+
+func TestDashboardModelUpdateBadge(t *testing.T) {
+	model := NewDashboardModel("v0.3.2", false, true, true, "v0.3.3")
+	view := model.View()
+	if !strings.Contains(view, "UPDATE AVAILABLE: v0.3.3") {
+		t.Errorf("Expected update badge in view, got:\n%s", view)
+	}
+
+	model.inMoreMenu = true
+	viewMore := model.View()
+	if !strings.Contains(viewMore, "Update Boa") {
+		t.Errorf("Expected 'Update Boa' item in More menu view, got:\n%s", viewMore)
 	}
 }
 
