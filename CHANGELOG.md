@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v0.3.1] - 2026-10-06
+
+### Added
+- **ASCII Art & GitHub Link on Startup**: Stylized BOA ASCII header with direct GitHub repository link (`https://github.com/ZyadWKhedr/Boa`) displayed when launching the interactive Bubble Tea dashboard.
+- **Primary CLI Command Renaming**: Standardized primary commands on `bo compress` and `bo extract` (retaining `pack`, `unpack`, `zip`, `unzip`, `c`, `x` as backwards-compatible aliases).
+
+### Changed
+- **Cleaner CLI Output**: Removed redundant banner printing from direct `bo compress` and `bo extract` execution runs for cleaner piping and automation output.
+- **Documentation**: Updated all README and CLI documentation references to `v0.3.1` and `compress`/`extract`.
+
+---
+
 ## [v0.3.0] - 2026-10-04
 
 ### Added

@@ -58,16 +58,19 @@ Boa delivers a **modern, safe, media-aware terminal archive experience**:
 <br/>
 
 ```text
- 🐍 Boa Interactive Compression Dashboard
- Version v0.3.0  ·  Interactive compression toolkit
+ ____                 
+| __ )  ___   __ _    
+|  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
+| |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
+|____/ \___/ \__,_|   Version v0.3.1  ·  Interactive compression toolkit
 
- ➤ 1.  Compress         Package files into a zip archive with smart media options
-   2.  Extract          Safely unzip archives with Zip-Slip path defense
-   3.  Browse Archive   Inspect files, sizes, ratios & lossy metadata
-   4.  Learn            Educational guide: how compression algorithms work
-   5.  More...          Benchmarks, level comparison, system status & tools
+➤ 1.  Compress         Package files into a zip archive with smart media options
+  2.  Extract          Safely unzip archives with Zip-Slip path defense
+  3.  Browse Archive   Inspect files, sizes, ratios & lossy metadata
+  4.  Learn            Educational guide: how compression algorithms work
+  5.  More...          Benchmarks, level comparison, system status & tools
 
- ↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit
+↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit
 ```
 
 <br/>
@@ -104,10 +107,10 @@ go install github.com/ZyadWKhedr/Boa@latest
 
 ### Install a Specific Release Version
 
-To install a specific release version (e.g. `v0.2.1`):
+To install a specific release version (e.g. `v0.3.1`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.2.1
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.1
 ```
 
 ### Build from Source
@@ -123,28 +126,28 @@ make install
 ## Run
 
 ```bash
-bo                      # Interactive dashboard & fullscreen file explorer
-bo pack <path>          # Compress folder or file (DEFLATE level 6 default)
-bo pack <path> -m zstd  # Compress using modern Zstandard (Method 93)
-bo pack <path> -m store # Package raw files without compression
-bo unpack <archive.zip> # Safely extract zip archive into directory
-bo list <archive.zip>   # Inspect contents, file sizes, and compression ratios
-bo bench <path>         # Benchmark throughput speeds (MB/s) across levels (0-9)
-bo version              # Show version, commit SHA, and platform info
-bo uninstall            # Safely remove Boa binaries and symlinks from system
-bo --help               # Show help reference
+bo                         # Interactive dashboard & fullscreen file explorer
+bo compress <path>         # Compress folder or file (DEFLATE level 6 default)
+bo compress <path> -m zstd # Compress using modern Zstandard (Method 93)
+bo compress <path> -m store# Package raw files without compression
+bo extract <archive.zip>   # Safely extract zip archive into directory
+bo list <archive.zip>      # Inspect contents, file sizes, and compression ratios
+bo bench <path>            # Benchmark throughput speeds (MB/s) across levels (0-9)
+bo version                 # Show version, commit SHA, and platform info
+bo uninstall               # Safely remove Boa binaries and symlinks from system
+bo --help                  # Show help reference
 ```
 
 ### Preview Safely
 
 ```bash
-bo pack ./my-folder --dry-run          # Preview files to pack and estimated size
-bo pack ./my-folder -m zstd -l 3       # Zstandard compression with custom level
-bo pack ./my-folder -e "node_modules"  # Exclude patterns (*.tmp, .git*, node_modules)
-bo pack ./my-folder -l 9               # Use maximum DEFLATE compression level
-bo unpack archive.zip -o ./dist -f     # Overwrite destination files with --force
-bo list archive.zip --all              # Display complete file list without truncation
-bo list archive.zip --json             # Export structured JSON metadata
+bo compress ./my-folder --dry-run          # Preview files to compress and estimated size
+bo compress ./my-folder -m zstd -l 3       # Zstandard compression with custom level
+bo compress ./my-folder -e "node_modules"  # Exclude patterns (*.tmp, .git*, node_modules)
+bo compress ./my-folder -l 9               # Use maximum DEFLATE compression level
+bo extract archive.zip -o ./dist -f        # Overwrite destination files with --force
+bo list archive.zip --all                  # Display complete file list without truncation
+bo list archive.zip --json                 # Export structured JSON metadata
 ```
 
 ---
@@ -167,16 +170,19 @@ Boa validates paths, enforces extraction boundaries, and asks for confirmation w
 Typing `bo` in your terminal launches the fullscreen interactive dashboard built with [Charm Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss):
 
 ```text
- 🐍 Boa Interactive Compression Dashboard
- Version v0.3.0  ·  Interactive compression toolkit
+ ____                 
+| __ )  ___   __ _    
+|  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
+| |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
+|____/ \___/ \__,_|   Version v0.3.1  ·  Interactive compression toolkit
 
- ➤ 1.  Compress         Package files into a zip archive with smart media options
-   2.  Extract          Safely unzip archives with Zip-Slip path defense
-   3.  Browse Archive   Inspect files, sizes, ratios & lossy metadata
-   4.  Learn            Educational guide: how compression algorithms work
-   5.  More...          Benchmarks, level comparison, system status & tools
+➤ 1.  Compress         Package files into a zip archive with smart media options
+  2.  Extract          Safely unzip archives with Zip-Slip path defense
+  3.  Browse Archive   Inspect files, sizes, ratios & lossy metadata
+  4.  Learn            Educational guide: how compression algorithms work
+  5.  More...          Benchmarks, level comparison, system status & tools
 
- ↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit
+↑↓/jk Navigate  ·  Enter Select  ·  1-5 Jump  ·  ? Learn  ·  q Quit
 ```
 
 #### In-Terminal File Explorer
@@ -263,13 +269,13 @@ Boa features a content-aware compression engine designed with strict safety rule
 #### CLI Media Compression Flags
 ```bash
 # Compress with lossy image optimization at 75% quality
-bo pack ./media -o ./output.zip --lossy images --quality 75
+bo compress ./media -o ./output.zip --lossy images --quality 75
 
 # Transcode images and audio, and strip non-essential metadata
-bo pack ./media -o ./output.zip --lossy images,audio --quality 80 --strip-metadata
+bo compress ./media -o ./output.zip --lossy images,audio --quality 80 --strip-metadata
 
 # Target specific audio and video compression
-bo pack ./media -o ./output.zip --lossy video --quality 65
+bo compress ./media -o ./output.zip --lossy video --quality 65
 ```
 
 ---
@@ -300,11 +306,11 @@ Example explanation output:
 
 ---
 
-### 2. Pack (Compression)
-`bo pack` streams and compresses files and directories with customizable levels:
+### 4. Compress (Packaging)
+`bo compress` streams and compresses files and directories with customizable levels:
 
 ```text
-$ bo pack ./cmd -l 6
+$ bo compress ./cmd -l 6
 
  ✔ Compression Complete
 
@@ -321,11 +327,11 @@ $ bo pack ./cmd -l 6
 
 ---
 
-### 3. Unpack (Decompression)
-`bo unpack` extracts files safely with path verification:
+### 5. Extract (Decompression)
+`bo extract` extracts files safely with path verification:
 
 ```text
-$ bo unpack ./cmd.zip -o ./extracted --force
+$ bo extract ./cmd.zip -o ./extracted --force
 
  ✔ Extraction Complete
 
