@@ -15,7 +15,7 @@ import (
 func (a *App) newUninstallCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uninstall",
-		Short: "🗑 Safely remove Boa binaries, symlinks, and aliases from your system",
+		Short: "Safely remove Boa binaries, symlinks, and aliases from your system",
 		Long: `Uninstall removes all installed Boa executable files, aliases (bo, compressor),
 and installation references cleanly from ~/.local/bin and /usr/local/bin.`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -134,7 +134,7 @@ func RunUninstall(force bool) {
 		fmt.Println()
 		fmt.Println(ui.Bold(" Removed items:"))
 		for _, item := range removed {
-			fmt.Printf("   %s %s\n", ui.Green("✔"), ui.Dim(ui.PrettyPath(item)))
+			fmt.Printf("   %s %s\n", ui.Green("+"), ui.Dim(ui.PrettyPath(item)))
 		}
 	} else {
 		ui.PrintInfo("No global binaries or symlinks found to remove.")
@@ -144,7 +144,7 @@ func RunUninstall(force bool) {
 		fmt.Println()
 		ui.PrintWarning("Some files could not be removed (permission required):")
 		for _, item := range failed {
-			fmt.Printf("   %s %s\n", ui.Red("✖"), ui.Dim(item))
+			fmt.Printf("   %s %s\n", ui.Red("-"), ui.Dim(item))
 		}
 		fmt.Println(ui.Dim(" You may need to run with sudo: sudo rm <path>"))
 	}

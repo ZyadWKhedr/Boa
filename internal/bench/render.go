@@ -40,7 +40,7 @@ func RenderText(report *Report, showCompare bool, out io.Writer) {
 	fmt.Fprintln(out)
 
 	if report.IsSmallDataset {
-		fmt.Fprintf(out, " %s %s\n\n", ui.Dim("✦ Note:"), ui.Dim("Dataset is small (< 10 KB); throughput metrics reflect CPU/timer granularity."))
+		fmt.Fprintf(out, " %s %s\n\n", ui.Dim("Note:"), ui.Dim("Dataset is small (< 10 KB); throughput metrics reflect CPU/timer granularity."))
 	}
 
 	// 2. Results Section
@@ -72,7 +72,7 @@ func RenderText(report *Report, showCompare bool, out io.Writer) {
 	for _, res := range report.Results {
 		levelStr := fmt.Sprintf("%d", res.Level)
 		if res.Level == report.Summary.BestBalanceLevel {
-			levelStr = ui.Bold(ui.Cyan(fmt.Sprintf("%d ★", res.Level)))
+			levelStr = ui.Bold(ui.Cyan(fmt.Sprintf("%d *", res.Level)))
 		} else if res.Level == 0 {
 			levelStr = fmt.Sprintf("%d (store)", res.Level)
 		}

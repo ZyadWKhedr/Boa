@@ -135,10 +135,10 @@ func (pb *ProgressBar) render() {
 	var statsStr string
 
 	if pb.totalFiles > 0 {
-		prefix = fmt.Sprintf(" ⚡ %s [%s] %3.0f%%", Bold(pb.title), barStr, percent*100)
+		prefix = fmt.Sprintf(" %s [%s] %3.0f%%", Bold(pb.title), barStr, percent*100)
 		statsStr = fmt.Sprintf("(%d/%d files · %s · %s)", pb.currentFiles, pb.totalFiles, bytesStr, speedStr)
 	} else {
-		prefix = fmt.Sprintf(" ⚡ %s [%s]", Bold(pb.title), barStr)
+		prefix = fmt.Sprintf(" %s [%s]", Bold(pb.title), barStr)
 		statsStr = fmt.Sprintf("(%d files · %s · %s)", pb.currentFiles, bytesStr, speedStr)
 	}
 

@@ -25,7 +25,7 @@ bo bench ./my-project --runs 3 --json > results.json
 |---|---|---|---|
 | **0** | Store | No compression, raw container wrapping, wire-speed I/O | Pre-compressed media, temporary bundles |
 | **1** | Fastest | Greedy LZ77 match search, maximum throughput | Real-time streams, high-speed networks |
-| **6** | Default ★ | Balanced match length and evaluation depth (~95% max ratio) | General purpose everyday compression |
+| **6** | Default (Best Balance) | Balanced match length and evaluation depth (~95% max ratio) | General purpose everyday compression |
 | **9** | Maximum | Deep match chains, lazy evaluation, maximum space savings | Archival storage, cold backups |
 
 ---

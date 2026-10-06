@@ -198,15 +198,9 @@ func (m FilePickerModel) View() string {
 	} else {
 		for i := startIdx; i < endIdx; i++ {
 			item := m.items[i]
-			icon := "📄"
-			if item.IsDir {
+			icon := "  "
+			if item.IsDir || item.IsParent {
 				icon = "📁"
-			}
-			if item.IsParent {
-				icon = "⤴ "
-			}
-			if strings.HasSuffix(strings.ToLower(item.Name), ".zip") {
-				icon = "📦"
 			}
 
 			sizeStr := ""

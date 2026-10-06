@@ -423,9 +423,9 @@ func (m WizardModel) renderCategoryScreen(title string, summary domain.CategoryS
 	optLossy := unselectedOptionStyle.Render("  Smaller files (some quality loss)  ")
 
 	if !prefs.EnableLossy {
-		optLossless = selectedOptionStyle.Render("✔ Keep original quality (lossless)")
+		optLossless = selectedOptionStyle.Render("Keep original quality (lossless)")
 	} else {
-		optLossy = selectedOptionStyle.Render("⚡ Smaller files (some quality loss)")
+		optLossy = selectedOptionStyle.Render("Smaller files (some quality loss)")
 	}
 
 	cursor0 := "  "
@@ -450,7 +450,7 @@ func (m WizardModel) renderCategoryScreen(title string, summary domain.CategoryS
 	if m.estimator != nil {
 		est := m.estimator.Estimate(m.scan, m.prefs)
 		sb.WriteString(cardStyle.Render(fmt.Sprintf(
-			"📊 Live Estimated Archive Size: %s – %s  (avg saving: ~%.1f%%)",
+			"Live Estimated Archive Size: %s – %s  (avg saving: ~%.1f%%)",
 			stats.FormatBytes(est.EstimatedMin), stats.FormatBytes(est.EstimatedMax), est.PercentSavedAvg,
 		)))
 	}
@@ -468,11 +468,11 @@ func (m WizardModel) renderArchivePresetScreen() string {
 	optSmall := unselectedOptionStyle.Render(" Smallest ")
 
 	if m.prefs.DefaultLevel == 1 {
-		optFast = selectedOptionStyle.Render("✔ Fastest")
+		optFast = selectedOptionStyle.Render("Fastest")
 	} else if m.prefs.DefaultLevel == 9 {
-		optSmall = selectedOptionStyle.Render("✔ Smallest")
+		optSmall = selectedOptionStyle.Render("Smallest")
 	} else {
-		optBal = selectedOptionStyle.Render("✔ Balanced (Default)")
+		optBal = selectedOptionStyle.Render("Balanced (Default)")
 	}
 
 	cursor0 := "  "
@@ -486,9 +486,9 @@ func (m WizardModel) renderArchivePresetScreen() string {
 	optMetaStrip := unselectedOptionStyle.Render(" Strip non-essential tags ")
 
 	if !m.prefs.StripMetadata {
-		optMetaKeep = selectedOptionStyle.Render("✔ Keep metadata (EXIF/tags)")
+		optMetaKeep = selectedOptionStyle.Render("Keep metadata (EXIF/tags)")
 	} else {
-		optMetaStrip = selectedOptionStyle.Render("⚡ Strip non-essential tags")
+		optMetaStrip = selectedOptionStyle.Render("Strip non-essential tags")
 	}
 
 	cursor1 := "  "
@@ -502,7 +502,7 @@ func (m WizardModel) renderArchivePresetScreen() string {
 
 func (m WizardModel) renderConsentScreen() string {
 	var sb strings.Builder
-	warningHeader := badgeDanger.Render("⚠️ EXPLICIT QUALITY LOSS CONSENT REQUIRED")
+	warningHeader := badgeDanger.Render("EXPLICIT QUALITY LOSS CONSENT REQUIRED")
 	sb.WriteString(fmt.Sprintf(" %s\n\n", warningHeader))
 
 	var affected []string
@@ -534,7 +534,7 @@ func (m WizardModel) renderConsentScreen() string {
 	optBack := unselectedOptionStyle.Render(" Go Back ")
 
 	if m.activeRow == 0 {
-		optConfirm = selectedOptionStyle.Render("✔ Confirm & Compress")
+		optConfirm = selectedOptionStyle.Render("Confirm & Compress")
 	} else {
 		optBack = selectedOptionStyle.Render("← Go Back")
 	}
@@ -555,11 +555,11 @@ func (m WizardModel) renderHelpModal() string {
 	body := fmt.Sprintf(
 		"%s  %s\n\n"+
 			"%s\n\n"+
-			"💡 Analogy: %s\n\n"+
-			"✔ Gain:  %s\n"+
-			"✖ Loss:  %s\n\n"+
-			"🎯 Best For:  %s\n"+
-			"⚠️ Avoid For: %s\n\n"+
+			"Analogy: %s\n\n"+
+			"+ Gain:  %s\n"+
+			"- Loss:  %s\n\n"+
+			"Best For:  %s\n"+
+			"Avoid For: %s\n\n"+
 			"Press Esc, Enter, or ? to return to wizard",
 		catBadge, titleStyle.Render(info.Name),
 		info.Summary,

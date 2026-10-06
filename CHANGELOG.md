@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v0.3.2] - 2026-10-06
+
+### Added
+- **Dynamic Real-Time Progress Bar**: Responsive in-terminal progress bar with throughput rates (MB/s), file count ratios, and percentage tracking during compression and extraction.
+
+### Changed
+- **Minimalist Aesthetic Cleanup**: Removed superfluous decorative emojis from CLI and TUI output while preserving the iconic 🐍 Boa snake and 📁 directory indicators.
+- **Badge Standardization**: Updated status badges (`[OK]`, `[INFO]`, `[WARN]`, `[ERROR]`, `[DRY-RUN]`) for clean terminal consistency.
+
+---
+
 ## [v0.3.1] - 2026-10-06
 
 ### Added

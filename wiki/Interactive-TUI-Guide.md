@@ -18,7 +18,7 @@ Upon launching, the interactive menu displays the main options:
 | __ )  ___   __ _    
 |  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
 | |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
-|____/ \___/ \__,_|   Version v0.3.1  ·  Interactive compression toolkit
+|____/ \___/ \__,_|   Version v0.3.2  ·  Interactive compression toolkit
 
 ➤ 1.  Compress         Package files into a zip archive with smart media options
   2.  Extract          Safely unzip archives with Zip-Slip path defense
@@ -54,9 +54,9 @@ When choosing **Compress** or **Extract**, Boa opens an interactive directory pi
    📁  documents/
    📁  photos/
    📁  videos/
-   📄  Makefile (1.2 KB)
-   📄  README.md (3.4 KB)
-   📦  backup.zip (14.2 MB)
+       Makefile (1.2 KB)
+       README.md (3.4 KB)
+       backup.zip (14.2 MB)
 
  ↑↓/jk Navigate  ·  →/l Open Dir  ·  Enter Select  ·  Space Current Dir  ·  Esc Cancel
 ```
@@ -70,15 +70,15 @@ If the selected folder contains images, audio, or video files, Boa initiates a s
 ```text
  🐍 Boa Compression Wizard (Step 2 of 4)
  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 📸 Image Compression (24 files · 48.2 MB)
+ Image Compression (24 files · 48.2 MB)
  Techniques: JPEG quality recompression, PNG palette reduction
 
  Mode:     [ Lossless ]  ▶ [ Lossy ] ◀
  Quality:  [████████████████░░░░]  80%  (←/→ to adjust)
 
- 📊 Estimated Total Size: 18.5 MB ~ 24.1 MB (Saved: ~50% to ~62%)
+ Estimated Total Size: 18.5 MB ~ 24.1 MB (Saved: ~50% to ~62%)
 
- ℹ Tip: 80% retains crisp visual clarity for 99% of viewing contexts.
+ Tip: 80% retains crisp visual clarity for 99% of viewing contexts.
  Press '?' for in-depth educational guide on JPEG Quality.
 
  ────────────────────────────────────────────────────────────

@@ -62,7 +62,7 @@ Boa delivers a **modern, safe, media-aware terminal archive experience**:
 | __ )  ___   __ _    
 |  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
 | |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
-|____/ \___/ \__,_|   Version v0.3.1  ·  Interactive compression toolkit
+|____/ \___/ \__,_|   Version v0.3.2  ·  Interactive compression toolkit
 
 ➤ 1.  Compress         Package files into a zip archive with smart media options
   2.  Extract          Safely unzip archives with Zip-Slip path defense
@@ -107,10 +107,10 @@ go install github.com/ZyadWKhedr/Boa@latest
 
 ### Install a Specific Release Version
 
-To install a specific release version (e.g. `v0.3.1`):
+To install a specific release version (e.g. `v0.3.2`):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.1
+curl -fsSL https://raw.githubusercontent.com/ZyadWKhedr/Boa/main/install.sh | bash -s -- v0.3.2
 ```
 
 ### Build from Source
@@ -174,7 +174,7 @@ Typing `bo` in your terminal launches the fullscreen interactive dashboard built
 | __ )  ___   __ _    
 |  _ \ / _ \ / _` |   https://github.com/ZyadWKhedr/Boa
 | |_) | (_) | (_| |   Tight, fast, lossless compression for your files.
-|____/ \___/ \__,_|   Version v0.3.1  ·  Interactive compression toolkit
+|____/ \___/ \__,_|   Version v0.3.2  ·  Interactive compression toolkit
 
 ➤ 1.  Compress         Package files into a zip archive with smart media options
   2.  Extract          Safely unzip archives with Zip-Slip path defense
@@ -197,9 +197,9 @@ Selecting **Compress** or **Extract** opens the interactive directory browser wi
    📁  documents/
    📁  photos/
    📁  videos/
-   📄  Makefile (1.2 KB)
-   📄  README.md (3.4 KB)
-   📦  backup.zip (14.2 MB)
+       Makefile (1.2 KB)
+       README.md (3.4 KB)
+       backup.zip (14.2 MB)
 
  ↑↓/jk Navigate  ·  →/l Open Dir  ·  Enter Select  ·  Space Current Dir  ·  Esc Cancel
 ```
@@ -210,15 +210,15 @@ When compressing directories containing photos, music, or videos, Boa launches a
 ```text
  🐍 Boa Compression Wizard (Step 2 of 4)
  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 📸 Image Compression (24 files · 48.2 MB)
+ Image Compression (24 files · 48.2 MB)
  Techniques: JPEG quality recompression, PNG palette reduction
 
  Mode:     [ Lossless ]  ▶ [ Lossy ] ◀
  Quality:  [████████████████░░░░]  80%  (←/→ to adjust)
 
- 📊 Estimated Total Size: 18.5 MB ~ 24.1 MB (Saved: ~50% to ~62%)
+ Estimated Total Size: 18.5 MB ~ 24.1 MB (Saved: ~50% to ~62%)
 
- ℹ Tip: 80% retains crisp visual clarity for 99% of viewing contexts.
+ Tip: 80% retains crisp visual clarity for 99% of viewing contexts.
  Press '?' for in-depth educational guide on JPEG Quality.
 
  ────────────────────────────────────────────────────────────
@@ -295,13 +295,13 @@ Example explanation output:
  [LEARN] JPEG Quality Compression
  Summary: Perceptual frequency reduction via discrete cosine transform (DCT) and quantization.
 
- 💡 Analogy: Like drawing a portrait with high detail on faces, while slightly smoothing out background leaves that human eyes barely notice.
+ Analogy: Like drawing a portrait with high detail on faces, while slightly smoothing out background leaves that human eyes barely notice.
 
- ✔ Gain: 40% to 75% file size reduction with virtually invisible visual degradation at 75-85%.
- ✖ Loss: Irreversible loss of raw sensor data and fine high-frequency noise.
+ + Gain: 40% to 75% file size reduction with virtually invisible visual degradation at 75-85%.
+ - Loss: Irreversible loss of raw sensor data and fine high-frequency noise.
 
- 🎯 Best: Photos, web graphics, digital camera scans, social media distribution.
- ⚠️ Avoid: Line art, logos, text screenshots, graphics with sharp contrasting edges, master photo archives.
+ Best: Photos, web graphics, digital camera scans, social media distribution.
+ Avoid: Line art, logos, text screenshots, graphics with sharp contrasting edges, master photo archives.
 ```
 
 ---
@@ -312,7 +312,7 @@ Example explanation output:
 ```text
 $ bo compress ./cmd -l 6
 
- ✔ Compression Complete
+ Compression Complete
 
    Archive          ~/Desktop/cmd.zip
    Original Size    28.5 KB
@@ -333,7 +333,7 @@ $ bo compress ./cmd -l 6
 ```text
 $ bo extract ./cmd.zip -o ./extracted --force
 
- ✔ Extraction Complete
+ Extraction Complete
 
    Source Archive   ~/Desktop/cmd.zip
    Extracted To     ~/Desktop/extracted
@@ -398,7 +398,7 @@ Level      Time     Size  Saved  Ratio      Speed
 3           4ms  26.7 KB  60.7%  2.55x  15.0 MB/s
 4           3ms  25.9 KB  62.0%  2.63x  17.6 MB/s
 5           4ms  25.3 KB  62.8%  2.69x  15.2 MB/s
-6 ★         5ms  25.2 KB  63.0%  2.70x  12.9 MB/s
+6 *         5ms  25.2 KB  63.0%  2.70x  12.9 MB/s
 7           5ms  24.9 KB  63.4%  2.73x  12.9 MB/s
 8           3ms  24.8 KB  63.5%  2.74x  18.3 MB/s
 9           5ms  24.7 KB  63.6%  2.75x  11.7 MB/s

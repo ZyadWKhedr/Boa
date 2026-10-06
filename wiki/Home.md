@@ -15,7 +15,7 @@ Welcome to the official documentation for **Boa**, the fast, secure, and interac
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ```bash
 # Install latest release

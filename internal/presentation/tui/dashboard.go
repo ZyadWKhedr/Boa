@@ -535,7 +535,7 @@ func (d *Dashboard) interactiveLearn(reader *bufio.Reader) {
 	ui.PrintBanner()
 	fmt.Println()
 
-	ui.PrintSection("Boa Compression Knowledge Base 📚")
+	ui.PrintSection("Boa Compression Knowledge Base")
 	techniques := d.LearnUC.ListTechniques()
 
 	var lossless []domain.TechniqueInfo
@@ -549,13 +549,13 @@ func (d *Dashboard) interactiveLearn(reader *bufio.Reader) {
 		}
 	}
 
-	fmt.Println(ui.Bold(ui.Green("▶ Lossless Techniques (Bit-for-bit exact)")))
+	fmt.Println(ui.Bold(ui.Green("> Lossless Techniques (Bit-for-bit exact)")))
 	for _, t := range lossless {
 		fmt.Printf("   %-16s %s\n", ui.Bold(ui.Cyan(t.ID)), t.Name)
 	}
 
 	fmt.Println()
-	fmt.Println(ui.Bold(ui.Yellow("▶ Lossy Media Techniques (Perceptual size optimization)")))
+	fmt.Println(ui.Bold(ui.Yellow("> Lossy Media Techniques (Perceptual size optimization)")))
 	for _, t := range lossy {
 		fmt.Printf("   %-16s %s\n", ui.Bold(ui.Yellow(t.ID)), t.Name)
 	}
@@ -573,13 +573,13 @@ func (d *Dashboard) interactiveLearn(reader *bufio.Reader) {
 			fmt.Println()
 			fmt.Printf(" %s %s\n", ui.BadgeInfo("LEARN"), ui.Bold(ui.Cyan(info.Name)))
 			fmt.Printf(" %s\n\n", ui.Dim(info.Summary))
-			fmt.Printf(" %s %s\n\n", ui.Bold("💡 Analogy:"), info.Analogy)
-			fmt.Printf(" %s %s\n", ui.Bold(ui.Green("✔ Gain:")), info.WhatYouGain)
-			fmt.Printf(" %s %s\n\n", ui.Bold(ui.Red("✖ Loss:")), info.WhatYouLose)
-			fmt.Printf(" %s %s\n", ui.Bold("🎯 Best:"), info.BestFor)
-			fmt.Printf(" %s %s\n\n", ui.Bold("⚠️ Avoid:"), info.AvoidFor)
+			fmt.Printf(" %s %s\n\n", ui.Bold("Analogy:"), info.Analogy)
+			fmt.Printf(" %s %s\n", ui.Bold(ui.Green("+ Gain:")), info.WhatYouGain)
+			fmt.Printf(" %s %s\n\n", ui.Bold(ui.Red("- Loss:")), info.WhatYouLose)
+			fmt.Printf(" %s %s\n", ui.Bold("Best:"), info.BestFor)
+			fmt.Printf(" %s %s\n\n", ui.Bold("Avoid:"), info.AvoidFor)
 			if info.GoDeeper != "" {
-				fmt.Printf(" %s\n   %s\n\n", ui.Bold(ui.Magenta("🔬 Go Deeper:")), ui.Dim(info.GoDeeper))
+				fmt.Printf(" %s\n   %s\n\n", ui.Bold(ui.Magenta("Go Deeper:")), ui.Dim(info.GoDeeper))
 			}
 		}
 	}

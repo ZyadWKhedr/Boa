@@ -2,7 +2,7 @@
 
 ---
 
-### 📖 Documentation
+### Documentation
 - **[Installation & Setup](Installation-&-Setup)**
 - **[Interactive TUI Guide](Interactive-TUI-Guide)**
 - **[CLI Reference](CLI-Reference)**
@@ -12,7 +12,7 @@
 
 ---
 
-### 🔗 Resources
+### Resources
 - [GitHub Repository](https://github.com/ZyadWKhedr/Boa)
 - [Releases](https://github.com/ZyadWKhedr/Boa/releases)
 - [Security Audit](https://github.com/ZyadWKhedr/Boa/blob/main/SECURITY_AUDIT.md)

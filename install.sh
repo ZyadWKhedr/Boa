@@ -81,7 +81,7 @@ rm -f "${INSTALL_DIR}/${ALIAS_NAME}" "${INSTALL_DIR}/compressor"
 ln -sf "${BINARY_NAME}" "${INSTALL_DIR}/${ALIAS_NAME}"
 ln -sf "${BINARY_NAME}" "${INSTALL_DIR}/compressor"
 
-echo "✔ Successfully installed Boa (${BINARY_NAME}, ${ALIAS_NAME}) into ${INSTALL_DIR}!"
+echo "Successfully installed Boa (${BINARY_NAME}, ${ALIAS_NAME}) into ${INSTALL_DIR}!"
 echo ""
 echo "To get started, run:"
 echo "  bo"

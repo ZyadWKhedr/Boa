@@ -33,7 +33,7 @@ func (a *App) renderLearnCatalog() error {
 		fmt.Println()
 	}
 
-	ui.PrintSection("Boa Compression Knowledge Base 📚")
+	ui.PrintSection("Boa Compression Knowledge Base")
 	fmt.Println(" Learn how compression algorithms work, what they trade off, and when to use them.")
 	fmt.Println()
 
@@ -50,13 +50,13 @@ func (a *App) renderLearnCatalog() error {
 		}
 	}
 
-	fmt.Println(ui.Bold(ui.Green("▶ Lossless Techniques (Bit-for-bit exact recovery)")))
+	fmt.Println(ui.Bold(ui.Green("> Lossless Techniques (Bit-for-bit exact recovery)")))
 	for _, t := range lossless {
 		fmt.Printf("   %-16s %s\n", ui.Bold(ui.Cyan(t.ID)), t.Name)
 		fmt.Printf("   %-16s %s\n\n", "", ui.Dim(t.Summary))
 	}
 
-	fmt.Println(ui.Bold(ui.Yellow("▶ Lossy Techniques (Perceptual optimization for media)")))
+	fmt.Println(ui.Bold(ui.Yellow("> Lossy Techniques (Perceptual optimization for media)")))
 	for _, t := range lossy {
 		fmt.Printf("   %-16s %s\n", ui.Bold(ui.Yellow(t.ID)), t.Name)
 		fmt.Printf("   %-16s %s\n\n", "", ui.Dim(t.Summary))
@@ -87,16 +87,16 @@ func (a *App) renderLearnDetail(id string) error {
 	fmt.Printf(" %s  %s\n", categoryBadge, ui.Bold(ui.Cyan(info.Name)))
 	fmt.Printf(" %s\n\n", ui.Dim(info.Summary))
 
-	fmt.Printf(" %s %s\n\n", ui.Bold("💡 Analogy:"), info.Analogy)
+	fmt.Printf(" %s %s\n\n", ui.Bold("Analogy:"), info.Analogy)
 
-	fmt.Printf(" %s %s\n", ui.Bold(ui.Green("✔ What You Gain:")), info.WhatYouGain)
-	fmt.Printf(" %s %s\n\n", ui.Bold(ui.Red("✖ What You Lose:")), info.WhatYouLose)
+	fmt.Printf(" %s %s\n", ui.Bold(ui.Green("+ What You Gain:")), info.WhatYouGain)
+	fmt.Printf(" %s %s\n\n", ui.Bold(ui.Red("- What You Lose:")), info.WhatYouLose)
 
-	fmt.Printf(" %s %s\n", ui.Bold("🎯 Best For:"), info.BestFor)
-	fmt.Printf(" %s %s\n\n", ui.Bold("⚠️ Avoid For:"), info.AvoidFor)
+	fmt.Printf(" %s %s\n", ui.Bold("Best For:"), info.BestFor)
+	fmt.Printf(" %s %s\n\n", ui.Bold("Avoid For:"), info.AvoidFor)
 
 	if info.GoDeeper != "" {
-		fmt.Printf(" %s\n", ui.Bold(ui.Magenta("🔬 Go Deeper (Technical Principles):")))
+		fmt.Printf(" %s\n", ui.Bold(ui.Magenta("Go Deeper (Technical Principles):")))
 		fmt.Printf("   %s\n\n", ui.Dim(info.GoDeeper))
 	}
 

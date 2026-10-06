@@ -68,35 +68,35 @@ func BadgeOK(text string) string {
 	if NoColor {
 		return "[" + text + "]"
 	}
-	return colorize(green+bold, "✔ ") + colorize(bold, text)
+	return colorize(green+bold, "[OK] ") + colorize(bold, text)
 }
 
 func BadgeInfo(text string) string {
 	if NoColor {
 		return "[" + text + "]"
 	}
-	return colorize(cyan+bold, "ℹ ") + colorize(bold, text)
+	return colorize(cyan+bold, "[INFO] ") + colorize(bold, text)
 }
 
 func BadgeWarn(text string) string {
 	if NoColor {
 		return "[" + text + "]"
 	}
-	return colorize(yellow+bold, "▲ ") + colorize(yellow+bold, text)
+	return colorize(yellow+bold, "[WARN] ") + colorize(yellow+bold, text)
 }
 
 func BadgeErr(text string) string {
 	if NoColor {
 		return "[" + text + "]"
 	}
-	return colorize(red+bold, "✖ ") + colorize(red+bold, text)
+	return colorize(red+bold, "[ERROR] ") + colorize(red+bold, text)
 }
 
 func BadgeDryRun(text string) string {
 	if NoColor {
 		return "[DRY-RUN " + text + "]"
 	}
-	return colorize(magenta+bold, "✦ DRY-RUN: ") + colorize(bold, text)
+	return colorize(magenta+bold, "[DRY-RUN] ") + colorize(bold, text)
 }
 
 // StripAnsi removes ANSI escape codes from a string (useful for calculating exact column width).

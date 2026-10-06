@@ -77,7 +77,7 @@ func PrintError(msg string) {
 
 // PrintSection prints a section header with stable formatting.
 func PrintSection(title string) {
-	fmt.Fprintf(Out, "%s\n", Bold(Cyan("▶ "+title)))
+	fmt.Fprintf(Out, "%s\n", Bold(Cyan("> "+title)))
 }
 
 // RenderCompressionSummary prints a clean, beautifully formatted, easy-to-read summary card.
@@ -88,9 +88,9 @@ func RenderCompressionSummary(summary *types.ArchiveSummary, isDryRun bool) {
 
 	fmt.Fprintln(Out)
 	if isDryRun {
-		fmt.Fprintf(Out, " %s\n\n", Bold(Magenta("✦ Dry Run Preview (No files written)")))
+		fmt.Fprintf(Out, " %s\n\n", Bold(Magenta("Dry Run Preview (No files written)")))
 	} else {
-		fmt.Fprintf(Out, " %s\n\n", Bold(Green("✔ Compression Complete")))
+		fmt.Fprintf(Out, " %s\n\n", Bold(Green("Compression Complete")))
 	}
 
 	prettyDest := PrettyPath(summary.ArchivePath)
@@ -148,9 +148,9 @@ func RenderExtractionSummary(summary *types.ArchiveSummary, destDir string, isDr
 
 	fmt.Fprintln(Out)
 	if isDryRun {
-		fmt.Fprintf(Out, " %s\n\n", Bold(Magenta("✦ Extraction Preview (Dry Run)")))
+		fmt.Fprintf(Out, " %s\n\n", Bold(Magenta("Extraction Preview (Dry Run)")))
 	} else {
-		fmt.Fprintf(Out, " %s\n\n", Bold(Green("✔ Extraction Complete")))
+		fmt.Fprintf(Out, " %s\n\n", Bold(Green("Extraction Complete")))
 	}
 
 	prettyDest := PrettyPath(destDir)
