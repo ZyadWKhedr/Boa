@@ -16,8 +16,8 @@ import (
 
 func (a *App) newPackCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "pack <source-folder-or-file> [flags]",
-		Aliases: []string{"zip", "compress", "c", "p"},
+		Use:     "compress <source-folder-or-file> [flags]",
+		Aliases: []string{"pack", "zip", "c", "p"},
 		Short:   "Compress folders or files into a secure zip archive",
 		Long: `Compresses directories or files into a .zip archive with selectable compression method (deflate, store, zstd),
 customizable compression levels, optional lossy media flags (--lossy images,audio,video), exclusion filters, and streaming I/O.`,
@@ -75,10 +75,6 @@ customizable compression levels, optional lossy media flags (--lossy images,audi
 
 			if !strings.HasSuffix(strings.ToLower(destZip), ".zip") {
 				destZip += ".zip"
-			}
-
-			if !flagQuiet {
-				ui.PrintBanner()
 			}
 
 			opts := types.PackOptions{

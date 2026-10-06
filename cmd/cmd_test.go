@@ -21,10 +21,10 @@ func TestCmdPackAndUnpackE2E(t *testing.T) {
 	zipOut := filepath.Join(tempDir, "packed.zip")
 	destUnpack := filepath.Join(tempDir, "unpacked")
 
-	// 1. Test Pack
-	RootCmd.SetArgs([]string{"pack", srcDir, "-o", zipOut, "-l", "9", "-f", "--quiet"})
+	// 1. Test Compress (and pack alias)
+	RootCmd.SetArgs([]string{"compress", srcDir, "-o", zipOut, "-l", "9", "-f", "--quiet"})
 	if err := RootCmd.Execute(); err != nil {
-		t.Fatalf("RootCmd pack failed: %v", err)
+		t.Fatalf("RootCmd compress failed: %v", err)
 	}
 
 	if _, err := os.Stat(zipOut); os.IsNotExist(err) {
@@ -61,10 +61,10 @@ func TestCmdPackAndUnpackE2E(t *testing.T) {
 		t.Fatalf("RootCmd bench --compare failed: %v", err)
 	}
 
-	// 7. Test Unpack
-	RootCmd.SetArgs([]string{"unpack", zipOut, "-o", destUnpack, "-f", "--quiet"})
+	// 7. Test Extract (and unpack alias)
+	RootCmd.SetArgs([]string{"extract", zipOut, "-o", destUnpack, "-f", "--quiet"})
 	if err := RootCmd.Execute(); err != nil {
-		t.Fatalf("RootCmd unpack failed: %v", err)
+		t.Fatalf("RootCmd extract failed: %v", err)
 	}
 
 	extractedFile := filepath.Join(destUnpack, "sample_dir", "file1.txt")

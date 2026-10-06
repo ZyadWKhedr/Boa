@@ -199,16 +199,22 @@ func (m DashboardModel) View() string {
 
 	var b strings.Builder
 
-	bannerStyle := lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
+	asciiStyle := lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
+	urlStyle := lipgloss.NewStyle().Foreground(accentColor)
+	taglineStyle := lipgloss.NewStyle().Foreground(mutedColor)
 	subtitleStyle := lipgloss.NewStyle().Foreground(mutedColor)
-
-	b.WriteString("\n " + bannerStyle.Render("🐍 Boa Interactive Compression Dashboard") + "\n")
 
 	title := "Interactive compression toolkit"
 	if m.inMoreMenu {
 		title = "Advanced Tools & Configuration"
 	}
-	b.WriteString(" " + subtitleStyle.Render("Version "+m.version+"  ·  "+title) + "\n\n")
+
+	b.WriteString("\n")
+	b.WriteString(" " + asciiStyle.Render(" ____                 ") + "\n")
+	b.WriteString(" " + asciiStyle.Render("| __ )  ___   __ _    ") + "\n")
+	b.WriteString(" " + asciiStyle.Render("|  _ \\ / _ \\ / _` |   ") + urlStyle.Render("https://github.com/ZyadWKhedr/Boa") + "\n")
+	b.WriteString(" " + asciiStyle.Render("| |_) | (_) | (_| |   ") + taglineStyle.Render("Tight, fast, lossless compression for your files.") + "\n")
+	b.WriteString(" " + asciiStyle.Render("|____/ \\___/ \\__,_|   ") + subtitleStyle.Render("Version "+m.version+"  ·  "+title) + "\n\n")
 
 	items := mainMenu
 	if m.inMoreMenu {

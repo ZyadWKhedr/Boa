@@ -13,8 +13,8 @@ import (
 
 func (a *App) newUnpackCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "unpack <archive.zip> [flags]",
-		Aliases: []string{"unzip", "extract", "x", "u", "d"},
+		Use:     "extract <archive.zip> [flags]",
+		Aliases: []string{"unpack", "unzip", "x", "u", "d"},
 		Short:   "Extract a zip archive safely with Zip-Slip defense",
 		Long: `Extracts files from a .zip archive into the specified destination folder.
 Features built-in Zip-Slip security defenses, path sanitization, and progress reporting.`,
@@ -40,10 +40,6 @@ Features built-in Zip-Slip security defenses, path sanitization, and progress re
 				parentDir := filepath.Dir(absArc)
 				baseName := strings.TrimSuffix(filepath.Base(absArc), filepath.Ext(absArc))
 				destDir = filepath.Join(parentDir, baseName)
-			}
-
-			if !flagQuiet {
-				ui.PrintBanner()
 			}
 
 			opts := types.UnpackOptions{
